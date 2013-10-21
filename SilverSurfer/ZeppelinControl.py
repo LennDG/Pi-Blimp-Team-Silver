@@ -7,9 +7,10 @@ class ZeppelinControl():
         
         self.motor_control = MotorControl()
         self.current_heigth = 0
-        
     
-    def stabilise(self):
-        pass
+    @property
+    def current_heigth(self):
+        return self.distance_sensor.height
+    
     
     
