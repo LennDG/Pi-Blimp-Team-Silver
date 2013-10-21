@@ -5,9 +5,9 @@ class MotorControl():
     
     def __init__(self):
         
-        self.LeftMotor = Motor() #This should pass the right GPIO as a variable, or something...
-        self.RightMotor = Motor()
-        self.VertMotor = Motor()
+        self.left_motor = Motor() #This should pass the right GPIO as a variable, or something...
+        self.right_motor = Motor()
+        self.vert_motor = Motor()
         
         self._speed = 0.0
         self._vertical = 0.0 #Base vertical level, eeeerrrrr, team talk necessary
