@@ -42,7 +42,6 @@ class GUI(Frame):
         menu_btn_height = 1
 
       
-
         btn_read_qr = Button(self.Frame_cmenu, text="READ QR") 
         btn_read_qr.config( height = menu_btn_height, width = menu_btn_width ) 
         btn_read_qr.grid(row = 0, column = 0, padx = 5, pady = 3, columnspan = 1, sticky='W') 

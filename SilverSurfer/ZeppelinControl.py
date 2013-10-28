@@ -12,5 +12,14 @@ class ZeppelinControl():
     def current_heigth(self):
         return self.distance_sensor.height
     
+    def goToHeight(self, hoogte):
+        pass
     
+    def move(self, afstand):
+        pass
     
+    def turn(self, hoek):
+        pass
+    
+    def stop(self): 
+        pass
