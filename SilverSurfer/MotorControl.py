@@ -5,13 +5,10 @@ class MotorControl():
     
     def __init__(self, basis):
         
-        self.left_motor = Motor.Motor(24,4) #This should pass the right GPIO as a variable, or something...
-        self.right_motor = Motor.Motor(17,23)
-        self.vert_motor = Motor.VerticalMotor(9,7)
+        self.left_motor = Motor.Motor(cw_pin = 4, ccw_pin = 24, enabler = 14) #14 and 15 are next to 18 on BCM
+        self.right_motor = Motor.Motor(cw_pin = 17, ccw_pin = 23, enabler = 15)
+        self.vert_motor = Motor.VerticalMotor(cw_pin = 7, ccw_pin = 9,enabler = 18)
         self.distance_sensor = DistanceSensor.DistanceSensor()
-        
-        self._speed = 0.0
-        self._vertical = 0.0 #Base vertical level, eeeerrrrr, team talk necessary
         
         self.basis = basis
     

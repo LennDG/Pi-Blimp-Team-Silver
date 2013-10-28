@@ -3,7 +3,9 @@ import RPi.GPIO as GPIO
 
 class Motor():
     
-    def __init__(self, cw_pin, ccw_pin, enabler): #Does this need GPIO pin?
+    def __init__(self, cw_pin, ccw_pin, enabler):
+        
+        GPIO.setmode(GPIO.BCM)
         
         self._direction = 1
         self.cw_pin = cw_pin
@@ -21,32 +23,28 @@ class Motor():
     @direction.setter
     def direction(self, value): #This sets the direction
         self._direction = value
-        # Hier moeten de pinnekes nog geset worden.
         if value == 1:
-            pass
-            #GPIO.output(cw_pin, 1)
-            #GPIO.output(ccw_pin, 0)
+            GPIO.output(self.ccw_pin, 0)
+            GPIO.output(self.cw_pin, 1)
+            
         else:
-            #omgekeerd
-            pass
-        
+            GPIO.output(self.cw_pin, 0)
+            GPIO.output(self.ccw_pin, 1)
     
     def enable(self): #This turns the motor on and sets the level and direction according to the attributes
-        #Set pin High
-        pass
+        GPIO.output(self.enabler, 1)
     
     def disable(self): #This turns the motor off
-        #Set pin Low
-        pass
+        GPIO.output(self.enabler, 0)
     
     
 class VerticalMotor(Motor):
     
     def __init__(self, cw_pin, ccw_pin, enabler):
-        super(VerticalMotor, self).__init__(self, cw_pin, ccw_pin, enabler)
+        super(VerticalMotor, self).__init__(self, cw_pin, ccw_pin)
         self._level = 0.0
-        #Set right GPIO pins
-        #self.p = GPIO.PWM(18,10)
+        self.enabler = GPIO.PWM(enabler,10)
+        enabler.start(0.0)
         
         
     @property    
@@ -55,9 +53,8 @@ class VerticalMotor(Motor):
     
     @level.setter
     def level(self, value):
-        #Calculate dc
-        #p.start(level) between 0.0 and 100.0
-        pass
+        self.enabler.ChangeDutyCycle(value) #between 0.0 and 100.0
+        self._level = value
 
     def disable(self):
         #Set the level to 0
