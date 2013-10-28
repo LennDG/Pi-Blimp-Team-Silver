@@ -1,6 +1,5 @@
 ##This is the file for the Motor class
-
-
+import RPi.GPIO as GPIO
 
 class Motor():
     
@@ -11,7 +10,9 @@ class Motor():
         self.ccw_pin = ccw_pin
         self.enabler = enabler
         
-        #GPIO.setup(cw_pin, GPIO.OUT)
+        GPIO.setup(cw_pin, GPIO.OUT)
+        GPIO.setup(ccw_pin, GPIO.OUT)
+        GPIO.setup(enabler, GPIO.OUT)
         
     @property
     def direction(self):

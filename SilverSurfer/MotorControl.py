@@ -3,7 +3,7 @@ import Motor, time, DistanceSensor
 
 class MotorControl():
     
-    def __init__(self):
+    def __init__(self, basis):
         
         self.left_motor = Motor.Motor(24,4) #This should pass the right GPIO as a variable, or something...
         self.right_motor = Motor.Motor(17,23)
@@ -12,7 +12,8 @@ class MotorControl():
         
         self._speed = 0.0
         self._vertical = 0.0 #Base vertical level, eeeerrrrr, team talk necessary
-    
+        
+        self.basis = basis
     
     # This method will make the zeppelin move forward or backward, depending on the direction.
     # direction    1 to move forward
@@ -56,19 +57,21 @@ class MotorControl():
         self.left_motor.disable()
         self.right_motor.disable()
         
-    def stabilize(self, heigth):
-        error = heigth - self.distance_sensor.heigth
+    def stabilize(self, height):
+        error =  self.distance_sensor.height - height
+            
+        b = 1 # b is a parameter that has yet to be defined through testing
+            
+        
+        level = b*error*abs(error) + self.basis
         
         # Set the right direction for the vertical motor
-        if error < 0:
+        if level < 0:
             self.vert_motor.direction = -1
         else:
             self.vert_motor.direction = 1
             
-        b = 1 # b is a parameter that has yet to be defined through testing
             
-        level = b*error**2
-        
     def stop(self):#Maybe needs to spin engines in other directions based on speed. For now, just disable them
         self.LeftMotor.disable()
         self.RightMotor.disable()
