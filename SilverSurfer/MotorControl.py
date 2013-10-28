@@ -69,12 +69,6 @@ class MotorControl():
             
         level = b*error**2
         
-        
-            
-        
-        
-        
-    
     def stop(self):#Maybe needs to spin engines in other directions based on speed. For now, just disable them
         self.LeftMotor.disable()
         self.RightMotor.disable()

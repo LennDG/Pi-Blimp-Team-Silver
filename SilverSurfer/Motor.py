@@ -54,7 +54,7 @@ class VerticalMotor(Motor):
     
     @level.setter
     def level(self, value):
-        #Calculate dc and frequency
+        #Calculate dc
         #p.start(level) between 0.0 and 100.0
         pass
 
