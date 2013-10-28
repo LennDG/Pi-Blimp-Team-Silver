@@ -53,22 +53,47 @@ class MotorControl():
         #turning stops, motors disabled
         self.left_motor.disable()
         self.right_motor.disable()
+
+#This method calibrates the basis parameter by moving the zeppelin up and down untill it stabilises around a random height        
+def calibrate(self, increment):
+    if self.isRising():
+        self.vert_motor.direction = -1
+    else:
+        self.vert_motor.direction =  1
+    self.subCalibrate(increment)
+    self.basis = self.vert_motor.level
+
+def subCalibrate(self, increment, depth):
+    if self.isRising():
+        while self.isRising():
+            self.vert_motor.level -= self.vert_motor.direction*increment
+    else:
+        while not self.isRising():
+            self.vert_motor.level += self.vert_motor.direction*increment
+    subCalibrate(increment/2, depth-1)
+
+#Returns if the zeppelin is gaining altitude.
+def isRising(self):
+    height1 = self.distance_sensor.getHeight()
+    time.sleep(0.5)
+    height2 = self.distance_sensor.getHeight()
+    return height2 - height1 > 0
         
-    def stabilize(self, height):
-        error =  self.distance_sensor.height - height
+def stabilize(self, height):
+    error =  self.distance_sensor.height - height
             
-        b = 1 # b is a parameter that has yet to be defined through testing
+    b = 1 # b is a parameter that has yet to be defined through testing
             
         
-        level = b*error*abs(error) + self.basis
+    level = b*error*abs(error) + self.basis
         
-        # Set the right direction for the vertical motor
-        if level < 0:
-            self.vert_motor.direction = -1
-        else:
-            self.vert_motor.direction = 1
+    # Set the right direction for the vertical motor
+    if level < 0:
+        self.vert_motor.direction = -1
+    else:
+        self.vert_motor.direction = 1
             
             
-    def stop(self):#Maybe needs to spin engines in other directions based on speed. For now, just disable them
-        self.LeftMotor.disable()
-        self.RightMotor.disable()
+def stop(self):#Maybe needs to spin engines in other directions based on speed. For now, just disable them
+    self.LeftMotor.disable()
+    self.RightMotor.disable()
