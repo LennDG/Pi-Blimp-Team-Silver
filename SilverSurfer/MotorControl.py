@@ -25,35 +25,18 @@ class MotorControl():
         self.left_motor.enable()
         self.right_motor.enable()
     
-    def turn(self, angle):
+    
+    def turn(self, direction):
         
         self.left_motor.disable() #"reset" the motors
         self.right_motor.disable()
-        a = 1  # to be determined through heavy testing
-        b = 1
         
-        #Calculate values for engines and amount of time necessary here...
-        seconds = a*angle + b  #seconds is a function of angle
-        
-        #Calculate direction here (rechterhandregel yo)
-        if angle >= 0:
-            self.left_motor.direction = -1
-            self.right_motor.direction = 1
-        else:
-            self.left_motor.direction = 1
-            self.right_motor.direction = -1
-        
+        self.left_motor.direction = -direction
+        self.right_motor.direction = direction
+       
         #motors start, turning begins.
         self.left_motor.enable()
         self.right_motor.enable() 
-        
-        #turning continues for the amount of secons calculated previously.
-        time.sleep(seconds) #Seconden!
-        
-        #turning stops, motors disabled
-        self.left_motor.disable()
-        self.right_motor.disable()
-
 
             
             
