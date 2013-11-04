@@ -21,7 +21,8 @@ class Zeppelin(threading.Thread):
             if self.command_time - time.time() <= 0:
                 self.control.hor_stop()
                 
+            self.control.stabilize()
             
-                
+    
                 
             

@@ -1,20 +1,23 @@
 ##This is the file for the Motor class
 import RPi.GPIO as GPIO
 
-class Motor():
+class Motor(object):
     
     def __init__(self, cw_pin, ccw_pin, enabler):
         
         GPIO.setmode(GPIO.BCM)
         
-        self._direction = 1
+        self.direction = 1
+        
         self.cw_pin = cw_pin
         self.ccw_pin = ccw_pin
-        self.enabler = enabler
         
         GPIO.setup(cw_pin, GPIO.OUT)
         GPIO.setup(ccw_pin, GPIO.OUT)
-        GPIO.setup(enabler, GPIO.OUT)
+        
+        #Reset the pins
+        GPIO.output(cw_pin, 0)
+        GPIO.output(ccw_pin, 0)
         
     @property
     def direction(self):
@@ -23,7 +26,9 @@ class Motor():
     @direction.setter
     def direction(self, value): #This sets the direction
         self._direction = value
-        if value >= 0:
+    
+    def enable(self): #This turns the motor on and sets the level and direction according to the attributes
+        if self.direction >= 0:
             GPIO.output(self.ccw_pin, 0)
             GPIO.output(self.cw_pin, 1)
             
@@ -31,11 +36,9 @@ class Motor():
             GPIO.output(self.cw_pin, 0)
             GPIO.output(self.ccw_pin, 1)
     
-    def enable(self): #This turns the motor on and sets the level and direction according to the attributes
-        GPIO.output(self.enabler, 1)
-    
     def disable(self): #This turns the motor off
-        GPIO.output(self.enabler, 0)
+        GPIO.output(self.cw_pin, 0)
+        GPIO.output(self.ccw_pin, 0)
     
     
 class VerticalMotor(Motor):
