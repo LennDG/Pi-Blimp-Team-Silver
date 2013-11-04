@@ -12,7 +12,7 @@ class Command():
 class TermCommand(Command):
     
     def __init__(self, parameter):
-        Command()
+        super(TermCommand, self).__init__()
         self.parameter = parameter
     
     def calculate_time(self):
@@ -23,7 +23,7 @@ class TermCommand(Command):
 class Move(TermCommand):
     
     def __init__(self, parameter):
-        TermCommand(parameter)
+        super(TermCommand, self).__init__(parameter)
         
     def execute(self, zeppelin):
         zeppelin.control.move(self.parameter)
@@ -40,10 +40,9 @@ class Move(TermCommand):
 class Turn(Command):
     
     def __init__(self, parameter):
-        TermCommand(parameter)
+        super(TermCommand, self).__init__(parameter)
     
     def execute(self, zeppelin):
-        
         zeppelin.control.turn(self.parameter)
         
     def calculate_time(self):
@@ -58,7 +57,7 @@ class Turn(Command):
 class Ascension(Command):
     
     def __init__(self, height):
-        Command()
+        super(Ascension, self).__init__()
         self.height = height
         
     def execute(self, zeppelin):
@@ -68,7 +67,7 @@ class Ascension(Command):
 class HorStop(Command):
     
     def __init__(self):
-        Command()
+        super(HorStop, self).__init__()
         
     def execute(self, zeppelin):
         zeppelin.control.hor_stop()
@@ -77,7 +76,7 @@ class HorStop(Command):
 class VertStop(Command):
     
     def __init__(self):
-        Command()
+        super(VertStop, self).__init__()
         
     def execute(self, zeppelin):
         zeppelin.control.vert_stop()
@@ -86,7 +85,7 @@ class VertStop(Command):
 class Stop(Command):
     
     def __init__(self):
-        Command()
+        super(VertStop, self).__init__()
         
     def execute(self, zeppelin):
         zeppelin.control.hor_stop()
