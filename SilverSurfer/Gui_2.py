@@ -31,6 +31,15 @@ class GUI(Frame):
         self.parent.bind('<a>',self.ascend)
         self.parent.bind('<d>',self.descend)
         
+        self.parent.bind('<KeyRelease-Up>',self.h_release)
+        self.parent.bind('<KeyRelease-Down>',self.h_release)
+        self.parent.bind('<KeyRelease-Left>',self.h_release)
+        self.parent.bind('<KeyRelease-Right>',self.h_release)
+        self.parent.bind('<KeyRelease-a>',self.v_release)
+        self.parent.bind('<KeyRelease-d>',self.v_release)
+        
+        #test
+        
         #input
         self.Frame_input = Frame(self,background="white")
         self.Frame_input.grid(row = 0, column = 0, sticky='W') 
@@ -230,9 +239,38 @@ class GUI(Frame):
     #   def move_zep(self,*args):
     #         self.controller.move(self, 0.1)
     
-    
-
+   #test methodes 
+    def pushed(self,*args):
+        if self.flag_btn == False:
+            print 'pushed'
+            self.flag_btn=True
             
+    def released(self,*args):
+        if self.flag_btn == True:
+            print 'released'
+            self.flag_btn=False
+         
+    def pushed2(self,*args):
+        if self.flag_btn == False:
+            print 'pushed2'
+            self.flag_btn=True
+            
+    def released2(self,*args):
+        if self.flag_btn == True:
+            print 'released2'
+            self.flag_btn=False
+            
+    # einde testmethodes
+    
+    def h_release(self,*args):
+        if self.flag_btn == True:
+            self.h_stop()
+            self.flag_btn=False
+    
+    def v_release(self,*args):
+        if self.flag_btn == True:
+            self.v_stop()
+            self.flag_btn=False
 
     def move_forward(self,*args):
         if self.flag_btn == False:
@@ -240,6 +278,8 @@ class GUI(Frame):
             self.queue.put(command)
             self.flag_btn=True
        
+    
+            
     def turn_left(self,*args):
         if self.flag_btn == False:
             command= Commands.Turn(float('-infinity'))
@@ -284,13 +324,16 @@ class GUI(Frame):
         command= Commands.Turn(degree)
         self.queue.put(command)
     
-    def stop(self,*args):
+    def h_stop(self,*args):
         command = Commands.HorStop()
         self.queue.put(command)
         
-    def vstop(self,*args):
+    def v_stop(self,*args):
         command = Commands.VertStop()
         self.queue.put(command)
+        
+    def stop(self,*args):
+        pass
         
 def main(): 
     root = Tk() 
