@@ -14,38 +14,38 @@ class ZeppelinControl():
         return self.distance_sensor.height
     
     def go_to_height(self, height):
-        pass
+        self.goal_height = height
     
-    def move(self, afstand):
-        pass
+    def move(self, direction):
+        self.motor_control.move(direction)
     
-    def turn(self, hoek):
-        pass
+    def turn(self, direction):
+        self.motor_control.turn(direction)
     
     def hor_stop(self): 
         #stops all horizontal movement (includes turning)
-        pass
+        self.motor_control.stop()
     
     def vert_stop(self):
         #stabilizes at current height
-        pass
+        self.stabilize(self.current_height)
     
     #This method calibrates the basis parameter by moving the zeppelin up and down untill it stabilises around a random height        
     def calibrate(self, increment):
         if self.isRising():
-            self.vert_motor.direction = -1
+            self.motor_control.vert_motor.direction = -1
         else:
-            self.vert_motor.direction =  1
+            self.motor_control.vert_motor.direction =  1
         self.subCalibrate(increment)
-        self.motor_control.basis = self.vert_motor.level
+        self.motor_control.basis = self.motor_control.vert_motor.level
     
     def subCalibrate(self, increment, depth):
         if self.isRising():
             while self.isRising():
-                self.vert_motor.level -= self.vert_motor.direction*increment
+                self.motor_control.vert_motor.level -= self.motor_control.vert_motor.direction*increment
         else:
             while not self.isRising():
-                self.vert_motor.level += self.vert_motor.direction*increment
+                self.motor_control.vert_motor.level += self.motor_control.vert_motor.direction*increment
         self.subCalibrate(increment/2, depth-1)
     
     #Returns if the zeppelin is gaining altitude.
