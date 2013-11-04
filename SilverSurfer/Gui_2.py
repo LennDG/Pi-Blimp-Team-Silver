@@ -1,4 +1,9 @@
 '''
+Created on 4-nov.-2013
+
+@author: Pepino
+'''
+'''
 Created on 21-okt.-2013
 
 @author: Pepino
@@ -7,7 +12,7 @@ Created on 21-okt.-2013
 
 from Tkinter import * 
 from ScrolledText import ScrolledText
-
+import ZeppelinControl 
 
 class GUI(Frame):
     
@@ -22,6 +27,13 @@ class GUI(Frame):
         self.parent.title("Blimp bizkit") #Titel moet door zeppling worden gestuurd 
         self.pack(fill=BOTH, expand=1) 
         
+        #binden van buttons
+        self.parent.bind('<Up>',self.move_forward)
+        self.parent.bind('<Down>',self.move_backward)
+        self.parent.bind('<Left>',self.turn_left)
+        self.parent.bind('<Right>',self.turn_right)
+        self.parent.bind('<a>',self.ascend)
+        self.parent.bind('<d>',self.descend)
         
         #input
         self.Frame_input = Frame(self,background="white")
@@ -30,16 +42,15 @@ class GUI(Frame):
         
         lbl_image = Label(self.Frame_input, text="Afbeelding") #Text="Afbeelding" moet vervangen worden door image=... 
         lbl_image.config(width = 70, height = 30) 
-        lbl_image.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan=2) 
+        lbl_image.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan=3) 
         
         # 3 Menu knoppen 
-        
-        self.Frame_cmenu = Frame(self.Frame_input,background="white")
-        self.Frame_cmenu.grid(row = 1, column = 0,  sticky='W') 
-        
-        
         menu_btn_width = 7 
         menu_btn_height = 1
+        
+        self.Frame_cmenu = Frame(self.Frame_input,background="white")
+        self.Frame_cmenu.config(width= 1)
+        self.Frame_cmenu.grid(row = 1, column = 0,  sticky='W') 
 
       
         btn_read_qr = Button(self.Frame_cmenu, text="READ QR") 
@@ -55,50 +66,55 @@ class GUI(Frame):
         btn_pic.grid(row = 2, column = 0, padx = 5, pady = 3, columnspan = 1,sticky='W') #Manual input 
        
        
-        
-       
         btn_command = Button(self.Frame_cmenu, text="COMMAND" , command= self.invoke_command )
-        btn_command.config( height = menu_btn_height, width = 10 ) 
+        btn_command.config( height = menu_btn_height, width = menu_btn_width + 3 ) 
         btn_command.grid(row = 3, column = 0, padx = 5, pady = 3, sticky='W') 
           
             
             
         entry_input = Entry(self.Frame_input) 
-        entry_input.grid(row = 4, column = 0, padx = 3, pady = 3,sticky="WE") 
+        entry_input.config( width = 1 )
+        entry_input.grid(row = 4, column = 0,columnspan=2, padx = 3, pady = 3,sticky="WE") 
         btn_input_enter = Button(self.Frame_input, text="ENTER") 
-        btn_input_enter.grid(row = 4, column = 1, padx = 2, pady = 3,sticky="WE") #pijltjes 
+        btn_input_enter.grid(row = 4, column = 2, padx = 2, pady = 3,sticky="WE") #pijltjes 
+       
+#Grote Stop knop
        
        
-       #pijltjes, A en D
+        btn_stop = Button(self.Frame_input, text="STOP" , command= self.stop )
+        btn_stop.config( height = 5, width = 10) 
+        btn_stop.grid(row = 1, column = 1, padx = 5, pady = 3, sticky='W') 
        
-        Frame_btn_control = Frame(self.Frame_input,background="white")
-        Frame_btn_control.grid(row = 1, column = 1, rowspan = 3, columnspan = 3) 
+#pijltjes, A en D
+       
+        self.Frame_btn_control = Frame(self.Frame_input,background="white")
+        self.Frame_btn_control.grid(row = 1, column = 2, rowspan = 3, columnspan = 3) 
         
         rc_btn_height = 2 
         rc_btn_width = 4 
         
-        btn_left = Button(Frame_btn_control, text="LEFT") #pijltje omhoog afbeelding 
+        btn_left = Button(self.Frame_btn_control, text="LEFT", command=self.turn_left) #pijltje omhoog afbeelding 
         btn_left.config( height = rc_btn_height, width = rc_btn_width ) 
         btn_left.grid(row = 1, column = 0,padx = 5, pady = 3)
 
-        btn_down = Button(Frame_btn_control, text="BACK") #pijltje beneden afbeelding 
+        btn_down = Button(self.Frame_btn_control, text="BACK",command=self.move_backward) #pijltje beneden afbeelding 
         btn_down.config( height = rc_btn_height, width = rc_btn_width ) 
         btn_down.grid(row = 1, column = 1,padx = 5, pady = 3) 
         
-        btn_up = Button(Frame_btn_control, text="FORW") #pijltje omhoog afbeelding 
-        btn_up.config( height = rc_btn_height, width = rc_btn_width ) 
-        btn_up.grid(row = 0, column = 1 ,padx = 5, pady = 3)
+        self.btn_up = Button(self.Frame_btn_control, text="FORW",command=self.move_forward) #pijltje omhoog afbeelding 
+        self.btn_up.config( height = rc_btn_height, width = rc_btn_width ) 
+        self.btn_up.grid(row = 0, column = 1 ,padx = 5, pady = 3)
         
-        btn_right = Button(Frame_btn_control, text="RIGHT") #pijltje rechts afbeelding 
+        btn_right = Button(self.Frame_btn_control, text="RIGHT", command=self.turn_right) #pijltje rechts afbeelding 
         btn_right.config( height = rc_btn_height, width = rc_btn_width ) 
         btn_right.grid(row = 1, column = 2 ,padx = 5, pady = 3) 
         
-        btn_ascend = Button(Frame_btn_control, text="A") #stijgen
+        btn_ascend = Button(self.Frame_btn_control, text="A",command=self.ascend) #stijgen
         btn_ascend.config( height = rc_btn_height, width = rc_btn_width ) 
         btn_ascend.grid(row = 2, column = 0,padx = 5, pady = 3)
         
-        btn_descend = Button(Frame_btn_control, text="D") #dalen
-        btn_descend.config( height = rc_btn_height, width = rc_btn_width ) 
+        btn_descend = Button(self.Frame_btn_control, text="D") #dalen
+        btn_descend.config( height = rc_btn_height, width = rc_btn_width,command=self.descend ) 
         btn_descend.grid(row = 2, column = 2 ,padx = 5, pady = 3)
         
         
@@ -206,14 +222,55 @@ class GUI(Frame):
         #stuur string
         self.Frame_lift_menu.grid_remove()
         self.Frame_cmenu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')
-    
-      
-       
-     
+        
+    def printtest(self,*args):
+        print 'check'
+   
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #geen elegante schrijfwijze momenteel
+    #idee is om bij constructie van GUI ook het controllerobject van de zeppelin
+    #mee te geven als argument
+    #vervolgens:
+    #   def move_zep(self,*args):
+    #         self.controller.move(self, 0.1)
 
+    def move_forward(self,*args):
+        ZeppelinControl.ZeppelinControl.move(self, 0.1)
+       
+    def turn_left(self,*args):
+        ZeppelinControl.ZeppelinControl.turn(self, -45)
+
+    def turn_right(self,*args):
+        ZeppelinControl.ZeppelinControl.turn(self, 45)
+        
+    def move_backward(self,*args):
+        ZeppelinControl.ZeppelinControl.move(self, -0.1)
+        
+    def ascend(self,*args):
+        newHeight=ZeppelinControl.ZeppelinControl.current_heigth + 0.1
+        ZeppelinControl.ZeppelinControl.goToHeight(self,newHeight)
+        
+    def descend(self,*args):    
+        newHeight=ZeppelinControl.ZeppelinControl.current_heigth - 0.1
+        ZeppelinControl.ZeppelinControl.goToHeight(self,newHeight)
+        
+    def lift(self,height,*args):
+        newHeight=ZeppelinControl.ZeppelinControl.current_heigth + height
+        print newHeight
+        ZeppelinControl.ZeppelinControl.goToHeight(self,newHeight)
+    
+    def move(self,dist,*args):
+        ZeppelinControl.ZeppelinControl.move(self, dist)
+    
+    def turn(self,degree,*args):
+        ZeppelinControl.ZeppelinControl.turn(self, degree)
+    
+    def stop(self,*args):
+        ZeppelinControl.ZeppelinControl.stop()
+        
 def main(): 
     root = Tk() 
-    root.geometry("1200x650+300+300") 
+    root.geometry("1300x650+300+300") 
     app = GUI(root) 
     root.mainloop()
 
