@@ -26,11 +26,15 @@ class Move(TermCommand):
         TermCommand(parameter)
         
     def execute(self, zeppelin):
-        zeppelin.control.move()
+        zeppelin.control.move(self.parameter)
         
     def calculate_time(self):
-        return -1 #moeten nog bedenken hoe we die time gaan berekenen
-        print "dummy-implementation"
+        
+        a = 1  # to be determined through heavy testing
+        b = 1
+        
+        #Calculate values for engines and amount of time necessary here...
+        return a*self.parameter + b  #seconds is a function of angle
         
 
 class Turn(Command):
@@ -39,12 +43,17 @@ class Turn(Command):
         TermCommand(parameter)
     
     def execute(self, zeppelin):
-        zeppelin.control.turn()
+        
+        zeppelin.control.turn(self.parameter)
         
     def calculate_time(self):
-        return -1 #moeten nog bedenken hoe we die time gaan berekenen
-        print "dummy-implementation"
         
+        a = 1  # to be determined through heavy testing
+        b = 1
+        
+        #Calculate values for engines and amount of time necessary here...
+        return a*self.parameter + b  #seconds is a function of angle
+           
 
 class Ascension(Command):
     
