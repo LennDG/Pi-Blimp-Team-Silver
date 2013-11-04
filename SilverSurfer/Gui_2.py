@@ -1,13 +1,4 @@
-'''
-Created on 4-nov.-2013
 
-@author: Pepino
-'''
-'''
-Created on 21-okt.-2013
-
-@author: Pepino
-'''
 
 
 from Tkinter import * 
