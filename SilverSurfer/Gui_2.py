@@ -38,6 +38,7 @@ class GUI(Frame):
         self.parent.bind('<KeyRelease-a>',self.v_release)
         self.parent.bind('<KeyRelease-d>',self.v_release)
         
+        #test
         
         #input
         self.Frame_input = Frame(self,background="white")
