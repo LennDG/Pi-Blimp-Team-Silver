@@ -3,20 +3,25 @@
 
 from Tkinter import * 
 from ScrolledText import ScrolledText
-import ZeppelinControl 
+#import Commands
+import Queue
 
 class GUI(Frame):
     
      
-    def __init__(self, parent): 
+    def __init__(self, parent,queue): 
         Frame.__init__(self, parent, background="white") 
         self.parent = parent 
         self.initGUI() 
+        self.queue=queue
         
         
     def initGUI(self): 
         self.parent.title("Blimp bizkit") #Titel moet door zeppling worden gestuurd 
         self.pack(fill=BOTH, expand=1) 
+        
+        #flag_btn init op false
+        self.flag_btn = False
         
         #binden van buttons
         self.parent.bind('<Up>',self.move_forward)
@@ -224,46 +229,76 @@ class GUI(Frame):
     #vervolgens:
     #   def move_zep(self,*args):
     #         self.controller.move(self, 0.1)
+    
+    
+
+            
 
     def move_forward(self,*args):
-        ZeppelinControl.ZeppelinControl.move(self, 0.1)
+        if self.flag_btn == False:
+            command= Commands.Move(float('infinity'))
+            self.queue.put(command)
+            self.flag_btn=True
        
     def turn_left(self,*args):
-        ZeppelinControl.ZeppelinControl.turn(self, -45)
+        if self.flag_btn == False:
+            command= Commands.Turn(float('-infinity'))
+            self.queue.put(command)
+            self.flag_btn=True
 
     def turn_right(self,*args):
-        ZeppelinControl.ZeppelinControl.turn(self, 45)
+        if self.flag_btn == False:
+            command= Commands.Turn(float('infinity'))
+            self.queue.put(command)
+            self.flag_btn=True
         
     def move_backward(self,*args):
-        ZeppelinControl.ZeppelinControl.move(self, -0.1)
+        if self.flag_btn == False:
+            command= Commands.Move(float('-infinity'))
+            self.queue.put(command)
+            self.flag_btn=True
         
     def ascend(self,*args):
-        newHeight=ZeppelinControl.ZeppelinControl.current_heigth + 0.1
-        ZeppelinControl.ZeppelinControl.goToHeight(self,newHeight)
+        if self.flag_btn == False:
+            command= Commands.Ascension(float('infinity')) #Commands.<Stijgen>
+            self.queue.put(command)
+            self.flag_btn=True
         
-    def descend(self,*args):    
-        newHeight=ZeppelinControl.ZeppelinControl.current_heigth - 0.1
-        ZeppelinControl.ZeppelinControl.goToHeight(self,newHeight)
+    def descend(self,*args):
+        if self.flag_btn == False:    
+            command= Commands.Ascension(float('-infinity'))
+            self.queue.put(command)
+            self.flag_btn=True
         
     def lift(self,height,*args):
         newHeight=ZeppelinControl.ZeppelinControl.current_heigth + height
         print newHeight
-        ZeppelinControl.ZeppelinControl.goToHeight(self,newHeight)
+        command=Commands.Ascension(newHeight)
+        self.queue.put(command)
     
     def move(self,dist,*args):
-        ZeppelinControl.ZeppelinControl.move(self, dist)
+        command= Commands.Move(dist)
+        self.queue.put(command)
     
     def turn(self,degree,*args):
-        ZeppelinControl.ZeppelinControl.turn(self, degree)
+        command= Commands.Turn(degree)
+        self.queue.put(command)
     
     def stop(self,*args):
-        ZeppelinControl.ZeppelinControl.stop()
+        command = Commands.HorStop()
+        self.queue.put(command)
+        
+    def vstop(self,*args):
+        command = Commands.VertStop()
+        self.queue.put(command)
         
 def main(): 
     root = Tk() 
     root.geometry("1300x650+300+300") 
-    app = GUI(root) 
+    #queue=Queue()
+    foo = 0
+    app = GUI(root,foo) 
     root.mainloop()
 
 if __name__ == '__main__':
-     main()
+    main()
