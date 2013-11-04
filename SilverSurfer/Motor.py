@@ -23,7 +23,7 @@ class Motor():
     @direction.setter
     def direction(self, value): #This sets the direction
         self._direction = value
-        if value == 1:
+        if value >= 0:
             GPIO.output(self.ccw_pin, 0)
             GPIO.output(self.cw_pin, 1)
             
