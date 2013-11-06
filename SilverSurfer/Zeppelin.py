@@ -8,6 +8,8 @@ class Zeppelin(threading.Thread):
         self.control = ZeppelinControl.ZeppelinControl()
         threading.Thread.__init__(self)
         
+        #Make another thread for the Distance Sensor, this eliminates the need to wait for it on height calls
+        #TODO: be implemented!!! Is just an optimization, so not crucial right now.
         
     def run(self):
         

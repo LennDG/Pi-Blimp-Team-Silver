@@ -9,7 +9,6 @@ class MotorControl():
         self.right_motor = Motor.Motor(cw_pin = 17, ccw_pin = 23)
         self.vert_motor = Motor.VerticalMotor(cw_pin = 7, ccw_pin = 9,enabler = 18)
         
-        self.basis = 0
     
     # This method will make the zeppelin move forward or backward, depending on the direction.
     # direction    1 to move forward
@@ -36,7 +35,6 @@ class MotorControl():
         #motors start, turning begins.
         self.left_motor.enable()
         self.right_motor.enable() 
-
             
             
     def stop(self):#Maybe needs to spin engines in other directions based on speed. For now, just disable them

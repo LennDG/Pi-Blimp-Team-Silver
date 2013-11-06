@@ -1,6 +1,6 @@
 import time, RPi.GPIO as GPIO
 
-class DistanceSensor():
+class DistanceSensor(object):
     
     def __init__(self):
         
@@ -27,7 +27,7 @@ class DistanceSensor():
  
         # Setup some other variables
         # -----------------------------------------------------------------
-        self.data_amount = 100         # Infinite loop
+        self.data_amount = 20         # takes 100 values for the data
         self.trig_duration = 0.06        # Trigger duration
         self.inttimeout = 2100        # Timeout on echo signal
         self.v_snd = 340.29            # Speed of sound in m/s
