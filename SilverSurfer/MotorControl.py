@@ -7,7 +7,7 @@ class MotorControl():
         
         self.left_motor = Motor.Motor(cw_pin = 4, ccw_pin = 24) #14 and 15 are next to 18 on BCM
         self.right_motor = Motor.Motor(cw_pin = 17, ccw_pin = 23)
-        self.vert_motor = Motor.VerticalMotor(cw_pin = 7, ccw_pin = 9,enabler = 18)
+        self.vert_motor = Motor.VerticalMotor(cw_pin = 7, ccw_pin = 9)
         
     
     # This method will make the zeppelin move forward or backward, depending on the direction.

@@ -1,19 +1,24 @@
-#This is the file for the ZeppelinControlfile
+#This is the file for the ZeppelinControl
 import MotorControl, time
 
 class ZeppelinControl():
     
-    def __init__(self):
+    def __init__(self, distance_sensor):
         
         self.motor_control = MotorControl()
         self.current_height = 0
         self.goal_height = 0
         self.PID = PID(Kp = 1.0, Kd = 0.0, Ki =0.0)
         self.vert_basis = 0
+        self.distance_sensor = distance_sensor
+        
+        #TODO: This has to be done at object creation! Also, increment need value.
+        increment = -1
+        self.calibrate(increment)
     
     @property
     def current_heigth(self):
-        return self.distance_sensor.height
+        return self.distance_sensor.height #TODO: There is no distance sensor. What the fuck?
     
     def move(self, direction):
         self.motor_control.move(direction)
@@ -37,7 +42,7 @@ class ZeppelinControl():
             self.motor_control.vert_motor.direction =  1
         self.subCalibrate(increment) #TODO: Hier is een foutje, subCalibrate heeft een depth nodig...
         
-        self.vert_basis = self.motor_control.vert_motor.level
+        self.vert_basis = self.motor_control.vert_motor.level #TODO: the vert_basis NEEEDS to be the bias in the PID object
     
     def subCalibrate(self, increment, depth):
         if self.isRising():
@@ -58,8 +63,7 @@ class ZeppelinControl():
     def stabilize(self):
         error =  self.goal_height - self.current_height
         motor_level = self.PID.PID(error)
-        self.motor_control.vert_motor.level = motor_level
-            
+        self.motor_control.vert_motor.level = motor_level          
             
 class PID(object):
     #This is the PID object used for stabilizing the zeppelin
