@@ -68,5 +68,3 @@ class ZeppelinControl():
             self.vert_motor.direction = -1
         else:
             self.vert_motor.direction = 1
-        
-    
