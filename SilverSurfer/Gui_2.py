@@ -9,11 +9,14 @@ import Queue
 class GUI(Frame):
     
      
-    def __init__(self, parent,queue): 
-        Frame.__init__(self, parent, background="white") 
-        self.parent = parent 
+    def __init__(self, queue): 
+        self.parent = Tk() 
+        self.parent.geometry("1300x650+300+300") 
+        Frame.__init__(self, self.parent, background="white") 
+        
         self.initGUI() 
         self.queue=queue
+        self.parent.mainloop()
         
         
     def initGUI(self): 
@@ -38,7 +41,8 @@ class GUI(Frame):
         self.parent.bind('<KeyRelease-a>',self.v_release)
         self.parent.bind('<KeyRelease-d>',self.v_release)
         
-        #test
+        
+        
         
         #input
         self.Frame_input = Frame(self,background="white")
@@ -98,31 +102,51 @@ class GUI(Frame):
         rc_btn_height = 2 
         rc_btn_width = 4 
         
-        btn_left = Button(self.Frame_btn_control, text="LEFT", command=self.turn_left) #pijltje omhoog afbeelding 
-        btn_left.config( height = rc_btn_height, width = rc_btn_width ) 
-        btn_left.grid(row = 1, column = 0,padx = 5, pady = 3)
+        self.btn_left = Button(self.Frame_btn_control, text="LEFT") #pijltje omhoog afbeelding 
+        self.btn_left.config( height = rc_btn_height, width = rc_btn_width ) 
+        self.btn_left.grid(row = 1, column = 0,padx = 5, pady = 3)
 
-        btn_down = Button(self.Frame_btn_control, text="BACK",command=self.move_backward) #pijltje beneden afbeelding 
-        btn_down.config( height = rc_btn_height, width = rc_btn_width ) 
-        btn_down.grid(row = 1, column = 1,padx = 5, pady = 3) 
+        self.btn_down = Button(self.Frame_btn_control, text="BACK") #pijltje beneden afbeelding 
+        self.btn_down.config( height = rc_btn_height, width = rc_btn_width ) 
+        self.btn_down.grid(row = 1, column = 1,padx = 5, pady = 3) 
         
-        self.btn_up = Button(self.Frame_btn_control, text="FORW",command=self.move_forward) #pijltje omhoog afbeelding 
+        self.btn_up = Button(self.Frame_btn_control, text="FORW") #pijltje omhoog afbeelding 
         self.btn_up.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_up.grid(row = 0, column = 1 ,padx = 5, pady = 3)
         
-        btn_right = Button(self.Frame_btn_control, text="RIGHT", command=self.turn_right) #pijltje rechts afbeelding 
-        btn_right.config( height = rc_btn_height, width = rc_btn_width ) 
-        btn_right.grid(row = 1, column = 2 ,padx = 5, pady = 3) 
-        
-        btn_ascend = Button(self.Frame_btn_control, text="A",command=self.ascend) #stijgen
-        btn_ascend.config( height = rc_btn_height, width = rc_btn_width ) 
-        btn_ascend.grid(row = 2, column = 0,padx = 5, pady = 3)
-        
-        btn_descend = Button(self.Frame_btn_control, text="D") #dalen
-        btn_descend.config( height = rc_btn_height, width = rc_btn_width,command=self.descend ) 
-        btn_descend.grid(row = 2, column = 2 ,padx = 5, pady = 3)
         
         
+        self.btn_right = Button(self.Frame_btn_control, text="RIGHT") #pijltje rechts afbeelding 
+        self.btn_right.config( height = rc_btn_height, width = rc_btn_width ) 
+        self.btn_right.grid(row = 1, column = 2 ,padx = 5, pady = 3) 
+        
+        self.btn_ascend = Button(self.Frame_btn_control, text="A") #stijgen
+        self.btn_ascend.config( height = rc_btn_height, width = rc_btn_width ) 
+        self.btn_ascend.grid(row = 2, column = 0,padx = 5, pady = 3)
+        
+        self.btn_descend = Button(self.Frame_btn_control, text="D") #dalen
+        self.btn_descend.config( height = rc_btn_height, width = rc_btn_width ) 
+        self.btn_descend.grid(row = 2, column = 2 ,padx = 5, pady = 3)
+        
+        #binden GUI-stuurknoppen
+        
+        self.btn_up.bind("<Button-1>", self.move_forward)
+        self.btn_up.bind("<ButtonRelease-1>", self.h_release)
+        
+        self.btn_down.bind("<Button-1>", self.move_backward)
+        self.btn_down.bind("<ButtonRelease-1>", self.h_release)
+        
+        self.btn_left.bind("<Button-1>", self.turn_left)
+        self.btn_left.bind("<ButtonRelease-1>", self.h_release)
+        
+        self.btn_right.bind("<Button-1>", self.turn_right)
+        self.btn_right.bind("<ButtonRelease-1>", self.h_release)
+        
+        self.btn_ascend.bind("<Button-1>", self.ascend)
+        self.btn_ascend.bind("<ButtonRelease-1>", self.v_release)
+        
+        self.btn_descend.bind("<Button-1>", self.descend)
+        self.btn_descend.bind("<ButtonRelease-1>", self.v_release)
         
         #output
         Frame_output = Frame(self,background="white")
@@ -331,17 +355,21 @@ class GUI(Frame):
     def v_stop(self,*args):
         command = Commands.VertStop()
         self.queue.put(command)
+    
         
     def stop(self,*args):
-        pass
+        command = Commands.Stop()
+        self.queue.put(command)
         
-def main(): 
-    root = Tk() 
-    root.geometry("1300x650+300+300") 
-    #queue=Queue()
-    foo = 0
-    app = GUI(root,foo) 
-    root.mainloop()
+# def main(): 
+#   
+#     foo = 0
+#     app = GUI(foo ) 
+#     app.parent.mainloop()
+# 
+# if __name__ == '__main__':
+#     main()
 
-if __name__ == '__main__':
-    main()
+
+Gui = GUI(0)
+
