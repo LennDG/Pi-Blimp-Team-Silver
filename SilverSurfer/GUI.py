@@ -5,6 +5,8 @@ from Tkinter import *
 from ScrolledText import ScrolledText
 import Commands
 import Queue
+import matplotlib.pyplot as pp
+
 
 class GUI(Frame):
     
