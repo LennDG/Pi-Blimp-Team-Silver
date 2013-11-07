@@ -4,6 +4,10 @@ import ZeppelinControl, Motor, time
 
 def main():
     zep_control = ZeppelinControl.ZeppelinControl()
+    forward_test(zep_control)
+    backward_test(zep_control)
+    left_turn_test(zep_control)
+    right_turn_test(zep_control)
     
 
 def forward_test(zep_control):
