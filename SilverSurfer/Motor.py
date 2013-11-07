@@ -47,7 +47,7 @@ class VerticalMotor(Motor):
         super(VerticalMotor, self).__init__(self, cw_pin, ccw_pin)
         self._level = 0.0
         self.PWM = 18 #Should not be changing since it's hardwired into the Pi!
-        self.enabler = GPIO.PWM(self.PWM,10)
+        self.enabler = GPIO.PWM(self.PWM,100)
         self.enabler.start(0.0)
         
     @property    
@@ -56,9 +56,20 @@ class VerticalMotor(Motor):
     
     @level.setter
     def level(self, value):
-        self.enabler.ChangeDutyCycle(value) #between 0.0 and 100.0
+        #Takes a value between -100.0 and 100.0
+        if value >= 0:
+            GPIO.output(self.ccw_pin, 0)
+            GPIO.output(self.cw_pin, 1)
+            
+        else:
+            GPIO.output(self.cw_pin, 0)
+            GPIO.output(self.ccw_pin, 1)
+            
+        self.enabler.ChangeDutyCycle(abs(value)) #between 0.0 and 100.0
         self._level = value
 
     def disable(self):
+        #Call the super class method
+        super(VerticalMotor, self).disable()
         #Set the level to 0
         self.level = 0.0   

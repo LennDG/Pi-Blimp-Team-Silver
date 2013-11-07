@@ -11,14 +11,10 @@ class ZeppelinControl():
         self.PID = PID(Kp = 1.0, Kd = 0.0, Ki =0.0)
         self.vert_basis = 0
         self.distance_sensor = distance_sensor
-        
-        #TODO: This has to be done at object creation! Also, increment need value.
-        increment = -1
-        self.calibrate(increment)
     
     @property
     def current_heigth(self):
-        return self.distance_sensor.height #TODO: There is no distance sensor. What the fuck?
+        return self.distance_sensor.height
     
     def move(self, direction):
         #1 for forward, -1 for backward
@@ -64,8 +60,8 @@ class ZeppelinControl():
             
     def stabilize(self):
         error =  self.goal_height - self.current_height
-        motor_level = self.PID.PID(error)
-        self.motor_control.vert_motor.level = motor_level          
+        motor_level = self.PID.PID(error) #Returns a value between -100.0 and 100.0
+        self.motor_control.vert_motor.level = motor_level
             
 class PID(object):
     #This is the PID object used for stabilizing the zeppelin
