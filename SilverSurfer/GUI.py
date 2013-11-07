@@ -9,11 +9,11 @@ import Queue
 class GUI(Frame):
     
      
-    def __init__(self, queue): 
+    def __init__(self, queue,zeppelin): 
         self.parent = Tk() 
         self.parent.geometry("1300x650+300+300") 
         Frame.__init__(self, self.parent, background="white") 
-        
+        self.zeppelin=zeppelin
         self.initGUI() 
         self.queue=queue
         self.parent.mainloop()
@@ -335,7 +335,7 @@ class GUI(Frame):
             self.flag_btn=True
         
     def lift(self,height,*args):
-        newHeight=ZeppelinControl.ZeppelinControl.current_heigth + height
+        newHeight=self.zeppelin.heigth + height
         print newHeight
         command=Commands.Ascension(newHeight)
         self.queue.put(command)
