@@ -5,7 +5,7 @@ class ZeppelinControl():
     
     def __init__(self, distance_sensor):
         
-        self.motor_control = MotorControl()
+        self.motor_control = MotorControl.MotorControl()
         self.current_height = 0
         self.goal_height = 0
         self.PID = PID(Kp = 1.0, Kd = 0.0, Ki =0.0)
@@ -23,6 +23,10 @@ class ZeppelinControl():
     def turn(self, direction):
         #1 for left, -1 for right
         self.motor_control.turn(direction)
+        
+    def vert_move(self, level):
+        #Sets the vertical motor to a level, mostly used for testing purposes
+        self.motor_control.vert_motor.level = level
     
     def hor_stop(self): 
         #stops all horizontal movement (includes turning)
@@ -31,6 +35,10 @@ class ZeppelinControl():
     def vert_stop(self):
         #Sets the goal height at the current height, effectively stopping the zeppelin vertical movement
         self.goal_height = self.current_height
+        
+    def shutoff(self):
+        #Stops all the engines, CAUTION: THIS WILL CAUSE ZEPPELIN CRASH
+        self.motor_control.all_off()
     
     #This method calibrates the basis parameter by moving the zeppelin up and down untill it stabilises around a random height        
     def calibrate(self, increment):
