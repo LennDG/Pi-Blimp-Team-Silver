@@ -47,9 +47,9 @@ def up_test(zep_control):
     print "Spinning vertical motor up for 3 seconds"
     for level in range(0, 100, 10):
         zep_control.vert_move(level)
-        time.sleep(0.3)
+        time.sleep(0.5)
     print "Stopping vertical movement"
-    zep_control.all_off()
+    zep_control.shutoff()
     time.sleep(1)
 
 def down_test(zep_control):
@@ -57,12 +57,13 @@ def down_test(zep_control):
     print "Spinning vertical motor down for 3 seconds"
     for level in range(0, -100, -10):
         zep_control.vert_move(level)
-        time.sleep(0.3)
+        time.sleep(0.5)
     print "Stopping vertical movement"
-    zep_control.all_off()
+    zep_control.shutoff()
     time.sleep(1)
 
 def stabilize_test(zep_control):
     #TODO: implement this, maybe stabilize needs to say the zeppelin is stable?
     pass
 
+main()

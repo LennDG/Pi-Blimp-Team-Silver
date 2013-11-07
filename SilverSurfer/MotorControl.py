@@ -1,5 +1,5 @@
 #This is the file for the Motor Control class.
-import Motor, time, DistanceSensor
+import Motor, time
 
 class MotorControl():
     
