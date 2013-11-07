@@ -5,7 +5,7 @@ class ZeppelinControl():
     
     def __init__(self, distance_sensor):
         
-        self.motor_control = MotorControl()
+        self.motor_control = MotorControl.MotorControl()
         self.current_height = 0
         self.goal_height = 0
         self.PID = PID(Kp = 1.0, Kd = 0.0, Ki =0.0)

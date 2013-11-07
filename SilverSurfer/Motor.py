@@ -44,9 +44,10 @@ class Motor(object):
 class VerticalMotor(Motor):
     
     def __init__(self, cw_pin, ccw_pin):
-        super(VerticalMotor, self).__init__(self, cw_pin, ccw_pin)
+        super(VerticalMotor, self).__init__(cw_pin, ccw_pin)
         self._level = 0.0
         self.PWM = 18 #Should not be changing since it's hardwired into the Pi!
+        GPIO.setup(self.PWM, GPIO.OUT)
         self.enabler = GPIO.PWM(self.PWM,100)
         self.enabler.start(0.0)
         
