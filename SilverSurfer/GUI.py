@@ -371,5 +371,5 @@ class GUI(Frame):
 #     main()
 
 
-Gui = GUI(0)
+Gui = GUI(0,0)
 
