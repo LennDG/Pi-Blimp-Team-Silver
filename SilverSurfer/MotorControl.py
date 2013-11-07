@@ -39,5 +39,19 @@ class MotorControl():
             
             
     def stop(self):#Maybe needs to spin engines in other directions based on speed. For now, just disable them
+        self.left_off()
+        self.right_off()
+        
+    def all_off(self):
+        self.left_off()
+        self.right_off()
+        self.vert_off()
+        
+    def left_off(self): #This shuts the left engine down
         self.left_motor.disable()
+    
+    def right_off(self):#This shuts the right engine down
         self.right_motor.disable()
+        
+    def vert_off(self): #This shuts the vertical engine off
+        self.vert_motor.disable()
