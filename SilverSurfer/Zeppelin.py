@@ -8,7 +8,6 @@ class Zeppelin(threading.Thread):
         self.command_time = 0
         
         #Make another thread for the Distance Sensor, this eliminates the need to wait for it on height calls
-        #TODO: be implemented!!! Is just an optimization, so not crucial right now.
         #TODO: The height has to be logged. It might be a good idea to log it here?
         #Make a distance sensor object here, which inherits from Thread, let it log data continually by making it an infinite loop
         #When zeppelin control needs the data, it can just ask it from the object.

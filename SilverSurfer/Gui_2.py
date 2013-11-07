@@ -3,7 +3,7 @@
 
 from Tkinter import * 
 from ScrolledText import ScrolledText
-#import Commands
+import Commands
 import Queue
 
 class GUI(Frame):

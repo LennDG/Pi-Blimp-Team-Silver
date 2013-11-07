@@ -21,9 +21,11 @@ class ZeppelinControl():
         return self.distance_sensor.height #TODO: There is no distance sensor. What the fuck?
     
     def move(self, direction):
+        #1 for forward, -1 for backward
         self.motor_control.move(direction)
     
     def turn(self, direction):
+        #1 for left, -1 for right
         self.motor_control.turn(direction)
     
     def hor_stop(self): 
@@ -69,12 +71,12 @@ class PID(object):
     #This is the PID object used for stabilizing the zeppelin
     
     def __init__(self, Kp = 1.0, Kd = 0.0, Ki =0.0): #These are values for now, will change. Experimental determination.
-        self._Kp = Kp
-        self._Kd = Kd
-        self._Ki = Ki
+        self.Kp = Kp
+        self.Kd = Kd
+        self.Ki = Ki
         
         #This value is the calculated base to let the zeppelin stabilize on a current height
-        self._bias = 0.0
+        self.bias = 0.0
         
         self.setup()
         
@@ -116,6 +118,7 @@ class PID(object):
     
     #The calculating part
     def PID(self, error):
+        #This is the entire implementation. Parameters will be found through testing
         
         #Calculate dt
         self.current_time = time.time()
