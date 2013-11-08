@@ -1,6 +1,7 @@
 import time, RPi.GPIO as GPIO
+import threading
 
-class DistanceSensor():
+class DistanceSensor(object, threading.Thread):
     
     def __init__(self):
         
@@ -27,18 +28,18 @@ class DistanceSensor():
  
         # Setup some other variables
         # -----------------------------------------------------------------
-        self.data_amount = 100         # Infinite loop
+        self.data_amount = 20         # takes 20 values for the data
         self.trig_duration = 0.06        # Trigger duration
         self.inttimeout = 2100        # Timeout on echo signal
         self.v_snd = 340.29            # Speed of sound in m/s
+        
+        self.height = 0.0
  
-        # Wait for 2 seconds for the ultrasonics to settle
-        # -----------------------------------------------------------------
-        # Probably not needed...
-        time.sleep( 2 )
-    
-    @property
-    def heigth(self):
+    def run(self):
+        while True:
+            self.calculate_heigth() #Continually calculate the height
+
+    def calculate_heigth(self):
         results = []
         index = 0
         while index < self.data_amount:
@@ -75,7 +76,7 @@ class DistanceSensor():
                 print "Timeout"
             
         results.sort()
-        return results(len(results)/2)
+        self.height = results(len(results)/2) #Stores the result in the height field
         
     
     
