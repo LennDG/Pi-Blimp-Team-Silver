@@ -1,5 +1,5 @@
 #This is the file for the Motor Control class.
-import Motor, time
+import Motor, time, DistanceSensor
 
 class MotorControl():
     
@@ -15,8 +15,8 @@ class MotorControl():
     # direction    1 to move forward
     #              -1 to move backward
     def move(self, direction):
-        self.left_motor.disable()
-        self.right_motor.disable()
+        self.left_off()
+        self.right_off()
         
         self.left_motor.direction = direction
         self.right_motor.direction = direction
@@ -27,8 +27,8 @@ class MotorControl():
     
     def turn(self, direction):
         
-        self.left_motor.disable() #"reset" the motors
-        self.right_motor.disable()
+        self.left_off() #"reset" the motors
+        self.right_motor_off()
         
         self.left_motor.direction = -direction
         self.right_motor.direction = direction
