@@ -25,12 +25,12 @@ class Zeppelin(threading.Thread):
     def run(self):
         
         while True:
-            command = self.queue.get()
-            
-            if isinstance(command, Commands.TermCommand):
-                self.command_time = time.time() + command.calculate_time()
-            
-            command.execute(self)
+            try:
+                command = self.queue.get(False)
+                command.execute(self)                
+            except Queue.Empty:
+                #Do nothing
+                pass
             
             #Check if movement needs to be stopped
             if self.command_time - time.time() <= 0:
