@@ -197,12 +197,18 @@ class GUI(Frame):
         self.btn_right.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_right.grid(row = 1, column = 2 ,padx = 5, pady = 3) 
         
-        self.btn_ascend = Button(self.Frame_btn_control, text="A",background ="gray11",foreground = "white") #stijgen
-        self.btn_ascend.config( height = 2, width = 4 ) 
+        self.img_a = Image.open('a.png')
+        imgr_a = self.img_a.resize((50, 50),Image.ANTIALIAS)
+        self.img_a1 = ImageTk.PhotoImage(imgr_a)
+        self.btn_ascend = Button(self.Frame_btn_control, image=self.img_a1,background ="gray11",foreground = "white") #stijgen
+        self.btn_ascend.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_ascend.grid(row = 2, column = 0,padx = 5, pady = 3)
         
-        self.btn_descend = Button(self.Frame_btn_control, text="D",background ="gray11",foreground = "white") #dalen
-        self.btn_descend.config( height = 2, width = 4 ) 
+        self.img_d = Image.open('d.png')
+        imgr_d = self.img_d.resize((50, 50),Image.ANTIALIAS)
+        self.img_d1 = ImageTk.PhotoImage(imgr_d)
+        self.btn_descend = Button(self.Frame_btn_control, image=self.img_d1,background ="gray11",foreground = "white") #dalen
+        self.btn_descend.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_descend.grid(row = 2, column = 2 ,padx = 5, pady = 3)
         
         #binden GUI-stuurknoppen
