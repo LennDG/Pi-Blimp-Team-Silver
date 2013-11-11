@@ -5,6 +5,8 @@ from Tkinter import *
 from ScrolledText import ScrolledText
 import Commands
 import Queue
+import matplotlib.pyplot as pp
+
 
 class GUI(Frame):
     
@@ -161,7 +163,7 @@ class GUI(Frame):
         btn_h.config( height = rc_btn_height, width = rc_btn_width ) 
         btn_h.grid(row = 1, column = 0,padx = 5, pady = 3,sticky='WE')
         
-        txt_ct = Text(Frame_output, undo=True, state='disabled')
+        txt_ct = Text(Frame_output, undo=True, state='disabled', Text = self.zeppelin.height)
         txt_ct['font'] = ('consolas', '12')
         txt_ct.config(width = 20, height = 1) 
         txt_ct.grid(row = 1, column = 1, padx = 5, pady = 5,sticky='WE') 
