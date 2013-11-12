@@ -16,6 +16,7 @@ class Zeppelin(threading.Thread):
         
         self.height = 0.0
         
+        #Hier wordt een zeppelincontrol-object aangemaakt dat we control noemen.
         self.control = ZeppelinControl.ZeppelinControl(self.distance_sensor)
         
     @property

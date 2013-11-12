@@ -10,7 +10,7 @@ class DistanceSensor(object, threading.Thread):
         # Here we use the BCM notation.  This is the notation corresponding
         # to the GPIO labels.  17 means GPIO17, 4 means GPIO4.
         echo_gpio = 17
-        trig_gpio = 4
+        trig_gpio = 25
         
         # Initiate the GPIO pins
         # -----------------------------------------------------------------
