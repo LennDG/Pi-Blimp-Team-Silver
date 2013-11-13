@@ -1,4 +1,4 @@
-import threading, Queue, time, ZeppelinControl, Commands, DistanceSensor, GUI
+import threading, Queue, time, ZeppelinControl, DistanceSensor, GUI
 
 class Zeppelin(threading.Thread):
     
@@ -47,5 +47,5 @@ class Zeppelin(threading.Thread):
 #Main initialization
 command_queue = Queue.Queue()
 zeppelin = Zeppelin(queue = command_queue)
-gui = GUI.GUI(queue = command_queue, zeppelin = zeppelin)
 zeppelin.start()
+gui = GUI.GUI(queue = command_queue, zeppelin = zeppelin)
