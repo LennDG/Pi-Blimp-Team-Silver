@@ -36,7 +36,7 @@ class Zeppelin(threading.Thread):
             if self.command_time - time.time() <= 0:
                 self.control.hor_stop()
                 
-            self.control.stabilize()
+            #self.control.stabilize()
             #Check if the zeppelin is at the right height (+- 10cm)
             error = abs(self.control.current_height-self.control.goal_height) 
             if error <= 10:
@@ -47,3 +47,4 @@ class Zeppelin(threading.Thread):
 command_queue = Queue.Queue()
 zeppelin = Zeppelin(queue = command_queue)
 gui = GUI.GUI(queue = command_queue, zeppelin = zeppelin)
+zeppelin.start()
