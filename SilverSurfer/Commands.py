@@ -18,7 +18,7 @@ class Command():
         pass
 
 '''
-This class is inherits from Command and is the superclass of all classes that need a certain time to be carried out. During this time,
+This class inherits from Command and is the superclass of all classes that need a certain time to be carried out. During this time,
 other commands should be able to be executed.
 '''
 class TermCommand(Command):
