@@ -46,7 +46,7 @@ this command should move.
 class Move(TermCommand):
     
     def __init__(self, distance):
-        super(TermCommand, self).__init__(distance)
+        super(Move, self).__init__(distance)
     
     '''
     This method will initiate the movement of the object that executes this command.
@@ -70,7 +70,7 @@ class Move(TermCommand):
 class Turn(Command):
     
     def __init__(self, parameter):
-        super(TermCommand, self).__init__(parameter)
+        super(Turn, self).__init__(parameter)
     
     def execute(self, zeppelin):
         zeppelin.control.turn(self.parameter)
