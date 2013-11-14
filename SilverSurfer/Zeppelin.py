@@ -39,9 +39,9 @@ class Zeppelin(threading.Thread):
                 
             #self.control.stabilize()
             #Check if the zeppelin is at the right height (+- 10cm)
-            error = abs(self.control.current_height-self.control.goal_height) 
-            if error <= 10:
-                print "At correct height"
+#             error = abs(self.control.current_height-self.control.goal_height) 
+#             if error <= 10:
+#                 print "At correct height"
                 
 
 #Main initialization
