@@ -92,7 +92,14 @@ class Ascension(Command):
         
     def execute(self, zeppelin):
         zeppelin.control.goal_height = self.height
+
+class VertMove(Command):
+    def __init__(self,level):
+        super(VertMove,self).__init__()
+        self.level = level
         
+    def execute(self,zeppelin):      
+        zeppelin.control.vert_move(self.level)  
 
 class HorStop(Command):
     

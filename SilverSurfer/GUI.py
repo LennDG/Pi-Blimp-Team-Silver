@@ -466,8 +466,7 @@ class GUI(Frame):
             command= Commands.Move(float('infinity'))
             self.queue.put(command)
             self.flag_btn=True
-       
-    
+          
             
     def turn_left(self,*args):
         if self.flag_btn == False:
@@ -489,13 +488,14 @@ class GUI(Frame):
         
     def ascend(self,*args):
         if self.flag_btn == False:
-            command= Commands.Ascension(float('infinity')) #Commands.<Stijgen>
+            #command= Commands.Ascension(float('infinity')) #Commands.<Stijgen>
+            command= Commands.VertMove(100)
             self.queue.put(command)
             self.flag_btn=True
         
     def descend(self,*args):
         if self.flag_btn == False:    
-            command= Commands.Ascension(float('-infinity'))
+            command= Commands.VertMove(-100)
             self.queue.put(command)
             self.flag_btn=True
         
@@ -518,7 +518,8 @@ class GUI(Frame):
         self.queue.put(command)
         
     def v_stop(self,*args):
-        command = Commands.VertStop()
+      #  command = Commands.VertStop()
+        command= Commands.VertMove(0)
         self.queue.put(command)
     
         
