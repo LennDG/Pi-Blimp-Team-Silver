@@ -1,6 +1,6 @@
 import threading, Queue, time, ZeppelinControl, DistanceSensor, GUI
 
-class Zeppelin(threading.Thread):
+class Zeppelin(threading.Thread, object):
     
     def __init__(self,queue):
         threading.Thread.__init__(self)
@@ -22,6 +22,10 @@ class Zeppelin(threading.Thread):
     @property
     def height(self):
         return self.distance_sensor.height
+    
+    @height.setter
+    def height(self, value):
+        self._height = value
          
     def run(self):
         

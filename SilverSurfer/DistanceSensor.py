@@ -1,7 +1,7 @@
 import time, RPi.GPIO as GPIO
 import threading
 
-class DistanceSensor(object, threading.Thread):
+class DistanceSensor(threading.Thread, object):
     
     def __init__(self):
         

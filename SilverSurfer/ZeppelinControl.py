@@ -18,17 +18,17 @@ class ZeppelinControl():
     
     def move(self, direction):
         #1 for forward, -1 for backward
-        print "moving to forward " + direction
+        print "moving to forward " + str(direction)
         self.motor_control.move(direction)
     
     def turn(self, direction):
         #1 for left, -1 for right
-        print "turning to " + direction
+        print "turning to " + str(direction)
         self.motor_control.turn(direction)
         
     def vert_move(self, level):
         #Sets the vertical motor to a level, mostly used for testing purposes
-        print "Setting the vertical motor to " + level
+        print "Setting the vertical motor to " + str(level)
         self.motor_control.vert_motor.level = level
     
     def hor_stop(self): 
