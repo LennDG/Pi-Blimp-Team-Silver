@@ -197,14 +197,14 @@ class GUI(Frame):
         self.btn_right.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_right.grid(row = 1, column = 2 ,padx = 5, pady = 3) 
         
-        self.img_a = Image.open('a.png')
+        self.img_a = Image.open('pijl1.png')
         imgr_a = self.img_a.resize((50, 50),Image.ANTIALIAS)
         self.img_a1 = ImageTk.PhotoImage(imgr_a)
         self.btn_ascend = Button(self.Frame_btn_control, image=self.img_a1,background ="gray11",foreground = "white") #stijgen
         self.btn_ascend.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_ascend.grid(row = 2, column = 0,padx = 5, pady = 3)
         
-        self.img_d = Image.open('d.png')
+        self.img_d = Image.open('pijl2.png')
         imgr_d = self.img_d.resize((50, 50),Image.ANTIALIAS)
         self.img_d1 = ImageTk.PhotoImage(imgr_d)
         self.btn_descend = Button(self.Frame_btn_control, image=self.img_d1,background ="gray11",foreground = "white") #dalen
@@ -466,8 +466,7 @@ class GUI(Frame):
             command= Commands.Move(float('infinity'))
             self.queue.put(command)
             self.flag_btn=True
-       
-    
+          
             
     def turn_left(self,*args):
         if self.flag_btn == False:
@@ -489,13 +488,14 @@ class GUI(Frame):
         
     def ascend(self,*args):
         if self.flag_btn == False:
-            command= Commands.Ascension(float('infinity')) #Commands.<Stijgen>
+            #command= Commands.Ascension(float('infinity')) #Commands.<Stijgen>
+            command= Commands.VertMove(100)
             self.queue.put(command)
             self.flag_btn=True
         
     def descend(self,*args):
         if self.flag_btn == False:    
-            command= Commands.Ascension(float('-infinity'))
+            command= Commands.VertMove(-100)
             self.queue.put(command)
             self.flag_btn=True
         
@@ -518,7 +518,8 @@ class GUI(Frame):
         self.queue.put(command)
         
     def v_stop(self,*args):
-        command = Commands.VertStop()
+      #  command = Commands.VertStop()
+        command= Commands.VertMove(0)
         self.queue.put(command)
     
         
