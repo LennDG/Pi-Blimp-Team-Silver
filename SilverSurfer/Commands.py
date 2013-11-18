@@ -6,7 +6,7 @@ This module contains all the Command classes.
 This class is the Command superclass. All the command classes are child classes from this class. This class defines an execute method
 that must be implemented by all child classes.
 '''
-class Command():
+class Command(object):
     
     def __init__(self):
         pass
@@ -67,7 +67,7 @@ class Move(TermCommand):
         return a*self.parameter + b  #seconds is a function of angle
         
 
-class Turn(Command):
+class Turn(TermCommand):
     
     def __init__(self, parameter):
         super(Turn, self).__init__(parameter)

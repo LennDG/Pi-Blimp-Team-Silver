@@ -5,12 +5,14 @@ class DistanceSensor(threading.Thread, object):
     
     def __init__(self):
         
+        threading.Thread.__init__(self)
+        
         # Set the pins we use
         # -----------------------------------------------------------------
         # Here we use the BCM notation.  This is the notation corresponding
         # to the GPIO labels.  17 means GPIO17, 4 means GPIO4.
-        echo_gpio = 17
-        trig_gpio = 25
+        self.echo_gpio = 17
+        self.trig_gpio = 25
         
         # Initiate the GPIO pins
         # -----------------------------------------------------------------
@@ -22,9 +24,9 @@ class DistanceSensor(threading.Thread, object):
         # False, meaning no signal.
         # 
         GPIO.setmode( GPIO.BCM )
-        GPIO.setup( echo_gpio, GPIO.IN, pull_up_down=GPIO.PUD_DOWN )
-        GPIO.setup( trig_gpio, GPIO.OUT )
-        GPIO.output( trig_gpio, False )
+        GPIO.setup( self.echo_gpio, GPIO.IN, pull_up_down=GPIO.PUD_DOWN )
+        GPIO.setup( self.trig_gpio, GPIO.OUT )
+        GPIO.output( self.trig_gpio, False )
  
         # Setup some other variables
         # -----------------------------------------------------------------
@@ -73,7 +75,7 @@ class DistanceSensor(threading.Thread, object):
                 distance = echo_duration * self.v_snd * 100 / 2
                 results.add(distance)
             else:
-                print "Timeout"
+                pass
             
         results.sort()
         self.height = results(len(results)/2) #Stores the result in the height field
