@@ -18,6 +18,11 @@ class MotorControl():
         self.left_off()
         self.right_off()
         
+        if direction > 0:
+            direction = 1
+        elif direction < 0:
+            direction = -1
+        
         self.left_motor.direction = direction
         self.right_motor.direction = direction
         
@@ -28,7 +33,12 @@ class MotorControl():
     def turn(self, direction):
         
         self.left_off() #"reset" the motors
-        self.right_motor_off()
+        self.right_off()
+        
+        if direction > 0:
+            direction = 1
+        elif direction < 0:
+            direction = -1
         
         self.left_motor.direction = -direction
         self.right_motor.direction = direction

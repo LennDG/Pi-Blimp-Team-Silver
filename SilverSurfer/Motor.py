@@ -28,11 +28,11 @@ class Motor(object):
         self._direction = value
     
     def enable(self): #This turns the motor on and sets the direction according
-        if self.direction >= 0:
+        if self.direction ==1:
             GPIO.output(self.ccw_pin, 0)
             GPIO.output(self.cw_pin, 1)
             
-        else:
+        elif self.direction == -1:
             GPIO.output(self.cw_pin, 0)
             GPIO.output(self.ccw_pin, 1)
     

@@ -38,8 +38,8 @@ class Zeppelin(threading.Thread, object):
                 pass
             
             #Check if movement needs to be stopped
-            if self.command_time - time.time() <= 0:
-                self.control.hor_stop()
+#             if self.command_time - time.time() <= 0:
+#                 self.control.hor_stop()
                 
             #self.control.stabilize()
             #Check if the zeppelin is at the right height (+- 10cm)

@@ -527,15 +527,4 @@ class GUI(Frame):
         command = Commands.Stop()
         self.queue.put(command)
         
-# def main(): 
-#   
-#     foo = 0
-#     app = GUI(foo ) 
-#     app.parent.mainloop()
-# 
-# if __name__ == '__main__':
-#     main()
-
-
-Gui = GUI(0,0)
 
