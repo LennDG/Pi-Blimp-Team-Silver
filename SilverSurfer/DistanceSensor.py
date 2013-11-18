@@ -11,7 +11,7 @@ class DistanceSensor(threading.Thread, object):
         # -----------------------------------------------------------------
         # Here we use the BCM notation.  This is the notation corresponding
         # to the GPIO labels.  17 means GPIO17, 4 means GPIO4.
-        self.echo_gpio = 17
+        self.echo_gpio = 8
         self.trig_gpio = 25
         
         # Initiate the GPIO pins
@@ -73,12 +73,15 @@ class DistanceSensor(threading.Thread, object):
                 # of sound.  Divide by 2 because of rounttrip and 
                 # multiply by 100 to get cm instead of m.
                 distance = echo_duration * self.v_snd * 100 / 2
-                results.add(distance)
+                results.append(distance)
             else:
                 pass
             
+            index += 1
+            
         results.sort()
-        self.height = results(len(results)/2) #Stores the result in the height field
+        temp = results[len(results)/2] #Stores the result in the height field
+        self.height = round(temp, 2)
         
     
     

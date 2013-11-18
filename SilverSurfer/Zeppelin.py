@@ -13,8 +13,7 @@ class Zeppelin(threading.Thread, object):
         #When zeppelin control needs the data, it can just ask it from the object.
         self.distance_sensor = DistanceSensor.DistanceSensor()
         self.distance_sensor.start() #Start the distance sensor
-        
-        self.height = 0.0
+
         
         #Hier wordt een zeppelincontrol-object aangemaakt dat we control noemen.
         self.control = ZeppelinControl.ZeppelinControl(self.distance_sensor)
@@ -41,7 +40,7 @@ class Zeppelin(threading.Thread, object):
 #             if self.command_time - time.time() <= 0:
 #                 self.control.hor_stop()
                 
-            #self.control.stabilize()
+            self.control.stabilize()
             #Check if the zeppelin is at the right height (+- 10cm)
 #             error = abs(self.control.current_height-self.control.goal_height) 
 #             if error <= 10:

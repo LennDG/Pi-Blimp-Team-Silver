@@ -321,7 +321,7 @@ class GUI(Frame):
     
     def show_height(self):
         if self.stop_show_height == False:
-            height = random.randint(0,11)
+            height = self.zeppling.height
             self.height.set(height) 
             self.after(50,self.show_height)
         

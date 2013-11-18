@@ -122,7 +122,7 @@ class VertStop(Command):
 class Stop(Command):
     
     def __init__(self):
-        super(VertStop, self).__init__()
+        super(Stop, self).__init__()
         
     def execute(self, zeppelin):
         zeppelin.control.hor_stop()
