@@ -404,8 +404,8 @@ class GUI(Frame):
         self.Frame_lift_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_lift_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
         
-        entry_lift_input = Entry(self.Frame_lift_menu) 
-        entry_lift_input.grid(row = 0, column = 0, padx = 3, pady = 3) 
+        self.entry_lift_input = Entry(self.Frame_lift_menu) 
+        self.entry_lift_input.grid(row = 0, column = 0, padx = 3, pady = 3) 
         
         btn_input_move_enter = Button(self.Frame_lift_menu, text="ENTER",command=self.invoke_lift_enter,background ="gray11",foreground = "white") 
         btn_input_move_enter.grid(row = 1, column = 0, padx = 2, pady = 3, columnspan = 3,sticky='W') 
@@ -414,6 +414,9 @@ class GUI(Frame):
 
     def invoke_lift_enter(self):
         #stuur string
+        height=self.entry_lift_input.get()
+        command= Commands.Ascension(int(height))
+        self.queue.put(command)
         self.Frame_lift_menu.grid_remove()
         self.Frame_cmenu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')
         
