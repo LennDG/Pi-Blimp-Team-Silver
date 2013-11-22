@@ -69,6 +69,8 @@ class Plotter(Frame) : #te hard coded? herbruikbaar?
         self.canvas.draw()
         self.canvas.get_tk_widget().update_idletasks()
        
+       #TODO:Veranderingen !!!!!!!! 
+    
         if self.stop == False:
             self.after(10, self.plotter)
 
@@ -247,6 +249,15 @@ class GUI(Frame):
         
         self.Frame_motors = Frame(self.Frame_visual_view,background="gray55")
         
+        #TODO: Veranderingen !!!!!!!!!!!!!!
+        self.img_motor_counter = Image.open('draai.png')
+        imgr_motor_counter = self.img_motor_counter.resize((25, 25),Image.ANTIALIAS)
+        self.img_motor_counter = ImageTk.PhotoImage(imgr_motor_counter)
+        
+        self.img_motor_clock = Image.open('draai2.png')
+        imgr_motor_clock = self.img_motor_clock.resize((25, 25),Image.ANTIALIAS)
+        self.img_motor_clock = ImageTk.PhotoImage(imgr_motor_clock)
+        
         self.motor1 = StringVar()
         self.motor1.set('...')
         
@@ -254,7 +265,7 @@ class GUI(Frame):
         self.motor2.set('...')
         
         self.motor3 = StringVar()
-        self.motor3.set('...')
+        self.motor3.set('...')          
         
         self.lbl_motor1 = Label(self.Frame_motors, textvariable=self.motor1)
         self.lbl_motor1.grid(row = 0, column = 0, padx = 5, pady = 5,sticky='WE') 
@@ -318,6 +329,13 @@ class GUI(Frame):
             self.stop_show_height=True
             self.height.set('...')
         
+    def motor1_check(self):
+        if self.stop == False:
+            if self.zeppelin.motorControl.Motor1.direction() == 0:
+                self.lbl_motor1.image = (self.img_motor_counter)  
+            if self.zeppelin.motorControl.Motor1.direction() == 1:
+                self.lbl_motor1.image = (self.img_motor_counter)  
+            
     
     def show_height(self):
         if self.stop_show_height == False:
