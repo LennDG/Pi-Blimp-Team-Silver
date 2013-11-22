@@ -1,6 +1,6 @@
-import threading, Queue, time, ZeppelinControl, Commands, DistanceSensor, GUI
+import threading, Queue, time, ZeppelinControl, DistanceSensor, GUI
 
-class Zeppelin(threading.Thread):
+class Zeppelin(threading.Thread, object):
     
     def __init__(self,queue):
         threading.Thread.__init__(self)
@@ -13,8 +13,7 @@ class Zeppelin(threading.Thread):
         #When zeppelin control needs the data, it can just ask it from the object.
         self.distance_sensor = DistanceSensor.DistanceSensor()
         self.distance_sensor.start() #Start the distance sensor
-        
-        self.height = 0.0
+
         
         #Hier wordt een zeppelincontrol-object aangemaakt dat we control noemen.
         self.control = ZeppelinControl.ZeppelinControl(self.distance_sensor)
@@ -22,6 +21,10 @@ class Zeppelin(threading.Thread):
     @property
     def height(self):
         return self.distance_sensor.height
+    
+    @height.setter
+    def height(self, value):
+        self._height = value
          
     def run(self):
         
@@ -34,17 +37,18 @@ class Zeppelin(threading.Thread):
                 pass
             
             #Check if movement needs to be stopped
-            if self.command_time - time.time() <= 0:
-                self.control.hor_stop()
+#             if self.command_time - time.time() <= 0:
+#                 self.control.hor_stop()
                 
             self.control.stabilize()
             #Check if the zeppelin is at the right height (+- 10cm)
-            error = abs(self.control.current_height-self.control.goal_height) 
-            if error <= 10:
-                print "At correct height"
+#             error = abs(self.control.current_height-self.control.goal_height) 
+#             if error <= 10:
+#                 print "At correct height"
                 
 
 #Main initialization
 command_queue = Queue.Queue()
 zeppelin = Zeppelin(queue = command_queue)
+zeppelin.start()
 gui = GUI.GUI(queue = command_queue, zeppelin = zeppelin)

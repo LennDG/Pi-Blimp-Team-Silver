@@ -28,11 +28,11 @@ class Motor(object):
         self._direction = value
     
     def enable(self): #This turns the motor on and sets the direction according
-        if self.direction >= 0:
+        if self.direction ==1:
             GPIO.output(self.ccw_pin, 0)
             GPIO.output(self.cw_pin, 1)
             
-        else:
+        elif self.direction == -1:
             GPIO.output(self.cw_pin, 0)
             GPIO.output(self.ccw_pin, 1)
     
@@ -57,20 +57,24 @@ class VerticalMotor(Motor):
     
     @level.setter
     def level(self, value):
+        
+        
         #Takes a value between -100.0 and 100.0
-        if value >= 0:
+        if value > 0:
             GPIO.output(self.ccw_pin, 0)
             GPIO.output(self.cw_pin, 1)
             
-        else:
+        elif value < 0:
             GPIO.output(self.cw_pin, 0)
             GPIO.output(self.ccw_pin, 1)
+            
+        elif value == 0.0:
+            GPIO.output(self.cw_pin, 0)
+            GPIO.output(self.ccw_pin, 0)
             
         self.enabler.ChangeDutyCycle(abs(value)) #between 0.0 and 100.0
         self._level = value
 
     def disable(self):
-        #Call the super class method
-        super(VerticalMotor, self).disable()
         #Set the level to 0
         self.level = 0.0   

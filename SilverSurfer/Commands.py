@@ -6,7 +6,7 @@ This module contains all the Command classes.
 This class is the Command superclass. All the command classes are child classes from this class. This class defines an execute method
 that must be implemented by all child classes.
 '''
-class Command():
+class Command(object):
     
     def __init__(self):
         pass
@@ -46,7 +46,7 @@ this command should move.
 class Move(TermCommand):
     
     def __init__(self, distance):
-        super(TermCommand, self).__init__(distance)
+        super(Move, self).__init__(distance)
     
     '''
     This method will initiate the movement of the object that executes this command.
@@ -67,10 +67,10 @@ class Move(TermCommand):
         return a*self.parameter + b  #seconds is a function of angle
         
 
-class Turn(Command):
+class Turn(TermCommand):
     
     def __init__(self, parameter):
-        super(TermCommand, self).__init__(parameter)
+        super(Turn, self).__init__(parameter)
     
     def execute(self, zeppelin):
         zeppelin.control.turn(self.parameter)
@@ -92,7 +92,14 @@ class Ascension(Command):
         
     def execute(self, zeppelin):
         zeppelin.control.goal_height = self.height
+
+class VertMove(Command):
+    def __init__(self,level):
+        super(VertMove,self).__init__()
+        self.level = level
         
+    def execute(self,zeppelin):      
+        zeppelin.control.vert_move(self.level)  
 
 class HorStop(Command):
     
@@ -115,7 +122,7 @@ class VertStop(Command):
 class Stop(Command):
     
     def __init__(self):
-        super(VertStop, self).__init__()
+        super(Stop, self).__init__()
         
     def execute(self, zeppelin):
         zeppelin.control.hor_stop()
