@@ -1,3 +1,8 @@
+'''
+Created on 23-nov.-2013
+
+@author: Pepino
+'''
 
 
 
@@ -11,7 +16,6 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from numpy import random, sin, exp
 from PIL import Image,ImageTk
-import threading, Queue
 
 class Plotter(Frame) : #te hard coded? herbruikbaar?
     def __init__(self,parent,max_x,max_y) : #extra method als handler (get height blablabla)
@@ -70,62 +74,27 @@ class Plotter(Frame) : #te hard coded? herbruikbaar?
         self.canvas.draw()
         self.canvas.get_tk_widget().update_idletasks()
        
-       #TODO:Veranderingen !!!!!!!! 
-    
         if self.stop == False:
             self.after(10000, self.plotter)
 
 
-#twee threads lukken blijkbaar niet :(
-class Outbox(threading.Thread,object):
-    def __init__(self, outqueue):
-        threading.Thread.__init__(self)
-        self.outqueue=outqueue
-         
-    def run(self):
-        while True:
-            try:
-                string = self.outqueue.get(False)
-                self.send_string(string)              
-            except Queue.Empty:
-                #Do nothing
-                pass
-            
-    def send_string(self,string):
-        print string
-    
-class GUI(threading.Thread,Frame):
+class GUI(Frame):
     
      
-    def __init__(self, queue,zeppelin):
-        self.zep_state = {'height' : 0,'left-motor' : 0, 'right-motor':0, 'vert-motor':0 }
-        
-        threading.Thread.__init__(self)
-        
-        self.parent = Tk()  
+    def __init__(self, queue,zeppelin): 
+        self.parent = Tk() 
+        self.parent.geometry("1300x650+300+300") 
         Frame.__init__(self, self.parent, background="gray55") 
         self.zeppelin=zeppelin
+        self.initGUI() 
         self.queue=queue
-        self.outqueue_2 = Queue.Queue()
-        
-        self.parent.title("Silver Surfer") 
-        self.pack(fill=BOTH, expand=1) 
-        
-        self.btn_start = Button(self, text="MAKE CONNECTION AND START GUI" , command= self.start_protocol, background = "red",foreground = "white")
-        self.btn_start.grid(  pady = 3, sticky='WE') 
-        
-        img_silsur = Image.open('250px-Toss.png')
-        imgr = img_silsur.resize((400, 400),Image.ANTIALIAS)
-        img_silsur = ImageTk.PhotoImage(imgr)
-        self.lbl_image_silsur = Label(self, image=img_silsur) 
-        self.lbl_image_silsur.grid(row = 1, column = 0, padx = 5, pady = 5, columnspan=3) 
-        
-        self.start()
         self.parent.mainloop()
         
-    def initGUI(self): 
         
-        self.parent.geometry("1300x650+300+300") 
+    def initGUI(self): 
+        self.parent.title("Blimp bizkit") #Titel moet door zeppling worden gestuurd 
+        self.pack(fill=BOTH, expand=1) 
+        
         #flag_btn init op false
         self.flag_btn = False
         self.stop_show_height = True
@@ -155,10 +124,10 @@ class GUI(threading.Thread,Frame):
         self.img1 = Image.open('sample.png')
         imgr = self.img1.resize((400, 400),Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(imgr)
-        lbl_image = Label(self.Frame_input, image=self.img) #TODO: image juist adress. 
+        self.lbl_image = Label(self.Frame_input, image=self.img) #TODO: image juist adress. 
         #lbl_image = Label(self.Frame_input, text="Afbeelding")
         #lbl_image.config(width = 70, height = 30) 
-        lbl_image.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan=3) 
+        self.lbl_image.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan=3) 
         
         # 3 Menu knoppen 
         menu_btn_width = 7 
@@ -233,14 +202,14 @@ class GUI(threading.Thread,Frame):
         self.btn_right.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_right.grid(row = 1, column = 2 ,padx = 5, pady = 3) 
         
-        self.img_a = Image.open('a.png')
+        self.img_a = Image.open('pijl1.png')
         imgr_a = self.img_a.resize((50, 50),Image.ANTIALIAS)
         self.img_a1 = ImageTk.PhotoImage(imgr_a)
         self.btn_ascend = Button(self.Frame_btn_control, image=self.img_a1,background ="gray11",foreground = "white") #stijgen
         self.btn_ascend.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_ascend.grid(row = 2, column = 0,padx = 5, pady = 3)
         
-        self.img_d = Image.open('d.png')
+        self.img_d = Image.open('pijl2.png')
         imgr_d = self.img_d.resize((50, 50),Image.ANTIALIAS)
         self.img_d1 = ImageTk.PhotoImage(imgr_d)
         self.btn_descend = Button(self.Frame_btn_control, image=self.img_d1,background ="gray11",foreground = "white") #dalen
@@ -273,7 +242,7 @@ class GUI(threading.Thread,Frame):
         
         #TODO: Frame pictures motors
         
-        self.output = ScrolledText(self.Frame_output, undo=True)
+        self.output = ScrolledText(self.Frame_output, undo=True, state='disabled')
         self.output['font'] = ('consolas', '12')
         self.output.config(width = 70, height = 30) 
         self.output.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan = 3,sticky='WE') 
@@ -283,15 +252,6 @@ class GUI(threading.Thread,Frame):
         
         self.Frame_motors = Frame(self.Frame_visual_view,background="gray55")
         
-        #TODO: Veranderingen !!!!!!!!!!!!!!
-        self.img_motor_counter = Image.open('draai.png')
-        imgr_motor_counter = self.img_motor_counter.resize((25, 25),Image.ANTIALIAS)
-        self.img_motor_counter = ImageTk.PhotoImage(imgr_motor_counter)
-        
-        self.img_motor_clock = Image.open('draai2.png')
-        imgr_motor_clock = self.img_motor_clock.resize((25, 25),Image.ANTIALIAS)
-        self.img_motor_clock = ImageTk.PhotoImage(imgr_motor_clock)
-        
         self.motor1 = StringVar()
         self.motor1.set('...')
         
@@ -299,7 +259,7 @@ class GUI(threading.Thread,Frame):
         self.motor2.set('...')
         
         self.motor3 = StringVar()
-        self.motor3.set('...')          
+        self.motor3.set('...')
         
         self.lbl_motor1 = Label(self.Frame_motors, textvariable=self.motor1)
         self.lbl_motor1.grid(row = 0, column = 0, padx = 5, pady = 5,sticky='WE') 
@@ -322,7 +282,11 @@ class GUI(threading.Thread,Frame):
         btn_h = Button(self.Frame_output, text="SHOW H", command = self.invoke_show_height,background ="gray11",foreground = "white") 
         btn_h.config( height = 2, width = 4 ) 
         btn_h.grid(row = 1, column = 1,padx = 5, pady = 3,sticky='WSE')
-
+        
+#         self.txt_ct = Text(self.Frame_output, undo=True, state='disabled')
+#         self.txt_ct['font'] = ('consolas', '12')
+#         self.txt_ct.config(width = 20, height = 1) 
+#         self.txt_ct.grid(row = 1, column = 2, padx = 5, pady = 5,sticky='WSE') 
 
         self.height = StringVar()
         self.height.set('...')
@@ -358,25 +322,13 @@ class GUI(threading.Thread,Frame):
         else: 
             self.stop_show_height=True
             self.height.set('...')
-            
-
         
-    def motor1_check(self):
-        if self.stop == False:
-            if self.zeppelin.motorControl.Motor1.direction() == 0:
-                self.lbl_motor1.image = (self.img_motor_counter)  
-            if self.zeppelin.motorControl.Motor1.direction() == 1:
-                self.lbl_motor1.image = (self.img_motor_counter)  
-            
     
     def show_height(self):
         if self.stop_show_height == False:
-#TODO:            height = self.zeppelin.height
-            self.height.set(self.zep_state['height']) 
+            height = random.randint(0,11)
+            self.height.set(height) 
             self.after(50,self.show_height)
-            
-    def stop_show_height_label(self):
-        self.stop_show_height = True
         
     def invoke_change_view_to_graph(self):
         self.Frame_visual_view.grid(row = 0, column = 0, columnspan = 3,sticky='WE') 
@@ -423,8 +375,8 @@ class GUI(threading.Thread,Frame):
         self.Frame_turn_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_turn_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
         
-        self.entry_turn_input = Entry(self.Frame_turn_menu) 
-        self.entry_turn_input.grid(row = 0, column = 0, padx = 3, pady = 3) 
+        entry_turn_input = Entry(self.Frame_turn_menu) 
+        entry_turn_input.grid(row = 0, column = 0, padx = 3, pady = 3) 
         
         btn_input_turn_enter = Button(self.Frame_turn_menu, text="ENTER",command=self.invoke_turn_enter,background ="gray11",foreground = "white") 
         btn_input_turn_enter.grid(row = 1, column = 0, padx = 2, pady = 3, columnspan = 3,sticky='W') 
@@ -433,10 +385,6 @@ class GUI(threading.Thread,Frame):
 
     def invoke_turn_enter(self):
         #stuur string
-        degr=self.entry_turn_input.get()
-        #command= Commands.Ascension(int(height))
-        #self.queue.put(command)
-        self.turn(degr)
         self.Frame_turn_menu.grid_remove()
         self.Frame_cmenu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')
         
@@ -444,8 +392,8 @@ class GUI(threading.Thread,Frame):
         self.Frame_move_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_move_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
         
-        self.entry_move_input = Entry(self.Frame_move_menu) 
-        self.entry_move_input.grid(row = 0, column = 0, padx = 3, pady = 3) 
+        entry_move_input = Entry(self.Frame_move_menu) 
+        entry_move_input.grid(row = 0, column = 0, padx = 3, pady = 3) 
         
         btn_input_move_enter = Button(self.Frame_move_menu, text="ENTER",command=self.invoke_move_enter,background ="gray11",foreground = "white") 
         btn_input_move_enter.grid(row = 1, column = 0, padx = 2, pady = 3, columnspan = 3,sticky='W') 
@@ -454,10 +402,6 @@ class GUI(threading.Thread,Frame):
 
     def invoke_move_enter(self):
         #stuur string
-        dist=self.entry_move_input.get()
-        #command= Commands.Ascension(int(height))
-        #self.queue.put(command)
-        self.move(dist)
         self.Frame_move_menu.grid_remove()
         self.Frame_cmenu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')
         
@@ -474,11 +418,12 @@ class GUI(threading.Thread,Frame):
         self.Frame_com_menu.grid_remove()
 
     def invoke_lift_enter(self):
-        #stuur strin
-        height=self.entry_lift_input.get()
-        #command= Commands.Ascension(int(height))
-        #self.queue.put(command)
-        self.lift(height)
+        #stuur string
+        
+        height =  self.entry_lift_input.get()
+        command = Commands.VertMove(int(height))
+        self.queue.put(command)
+        
         self.Frame_lift_menu.grid_remove()
         self.Frame_cmenu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')
         
@@ -528,138 +473,78 @@ class GUI(threading.Thread,Frame):
 
     def move_forward(self,*args):
         if self.flag_btn == False:
-            #command= Commands.Move(float('infinity'))
-            #self.queue.put(command)
-            self.send_string_command('V:' + 'infinity')
+            command= Commands.Move(float('infinity'))
+            self.queue.put(command)
             self.flag_btn=True
           
             
     def turn_left(self,*args):
         if self.flag_btn == False:
-            #command= Commands.Turn(float('-infinity'))
-            #self.queue.put(command)
-            self.send_string_command('L:' + 'infinity')
+            command= Commands.Turn(float('-infinity'))
+            self.queue.put(command)
             self.flag_btn=True
 
     def turn_right(self,*args):
         if self.flag_btn == False:
-            #command= Commands.Turn(float('infinity'))
-            #self.queue.put(command)
-            self.send_string_command('R:' +'infinity')
+            command= Commands.Turn(float('infinity'))
+            self.queue.put(command)
             self.flag_btn=True
         
     def move_backward(self,*args):
         if self.flag_btn == False:
-            #command= Commands.Move(float('-infinity'))
-            #self.queue.put(command)
-            self.send_string_command('A:' + 'infinity')
+            command= Commands.Move(float('-infinity'))
+            self.queue.put(command)
             self.flag_btn=True
         
     def ascend(self,*args):
         if self.flag_btn == False:
             #command= Commands.Ascension(float('infinity')) #Commands.<Stijgen>
-            #command= Commands.VertMove(100)
-            #self.queue.put(command)
-            self.send_string_command('S:' + 'infinity')
+            command= Commands.VertMove(100)
+            self.queue.put(command)
             self.flag_btn=True
         
     def descend(self,*args):
         if self.flag_btn == False:    
-            #command= Commands.VertMove(-100)
-            #self.queue.put(command)
-            self.send_string_command('D:' + 'infinity')
+            command= Commands.VertMove(-100)
+            self.queue.put(command)
             self.flag_btn=True
         
     def lift(self,height,*args):
-        #print newHeight
-        #command=Commands.Ascension(newHeight)
-        #self.queue.put(command)
-        if int(height)>0:
-            self.send_string_command('S:' + str(int(height)))
-        else:
-            self.send_string_command('D:' + str(-int(height)))
+        newHeight=self.zeppelin.heigth + height
+        print newHeight
+        command=Commands.Ascension(newHeight)
+        self.queue.put(command)
     
     def move(self,dist,*args):
-        #command= Commands.Move(dist)
-        #self.queue.put(command)
-        if int(dist)>0:
-            self.send_string_command('V:' + str(int(dist)))
-        else:
-            self.send_string_command('A:' + str(-int(dist)))
-
+        command= Commands.Move(dist)
+        self.queue.put(command)
+    
     def turn(self,degree,*args):
-        #command= Commands.Turn(degree)
-        #self.queue.put(command)
-        if int(degree)>0:
-            self.send_string_command('L:' + str(int(degree)))
-        else:
-            self.send_string_command('R:' + str(-int(degree)))
+        command= Commands.Turn(degree)
+        self.queue.put(command)
     
     def h_stop(self,*args):
-        #command = Commands.HorStop()
-        #self.queue.put(command)
-        self.send_string_command('hStop')
+        command = Commands.HorStop()
+        self.queue.put(command)
         
     def v_stop(self,*args):
       #  command = Commands.VertStop()
-        #command= Commands.VertMove(0)
-        #self.queue.put(command)
-        self.send_string_command('vStop')
+        command= Commands.VertMove(0)
+        self.queue.put(command)
     
         
     def stop(self,*args):
-        #command = Commands.Stop()
-        #self.queue.put(command)
-        self.send_string_command('Stop')
-    
-    def start_protocol(self,*args):
-        self.parent.protocol("WM_DELETE_WINDOW", self.exit_protocol)  
-        self.lbl_image_silsur.grid_remove()
-        self.btn_start.grid_remove()
-        self.establish_connection()
-        self.initGUI()
-        self.update_gui()
+        command = Commands.Stop()
+        self.queue.put(command)
         
-    def establish_connection(self):
-        outqueue  = Queue.Queue()
-        self.sender = Outbox(outqueue)
-        self.sender.start()
-        self.inputqueue = Queue.Queue()
-        
-    def exit_protocol(self,*args):
-        self.stop_graphs()
-        self.stop_show_height_label()
-        self.after_idle(self.safe_exit)
-        print 'Silver Surfer Terminated'
-        
-    def safe_exit(self,*args):
-        self.parent.quit()
-        self.parent.destroy()
-        
-    def send_string_command(self,string):
-        self.sender.outqueue.put(string) #op outputqueue plaatsen?
-        
-    #!!! Idee: Gui gaat met een thread werken en een queue
-    #in queue kunnen twee soorten text bestanden staan
-    #een textbestand stelt een update bestand voor over de staat van de zeppelin
-    #een tweede text bestand is een decision textbestand
-    #thread neemt eerste textbestand uit queue eb decodeert de info die de gui krijgt.    
-    #deze updatet zep_state ofwel voegt deze iets toe aan de decisionmaking textblock
-    
-    def update_gui(self):
-        try:
-                string = self.inputqueue.get(False)
-                self.output.insert(INSERT, str(string) + '\n')              
-        except Queue.Empty:
-                #Do nothing
-                pass
-        
-        self.parent.after(500, self.update_gui)
-    
-    def run(self):
-        while True:
-            foo = input('lol:')
-            self.inputqueue.put(foo)
-    #idee nummer 2: misschien kan de thread best met twee queues werken? 1 'inbox(de gui)' en 1 'outbox'
+# def main(): 
+#   
+#     foo = 0
+#     app = GUI(foo ) 
+#     app.parent.mainloop()
+# 
+# if __name__ == '__main__':
+#     main()
 
-gui=GUI(0,0)
+GUI(0,0)
+
