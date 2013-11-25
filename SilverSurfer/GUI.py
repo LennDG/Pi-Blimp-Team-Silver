@@ -93,19 +93,28 @@ class Outbox(threading.Thread,object):
             
     def send_string(self,string):
         print string
+        
+class Inbox(threading.Thread,object):
+    def __init__(self, inqueue):
+        threading.Thread.__init__(self)
+        self.inqueue=inqueue
     
-class GUI(threading.Thread,Frame):
+    def run(self):
+        while True:
+            foo = input('lol:')
+            self.inqueue.put(str(foo))
+            
+class GUI(Frame):
     
      
-    def __init__(self, queue,zeppelin):
+    def __init__(self,zeppelin):
         self.zep_state = {'height' : 0,'left-motor' : 0, 'right-motor':0, 'vert-motor':0 }
         
-        threading.Thread.__init__(self)
+        
         
         self.parent = Tk()  
         Frame.__init__(self, self.parent, background="gray55") 
         self.zeppelin=zeppelin
-        self.queue=queue
         self.outqueue_2 = Queue.Queue()
         
         self.parent.title("Silver Surfer") 
@@ -120,7 +129,6 @@ class GUI(threading.Thread,Frame):
         self.lbl_image_silsur = Label(self, image=img_silsur) 
         self.lbl_image_silsur.grid(row = 1, column = 0, padx = 5, pady = 5, columnspan=3) 
         
-        self.start()
         self.parent.mainloop()
         
     def initGUI(self): 
@@ -638,7 +646,9 @@ class GUI(threading.Thread,Frame):
         outqueue  = Queue.Queue()
         self.sender = Outbox(outqueue)
         self.sender.start()
-        self.inputqueue = Queue.Queue()
+        inputqueue = Queue.Queue()
+        self.receiver = Inbox(inputqueue)
+        self.receiver.start()
         
     def exit_protocol(self,*args):
         self.stop_graphs()
@@ -662,7 +672,7 @@ class GUI(threading.Thread,Frame):
     
     def update_gui(self):
         try:
-                string = self.inputqueue.get(False)
+                string = self.receiver.inqueue.get(False)
                 self.output.insert(INSERT, str(string) + '\n')              
         except Queue.Empty:
                 #Do nothing
@@ -673,10 +683,10 @@ class GUI(threading.Thread,Frame):
     def print_in_textbox(self,string):
         self.output.insert(INSERT, str(string) + '\n')   
     
-    def run(self):
-        while True:
-            foo = input('lol:')
-            self.inputqueue.put(foo)
+#     def run(self):
+#         while True:
+#             foo = input('lol:')
+#             self.inputqueue.put(foo)
     #idee nummer 2: misschien kan de thread best met twee queues werken? 1 'inbox(de gui)' en 1 'outbox'
 
-gui=GUI(0,0)
+gui=GUI(0)
