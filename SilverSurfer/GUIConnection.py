@@ -29,7 +29,7 @@ class GUIConn(object):
         self.s.close()
         
         
-class Input(threading, object):
+class Input(threading.Thread, object):
     
     def __init__(self, input_queue, socket):
         threading.Thread.__init__(self)
@@ -41,7 +41,7 @@ class Input(threading, object):
             input = self.s.recv(4096)
             self.queue.put(input)
             
-class Output(threading, object):
+class Output(threading.Thread, object):
     
     def __init__(self, output_queue, socket):
         threading.Thread.__init__(self)
