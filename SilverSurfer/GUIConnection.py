@@ -1,6 +1,6 @@
 #File for the GUI connection class, this will be housed on the PC
 
-import socket, threading
+import socket, threading, Queue
 
 class GUIConn(object):
     
@@ -21,6 +21,9 @@ class GUIConn(object):
         
         input = Input(input_queue, self.s)
         input.start()
+        
+        output = Output(output_queue, self.s)
+        output.start()
         
     def close(self):
         self.s.close()
@@ -47,5 +50,12 @@ class Output(threading, object):
         
     def run(self):
         while True:
+            try:
+                output = self.queue.get(False)              
+                self.s.sendall(output)
+            except Queue.Empty:
+                pass
+            except socket.error:
+                print "Sending failed"
             
             
