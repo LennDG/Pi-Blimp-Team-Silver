@@ -12,6 +12,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from numpy import random, sin, exp
 from PIL import Image,ImageTk
 import threading, Queue
+import GUIConnection
 
 class Plotter(Frame) : #te hard coded? herbruikbaar?
     def __init__(self,parent,max_x,max_y) : #extra method als handler (get height blablabla)
@@ -649,6 +650,7 @@ class GUI(Frame):
         inputqueue = Queue.Queue()
         self.receiver = Inbox(inputqueue)
         self.receiver.start()
+        self.connection = GUIConnection.GUIConn(self.receiver.inqueue,self.sender.outqueue)
         
     def exit_protocol(self,*args):
         self.stop_graphs()
