@@ -1,54 +1,80 @@
-import threading, Queue, time, ZeppelinControl, DistanceSensor, GUI
-
-class Zeppelin(threading.Thread, object):
     
+
+    
+
+import threading, Queue, time, ZeppelinControl, DistanceSensor, GUI
+     
+class Zeppelin(threading.Thread, object):
+       
     def __init__(self,queue):
         threading.Thread.__init__(self)
         self.queue = queue
-        self.command_time = 0
-        
+        self.command_time = float("inf")
+        self.executing_command = None
+           
         #Make another thread for the Distance Sensor, this eliminates the need to wait for it on height calls
         #TODO: The height has to be logged. It might be a good idea to log it here?
         #Make a distance sensor object here, which inherits from Thread, let it log data continually by making it an infinite loop
         #When zeppelin control needs the data, it can just ask it from the object.
         self.distance_sensor = DistanceSensor.DistanceSensor()
         self.distance_sensor.start() #Start the distance sensor
-
-        
+     
+           
         #Hier wordt een zeppelincontrol-object aangemaakt dat we control noemen.
         self.control = ZeppelinControl.ZeppelinControl(self.distance_sensor)
-        
+           
+    def add_command(self, command):
+        if command.has_priority():
+            while self.queue.empty():
+                try:
+                    temp = self.queue.get(False)
+                except Queue.Empty:
+                    pass
+            self.queue.add(command)
+            self.executing_command.is_executed = True
+        else:
+            self.queue.add(command)
+           
     @property
     def height(self):
         return self.distance_sensor.height
-    
+       
     @height.setter
     def height(self, value):
         self._height = value
-         
+             
     def run(self):
-        
+           
         while True:
-            try:
-                command = self.queue.get(False)
-                command.execute(self)                
-            except Queue.Empty:
-                #Do nothing
+            if  self.command_time < time.time():
+                self.executing_command.is_executed = True
+                self.command_time = float("inf")
+            if self.executing_command.is_executed:
+                try:
+                    command = self.queue.get(False)
+                    self.executing_command = command
+                    command.execute(self)
+                except Queue.Empty:
+                    #Do nothing
+                    pass
+                   
+            else:
                 pass
-            
+               
             #Check if movement needs to be stopped
-#             if self.command_time - time.time() <= 0:
-#                 self.control.hor_stop()
-                
+    # if self.command_time - time.time() <= 0:
+    # self.control.hor_stop()
+                   
             self.control.stabilize()
             #Check if the zeppelin is at the right height (+- 10cm)
-#             error = abs(self.control.current_height-self.control.goal_height) 
-#             if error <= 10:
-#                 print "At correct height"
-                
-
+    # error = abs(self.control.current_height-self.control.goal_height)
+    # if error <= 10:
+    # print "At correct height"
+                   
+     
 #Main initialization
 command_queue = Queue.Queue()
 zeppelin = Zeppelin(queue = command_queue)
 zeppelin.start()
 gui = GUI.GUI(queue = command_queue, zeppelin = zeppelin)
+
