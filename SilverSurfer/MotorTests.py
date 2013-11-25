@@ -4,19 +4,27 @@ import ZeppelinControl, Motor, time
 
 def main():
     zep_control = ZeppelinControl.ZeppelinControl(0)
-    forward_test(zep_control)
-    backward_test(zep_control)
-    left_turn_test(zep_control)
-    right_turn_test(zep_control)
+    forward_test(zep_control, 0.1)
+    forward_test(zep_control, 0.2)
+    forward_test(zep_control, 0.3)
+    forward_test(zep_control, 0.5)
+    forward_test(zep_control, 0.8)
+    forward_test(zep_control, 1)
+    forward_test(zep_control, 1.5)
+    forward_test(zep_control, 2)
+    forward_test(zep_control, 2.5)
+    forward_test(zep_control, 3.5)
+    forward_test(zep_control, 5)
+    
     
 
-def forward_test(zep_control):
+def forward_test(zep_control, parameter):
     print "Testing forward movement for 3 seconds"
     zep_control.move(1)
-    time.sleep(3)
+    time.sleep(parameter)
     print "stopping forward movement"
     zep_control.hor_stop()
-    time.sleep(1)
+    time.sleep(30)
     
 def backward_test(zep_control):
     print "Testing backward movement for 3 seconds"
