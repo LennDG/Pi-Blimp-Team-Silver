@@ -129,7 +129,7 @@ class GUI(threading.Thread,Frame):
         #flag_btn init op false
         self.flag_btn = False
         self.stop_show_height = True
-        
+        self.stop_show_motors = True
         #binden van buttons
         self.parent.bind('<Up>',self.move_forward)
         self.parent.bind('<Down>',self.move_backward)
@@ -396,10 +396,24 @@ class GUI(threading.Thread,Frame):
     
     def show_graphs(self):
         self.height_graph.stop = False
+        self.stop_show_motors = False 
         self.height_graph.plotter()
+        self.update_motors_view()
+        
+    def update_motors_view(self):
+        if self.stop_show_motors == False:
+            self.motor1.set('motor 1 ' + str(abs(random.randn())))
+            self.motor2.set('motor 2 '+ str(abs(random.randn())))
+            self.motor3.set('motor 3 '+str(abs(random.randn())))
+            self.parent.after(200, self.update_motors_view)
+    
+        
+    
+    
        
     def stop_graphs(self):   
-        self.height_graph.stop = True    
+        self.height_graph.stop = True 
+        self.stop_show_motors = True   
     
     def invoke_command(self):
         self.Frame_com_menu = Frame(self.Frame_input,background="gray55")
@@ -598,19 +612,19 @@ class GUI(threading.Thread,Frame):
     def h_stop(self,*args):
         #command = Commands.HorStop()
         #self.queue.put(command)
-        self.send_string_command('hStop')
+        self.send_string_command('HS:0')
         
     def v_stop(self,*args):
       #  command = Commands.VertStop()
         #command= Commands.VertMove(0)
         #self.queue.put(command)
-        self.send_string_command('vStop')
+        self.send_string_command('VS:0')
     
         
     def stop(self,*args):
         #command = Commands.Stop()
         #self.queue.put(command)
-        self.send_string_command('Stop')
+        self.send_string_command('STOP:0')
     
     def start_protocol(self,*args):
         self.parent.protocol("WM_DELETE_WINDOW", self.exit_protocol)  
@@ -655,6 +669,9 @@ class GUI(threading.Thread,Frame):
                 pass
         
         self.parent.after(500, self.update_gui)
+        
+    def print_in_textbox(self,string):
+        self.output.insert(INSERT, str(string) + '\n')   
     
     def run(self):
         while True:
