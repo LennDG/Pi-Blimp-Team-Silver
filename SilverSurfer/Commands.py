@@ -98,7 +98,7 @@ class Ascension(Command):
         self.height = height
         
     def execute(self, zeppelin):
-        zeppelin.control.goal_height = self.height
+        zeppelin.control.goal_height = zeppelin.height + self.height
         
     @property
     def is_executed(self):
