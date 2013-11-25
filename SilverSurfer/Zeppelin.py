@@ -25,7 +25,7 @@ class Zeppelin(threading.Thread, object):
            
     def add_command(self, command):
         if command.has_priority():
-            while self.queue.empty():
+            while not self.queue.empty(): #Clears queue
                 try:
                     temp = self.queue.get(False)
                 except Queue.Empty:

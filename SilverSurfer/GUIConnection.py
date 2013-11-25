@@ -1,14 +1,14 @@
 #File for the GUI connection class, this will be housed on the PC
 
-import socket
+import socket, threading
 
 class GUIConn(object):
     
-    def __init__(self, GUI):
+    def __init__(self, input_queue, output_queue):
         
-        self.GUI = GUI
         self.PORT = 8888
         self.PI_IP = "192.168.1.1"
+        
         
         try:
             #Creates a socket
@@ -18,16 +18,34 @@ class GUIConn(object):
         
         self.s.connect((self.PI_IP, self.PORT))
         #TODO: Print a socket has been made.
-        self.GUI.print_in_textbox("Socket has been made")
         
-    def send(self, message):
-        #Only takes strings
-        try: 
-            self.s.sendall(message)
-        except socket.error:
-            #Something failed
+        input = Input(input_queue, self.s)
+        input.start()
+        
+    def close(self):
+        self.s.close()
+        
+        
+class Input(threading, object):
+    
+    def __init__(self, input_queue, socket):
+        threading.Thread.__init__(self)
+        self.s = socket
+        self.queue = input_queue
+        
+    def run(self):
+        while True:
+            input = self.s.recv(4096)
+            self.queue.put(input)
             
+class Output(threading, object):
+    
+    def __init__(self, output_queue, socket):
+        threading.Thread.__init__(self)
+        self.s = socket
+        self.queue = output_queue
         
-    def receive(self):
-        input = self.s.recv(4096)
-        self.GUI.input(input)
+    def run(self):
+        while True:
+            
+            
