@@ -19,11 +19,11 @@ class GUIConn(object):
         self.s.connect((self.PI_IP, self.PORT))
         #TODO: Print a socket has been made.
         
-        _input = Input(input_queue, self.s)
-        _input.start()
+        inbox = Input(input_queue, self.s)
+        inbox.start()
         
-        output = Output(output_queue, self.s)
-        output.start()
+        outbox = Output(output_queue, self.s)
+        outbox.start()
         
     def close(self):
         self.s.close()
@@ -38,8 +38,8 @@ class Input(threading.Thread, object):
         
     def run(self):
         while True:
-            _input = self.s.recv(4096)
-            self.queue.put(_input)
+            data = self.s.recv(4096)
+            self.queue.put(data)
             
 class Output(threading.Thread, object):
     
