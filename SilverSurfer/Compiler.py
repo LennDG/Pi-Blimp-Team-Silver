@@ -1,4 +1,4 @@
-import Commands
+import Commands, threading, Queue
 
 class Parser():
     
@@ -62,3 +62,25 @@ class Compiler():
             i = i + 1
                     
         return temp
+    
+class Commandfactory(threading.Thread, object):
+    
+    def __init__(self, queue, zeppelin):
+        threading.Thread.__init__(self)
+        self.queue = queue
+        self.parser = Parser()
+        self.compiler = Compiler()
+        self.zeppelin = zeppelin
+        
+         
+    def run(self):
+        
+        while True:
+            if  not self.queue.empty():
+                string = self.queue.get(False)
+                code = self.parser.parse_string(string)
+                command = self.compiler.compile(code)
+                self.zeppelin.add_command(command)
+                
+            else:
+                pass

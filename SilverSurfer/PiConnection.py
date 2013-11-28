@@ -2,7 +2,7 @@
 
 import socket, threading
 
-class Server(threading.Thread, object):
+class PiConn(threading.Thread, object):
     
     def __init__(self, inqueue, outqueue):
         threading.Thread.__init__(self)

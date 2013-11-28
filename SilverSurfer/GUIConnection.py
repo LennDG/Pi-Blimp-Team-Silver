@@ -2,7 +2,7 @@
 
 import socket, threading
 
-class Client(threading.Thread, object):
+class GUIConn(threading.Thread, object):
     
     def __init__(self, inqueue, outqueue):
         threading.Thread.__init__(self)
@@ -19,7 +19,7 @@ class Client(threading.Thread, object):
     def run(self):
         while True:
             try:
-                data = self.outqueue.get()
+                data = self.outqueue.get(True) #BLOCKING CALL
                 self.s.sendall(data)
                 reply = self.s.recv(1024) #BLOCKING CALL
                 self.inqueue.put(reply)
