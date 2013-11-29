@@ -1,5 +1,9 @@
 import time
 
+#TODO: Implement a Stop function in each command? It might make things a lot better coherence wise.
+#TODO: Implement a Status update function in each command, so that decision Status is update correctly
+
+
 '''
 This module contains all the Command classes.
 '''

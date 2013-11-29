@@ -1,5 +1,8 @@
 import Commands, threading, Queue
 
+#TODO: This does not have to be threaded. Improve the parsing, more Python, less Java! for example, see Gate in PiConnection.
+#TODO: This should also not put in on the command queue immediately, but just return a command or list of commands, to simplify further processing.
+
 class Parser():
     
     def parse_string(self, string):

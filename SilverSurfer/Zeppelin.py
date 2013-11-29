@@ -1,8 +1,5 @@
-    
 
-    
-
-import threading, Queue, time, ZeppelinControl, DistanceSensor, sys
+import threading, Queue, time, ZeppelinControl, DistanceSensor, sys, PiConnection
      
 class Zeppelin(threading.Thread, object):
        
@@ -27,6 +24,16 @@ class Zeppelin(threading.Thread, object):
         #Hier wordt een zeppelincontrol-object aangemaakt dat we control noemen.
         self.control = ZeppelinControl.ZeppelinControl(self.distance_sensor)
         
+        gate = PiConnection.Gate(self)
+        gate.open() #Starts looking for the first signs of connection.
+        
+    @property
+    def height(self):
+        return self.distance_sensor.height
+       
+    @height.setter
+    def height(self, value):
+        self._height = value    
            
     def add_command(self, command):
         if command.has_priority():
@@ -40,13 +47,7 @@ class Zeppelin(threading.Thread, object):
         else:
             self.command_queue.add(command)
            
-    @property
-    def height(self):
-        return self.distance_sensor.height
-       
-    @height.setter
-    def height(self, value):
-        self._height = value
+   
              
     def run(self):
            
@@ -72,10 +73,5 @@ class Zeppelin(threading.Thread, object):
         #TODO: This should be a clean shutdown, for now, sys.exit()
         time.sleep(3)
         sys.exit()
-                   
-     
-#Main initialization
-command_queue = Queue.Queue()
-zeppelin = Zeppelin(queue = command_queue)
-zeppelin.start()
+
 

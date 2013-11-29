@@ -30,34 +30,31 @@ class PiConn(threading.Thread, object):
             conn.close()
             
 class Gate(object):
-    global KEYWORDS
-    KEYWORDS = ['STATUS', 'INFO', 'SWITCH', 'SHUTDOWN']
+    
     
     
     def __init__(self, zeppelin):
         self.zep = zeppelin
-        connection = PiConn(self)
-        connection.start()
+        self.connection = PiConn(self)
+        
+        self.replies = {'STATUS' : self.status,#Gives the Status of the Pi (Decisions, ...)
+                        'INFO' : self.info,  #Gives the Info of the Pi (Height, ...)
+                        'SWITCH' : self.switch, #Switches between Auto and Manual mode
+                        'SHUTDOWN': self.shutdown, #Shuts the Pi down
+                        'CONNECT' : self.connect, #Will tell the PC that the connection is okay
+                        'COMMAND' : self.command} #Issues commands
+        
+    def open(self):
+        #Starts the connection thread
+        self.connection.start()
     
     def reply(self, request):
-        request_type = self.keyword_check(request)
-        
-        replies = {'STATUS' : self.status,#Gives the Status of the Pi (Decisions, ...)
-                   'INFO' : self.info,  #Gives the Info of the Pi (Height, ...)
-                   'SWITCH' : self.switch, #Switches between Auto and Manual mode
-                   'SHUTDOWN': self.shutdown, #Shuts the Pi down
-                   'COMMAND' : self.command} #Issues commands
-        
-        return replies[request_type](request)
-        
-    
-    def keyword_check(self, request):
-        #Checks if one of the keywords is in the request, if so, returns the word. Else returns the string 'COMMAND'
-        if any(word in request for word in KEYWORDS):
-            return word
+        #Looks for the keywords in the request, handles them in the correct way.
+        if any(word in request for word in self.replies):
+            return self.replies[word](request)
         else:
-            return 'COMMAND'
-            
+            return self.replies['COMMAND'](request)
+
     def status(self, request):
         reply = 'STATUS > ' + self.zep.STATUS
         return reply
@@ -88,6 +85,10 @@ class Gate(object):
         reply = 'SHUTDOWN > SHUTTING DOWN IN 3 SECONDS'
         return reply
         self.zep.shutdown() #This method waits 3 seconds
+        
+    def connect(self, request):
+        reply = 'CONNECT > CONNECTION ESTABLISHED'
+        return reply
     
     def command(self, request):
         reply = request + ' > Processing commands and executing them !!!!!!!!!NOT YET IMPLEMENTEDs!!!!!!!!!!!'
