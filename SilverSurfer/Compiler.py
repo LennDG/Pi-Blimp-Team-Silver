@@ -2,9 +2,6 @@ import Commands, threading, Queue
 
 class Parser():
     
-    def __init__(self):
-        pass
-    
     def parse_string(self, string):
         string = string.replace(' ','')
         temp = string.split(';')
@@ -65,19 +62,18 @@ class Compiler():
     
 class Commandfactory(threading.Thread, object):
     
-    def __init__(self, queue, zeppelin):
+    def __init__(self, string_queue, zeppelin):
         threading.Thread.__init__(self)
-        self.queue = queue
+        self.str_queue = string_queue
         self.parser = Parser()
         self.compiler = Compiler()
         self.zeppelin = zeppelin
         
          
     def run(self):
-        
         while True:
-            if  not self.queue.empty():
-                string = self.queue.get(False)
+            if  not self.str_queue.empty():
+                string = self.str_queue.get(False)
                 code = self.parser.parse_string(string)
                 command = self.compiler.compile(code)
                 self.zeppelin.add_command(command)

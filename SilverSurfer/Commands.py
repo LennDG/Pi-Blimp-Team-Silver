@@ -18,6 +18,7 @@ class Command(object):
 This method must be implemented by all child classes. In its current state, it does not do anything.
 '''
     def execute(self, zeppelin):
+        #This executes the command, sets the time necessary to execute it in the zeppelin object
         pass
 
 '''

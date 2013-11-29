@@ -7,10 +7,11 @@ class Motor(object):
         
         GPIO.setmode(GPIO.BCM)
         
-        self.direction = 1
+        self.direction = 0
         
         self.cw_pin = cw_pin
         self.ccw_pin = ccw_pin
+
         
         GPIO.setup(cw_pin, GPIO.OUT)
         GPIO.setup(ccw_pin, GPIO.OUT)
@@ -35,10 +36,12 @@ class Motor(object):
         elif self.direction == -1:
             GPIO.output(self.cw_pin, 0)
             GPIO.output(self.ccw_pin, 1)
+
     
     def disable(self): #This turns the motor off
         GPIO.output(self.cw_pin, 0)
         GPIO.output(self.ccw_pin, 0)
+        self.direction = 0
     
     
 class VerticalMotor(Motor):
