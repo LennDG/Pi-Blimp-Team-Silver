@@ -77,7 +77,7 @@ class Plotter(Frame) : #te hard coded? herbruikbaar?
             self.after(10000, self.plotter)
 
 
-#twee threads lukken blijkbaar niet :(
+
 class Outbox(threading.Thread,object):
     def __init__(self, outqueue):
         threading.Thread.__init__(self)
@@ -109,14 +109,13 @@ class GUI(Frame):
     
      
     def __init__(self,zeppelin):
-        self.zep_state = {'height' : 0,'left-motor' : 0, 'right-motor':0, 'vert-motor':0 }
-        
+        self.zep_state = {'height' : 0,'left-motor' : 0, 'right-motor':0, 'vert-motor':0, 'Goal':'not given', 'Error':'not given' }
+        self.zep_modus = 0
         
         
         self.parent = Tk()  
         Frame.__init__(self, self.parent, background="gray55") 
         self.zeppelin=zeppelin
-        self.outqueue_2 = Queue.Queue()
         
         self.parent.title("Silver Surfer") 
         self.pack(fill=BOTH, expand=1) 
@@ -129,6 +128,11 @@ class GUI(Frame):
         img_silsur = ImageTk.PhotoImage(imgr)
         self.lbl_image_silsur = Label(self, image=img_silsur) 
         self.lbl_image_silsur.grid(row = 1, column = 0, padx = 5, pady = 5, columnspan=3) 
+        
+        self.parser = GuiParser()
+        self.compiler = GuiCompiler()
+        
+        
         
         self.parent.mainloop()
         
@@ -167,7 +171,7 @@ class GUI(Frame):
         lbl_image = Label(self.Frame_input, image=self.img) #TODO: image juist adress. 
         #lbl_image = Label(self.Frame_input, text="Afbeelding")
         #lbl_image.config(width = 70, height = 30) 
-        lbl_image.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan=3) 
+        lbl_image.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan=4) 
         
         # 3 Menu knoppen 
         menu_btn_width = 7 
@@ -194,9 +198,9 @@ class GUI(Frame):
             
         entry_input = Entry(self.Frame_input) 
         entry_input.config( width = 1 )
-        entry_input.grid(row = 4, column = 0,columnspan=2, padx = 3, pady = 3,sticky="WE") 
+        entry_input.grid(row = 4, column = 0,columnspan=3, padx = 3, pady = 3,sticky="WE") 
         btn_input_enter = Button(self.Frame_input, text="ENTER",background ="gray11",foreground = "white") 
-        btn_input_enter.grid(row = 4, column = 2, padx = 2, pady = 3,sticky="WE") #pijltjes 
+        btn_input_enter.grid(row = 4, column = 3, padx = 2, pady = 3,sticky="WE") #pijltjes 
        
 #Grote Stop knop
        
@@ -204,11 +208,18 @@ class GUI(Frame):
         btn_stop = Button(self.Frame_input, text="STOP" , command= self.stop, background = "red",foreground = "white")
         btn_stop.config( height = 5, width = 10) 
         btn_stop.grid(row = 1, column = 1, padx = 5, pady = 3, sticky='W') 
+        
+#Grote Switch knop
+        
+        btn_switch = Button(self.Frame_input, text="SWITCH" , command= self.switch, background = "red",foreground = "white")
+        btn_switch.config( height = 5, width = 10) 
+        btn_switch.grid(row = 1, column = 2, padx = 5, pady = 3, sticky='W') 
+        
        
 #pijltjes, A en D
        
         self.Frame_btn_control = Frame(self.Frame_input,background="gray55")
-        self.Frame_btn_control.grid(row = 1, column = 2) 
+        self.Frame_btn_control.grid(row = 1, column = 3) 
         
         rc_btn_height = 32 
         rc_btn_width = 34 
@@ -380,7 +391,7 @@ class GUI(Frame):
     
     def show_height(self):
         if self.stop_show_height == False:
-#TODO:            height = self.zeppelin.height
+#
             self.height.set(self.zep_state['height']) 
             self.after(50,self.show_height)
             
@@ -634,6 +645,10 @@ class GUI(Frame):
         #command = Commands.Stop()
         #self.queue.put(command)
         self.send_string_command('STOP:0')
+        
+    def switch(self,*args):
+        new_modus = (self.zep_modus + 1) % 2
+        self.send_string_command('SWITCH:' + str(new_modus))
     
     def start_protocol(self,*args):
         self.parent.protocol("WM_DELETE_WINDOW", self.exit_protocol)  
@@ -641,20 +656,26 @@ class GUI(Frame):
         self.btn_start.grid_remove()
         self.establish_connection()
         self.initGUI()
+        #TODO:
+        test = TEST(self.inputqueue, self.zep_state)
+        test.start()
+        
         self.update_gui()
         
     def establish_connection(self):
-        outqueue  = Queue.Queue()
-        self.sender = Outbox(outqueue)
-        self.sender.start()
-        inputqueue = Queue.Queue()
-        self.receiver = Inbox(inputqueue)
-        self.receiver.start()
-        self.connection = GUIConnection.GUIConn(self.receiver.inqueue,self.sender.outqueue)
+        self.outputqueue  = Queue.Queue()
+        #self.sender = Outbox(outqueue)
+        #self.sender.start()
+        self.inputqueue = Queue.Queue()
+#       self.receiver = Inbox(inputqueue)
+#       self.receiver.start()
+#        self.connection = GUIConnection.GUIConn(self.inputqueue,self.outputqueue)
+        
         
     def exit_protocol(self,*args):
         self.stop_graphs()
         self.stop_show_height_label()
+        
         self.after_idle(self.safe_exit)
         print 'Silver Surfer Terminated'
         
@@ -663,7 +684,7 @@ class GUI(Frame):
         self.parent.destroy()
         
     def send_string_command(self,string):
-        self.sender.outqueue.put(string) #op outputqueue plaatsen?
+        self.outputqueue.put(string) #op outputqueue plaatsen?
         
     #!!! Idee: Gui gaat met een thread werken en een queue
     #in queue kunnen twee soorten text bestanden staan
@@ -674,13 +695,38 @@ class GUI(Frame):
     
     def update_gui(self):
         try:
-                string = self.receiver.inqueue.get(False)
-                self.output.insert(INSERT, str(string) + '\n')              
+                string = self.inputqueue.get(False)
+                self.take_care_of_message_string(string)
+                             
         except Queue.Empty:
                 #Do nothing
                 pass
         
+        self.send_string_command("INFO:0")
+        self.send_string_command("STATUS:0")
         self.parent.after(500, self.update_gui)
+        
+    def take_care_of_message_string(self,string):
+        code = self.parser.parse_string_type(string)
+        
+        if code[0] == self.compiler.type_words[0]:
+            self.update_dictionary(code[1])
+        
+        elif code[0] == self.compiler.type_words[1] and code[1] != "":
+            self.print_in_textbox(code[1])
+        
+        elif code[0]== self.compiler.type_words[2] or code[0]== self.compiler.type_words[3]:
+            self.print_in_textbox(string) 
+        else:
+            print "Reply: " + string
+            
+    def update_dictionary(self, state_string):
+        
+        parser = GuiParser()
+        array_att = parser.parse_string_att(state_string)
+        for s in array_att:
+            att_and_val = s.split(':')
+            self.zep_state[self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1]) 
         
     def print_in_textbox(self,string):
         self.output.insert(INSERT, str(string) + '\n')   
@@ -690,5 +736,89 @@ class GUI(Frame):
 #             foo = input('lol:')
 #             self.inputqueue.put(foo)
     #idee nummer 2: misschien kan de thread best met twee queues werken? 1 'inbox(de gui)' en 1 'outbox'
+    
+class GuiParser():
+    
+    def parse_string_att(self,string):
+        temp = string.split(';')
+        return temp
+    
+    def parse_string_type(self, string):
+        string = string.replace(' ','')
+        temp = string.split('>')
+        return temp
 
-gui=GUI(0)
+class GuiCompiler():
+    
+    def __init__(self):
+        self.type_words = ["INFO", "STATUS", "SWITCH", "SHUTDOWN"]
+        #TODO: kan mooier, in zeppelin nog een extra dictionary maken met {'hoogte' : 'height',...} en deze meegeven in de compiler
+        self.state_att_words = { "H":"height", "GH":"Goal","E":"Error","M1":"left-motor","M2":"right-motor","M3":"vert-motor"}
+        
+
+     
+    
+            
+        
+    def compile(self, code):
+        
+        temp = []
+        i = 0
+        while i < len(code):
+            command = code[i]
+            command = command.split(':')
+            if len(command) != 2:
+                print("The command format was not respected")
+            else:
+                if not self.command_words.__contains__(command[0]):
+                    print(command[0] + " is not a valid command")
+                
+                else:
+                    try:
+                        command[1] = float(command[1])
+                    except ValueError:
+                        print('The parameter supplied is not a number')
+                    temp = temp + [self.make_command(command[0], command[1], i == 0)]
+            i = i + 1
+                    
+        return temp
+    
+class GuiCommandfactory(threading.Thread, object):
+    
+    def __init__(self, queue, zeppelin):
+        threading.Thread.__init__(self)
+        self.queue = queue
+        self.parser = GuiParser()
+        self.compiler = GuiCompiler()
+        self.zeppelin = zeppelin
+        
+         
+    def run(self):
+        
+        while True:
+            if  not self.queue.empty():
+                string = self.queue.get(False)
+                code = self.parser.parse_string(string)
+                command = self.compiler.compile(code)
+                self.zeppelin.add_command(command)
+                
+            else:
+                pass
+            
+class TEST(threading.Thread,object):
+    def __init__(self,inputqueue,zep_state):
+        threading.Thread.__init__(self)
+        self.zep_state = zep_state
+        self.inputqueue = inputqueue
+    def run(self):
+        while True:
+            print self.zep_state
+            foo = input('lol:')
+            self.inputqueue.put(foo)
+            print self.zep_state
+
+
+gui = GUI(0)
+# h = 'hey:'
+# b = h.split(':')
+# print b
