@@ -1,6 +1,6 @@
 #This is the server file, it is housed on the Pi
 
-import socket, threading, time
+import socket, threading
 
 class PiConn(threading.Thread, object):
     
@@ -30,8 +30,6 @@ class PiConn(threading.Thread, object):
             conn.close()
             
 class Gate(object):
-    
-    
     
     def __init__(self, zeppelin):
         self.zep = zeppelin
@@ -68,7 +66,7 @@ class Gate(object):
         right_motor = self.zep.control.motor_control.right_motor.direction
         vert_motor = self.zep.control.motor_control.vert_motor.level
         
-        reply = 'INFO > H:' + height +' G:' + goal_height + ' E:' + error + ' LM:' + left_motor + ' RM:' + right_motor + ' VM:' + vert_motor
+        reply = 'INFO > H:' + height +'; GH:' + goal_height + '; E:' + error + '; LM:' + left_motor + '; RM:' + right_motor + '; VM:' + vert_motor
         return reply
     
     def switch(self, request):
@@ -91,7 +89,7 @@ class Gate(object):
         return reply
     
     def command(self, request):
-        reply = request + ' > Processing commands and executing them !!!!!!!!!NOT YET IMPLEMENTEDs!!!!!!!!!!!'
+        reply = request + ' > Processing commands and executing them !!!!!!!!!NOT YET IMPLEMENTED!!!!!!!!!!!'
         return reply
         #TODO: find out how to make commands better, because they aren't up to snuff right now!
         pass 
