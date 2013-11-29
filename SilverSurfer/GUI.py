@@ -708,10 +708,10 @@ class GUI(Frame):
         
     def take_care_of_message_string(self,string):
         code = self.parser.parse_string_type(string)
-        
         if code[0] == self.compiler.type_words[0]:
             self.update_dictionary(code[1])
-        
+            print "Hey"
+
         elif code[0] == self.compiler.type_words[1] and code[1] != "":
             self.print_in_textbox(code[1])
         
@@ -818,7 +818,8 @@ class TEST(threading.Thread,object):
             print self.zep_state
 
 
-gui = GUI(0)
+#gui = GUI(0)
 # h = 'hey:'
 # b = h.split(':')
 # print b
+print str([1,2,3,4,6].index(4))
