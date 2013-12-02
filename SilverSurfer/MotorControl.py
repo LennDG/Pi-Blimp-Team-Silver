@@ -7,7 +7,7 @@ class MotorControl():
         
         #Make all Motor objects
         self.left_motor = Motor.Motor(cw_pin = 4, ccw_pin = 24)
-        self.right_motor = Motor.Motor(cw_pin = 17, ccw_pin = 23)
+        self.right_motor = Motor.Motor(cw_pin = 10, ccw_pin = 11)
         self.vert_motor = Motor.VerticalMotor(cw_pin = 7, ccw_pin = 9) #Make sure that the PWM connector on the board is correct 
         
     
