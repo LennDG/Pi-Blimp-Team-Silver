@@ -74,6 +74,7 @@ class QR(threading.Thread, object):
         
         self.QR_codes = {} #Key is the number of the QR code, the values are the data strings.
         self.QR_images = {} #Key is number of the QR, values are the image files
+        self.QR_points = {} #Key is the number of the QR, values are the points on the last image!
         self.scanner = QRScanner()
         self.currentQR = 1
         
@@ -92,17 +93,14 @@ class QR(threading.Thread, object):
                 os.rename("/home/pi/tmp.jpg", img_file)
                 self.QR_codes[QR_number] = img_file
                 
+                QR_object = self.scanner.zxing_read(img_file)
+                points = self.parse_points_QR(QR_object)
                 
                 
-            
-        pass
-
-        
-    def scan_QR(self):
             
         pass
     
-    def parseQR(self, QRcode):
+    def parse_points_QR(self, QRcode):
         #Returns the text string of the QR, this may be very easy depending on what the zxing library returns
         pass
     
