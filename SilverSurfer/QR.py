@@ -108,9 +108,13 @@ class QR(threading.Thread, object):
         #On current QR
         pass
     
-    def calculate_distance(self):
-        #On current QR. When X meters in height, the width of the picture is X meters assuming 4:3 ratio
-        pass
+    def calculate_distance(self,points,img):
+        (width_image, height_image) = img.size(img) 
+        middle_x, middle_y = (points[0][0] + points[2][0])/2 , (points[0][1] + points[2][1])/2
+        center_x, center_y = (points[1][0] + middle_x)/2 , (points[1][1] + middle_y)/2
+        diff_x = ((400-center_x) * self.zeppelin.Heigth ) / 800 # - (neg) zeppling staat diff_x meters te ver naar rechts tov de QR-code
+        diff_y = ((300-center_y) * self.zeppelin.Heigth * 1,33) / (600*2) # + (pos) zeppling staat te ver naar achter tov de QR-code
+        return (diff_x,diff_y) 
     
     def new_file_name(self, number):
         img_file = "/home/pi/QR" + str(number) + ".jpg"
