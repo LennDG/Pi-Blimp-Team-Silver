@@ -2,7 +2,7 @@
 
 #TODO: test all the physical aspects, like resolution and what the zxing library returns
 
-import zxing, threading, zbar
+import zxing, threading, zbar, os
 from subprocess import call
 from PIL import Image
 
@@ -20,8 +20,7 @@ class QRScanner(object):
         self.zbar_reader = zbar.ImageScanner()
         self.zbar_reader.parse_config("enable")
         
-        self.camera = Camera()
-        self.images = {} #Format: QR number, image_file        
+        self.camera = Camera()  
         
         
     def scan(self):
@@ -70,14 +69,32 @@ class QRScanner(object):
 
 class QR(threading.Thread, object):
     
-    def __init__(self):
+    def __init__(self, zeppelin):
         threading.Thread.__init__(self)
-        self.QRcodes = {} #Key is the number of the QR code, the values are the data strings.
+        
+        self.QR_codes = {} #Key is the number of the QR code, the values are the data strings.
+        self.QR_images = {} #Key is number of the QR, values are the image files
         self.scanner = QRScanner()
         self.currentQR = 1
         
+        self.zeppelin = zeppelin
+        
     def run(self):
-        #When started, begin take picture and decode it. This is written in a thread because it can take a while to read
+        while True:
+            QR_strings = self.scanner.scan()
+            if not QR_strings:
+                continue
+            elif len(QR_strings) is 1:
+                QR_number = int(QR_strings[QR_strings.index('N')+ 2:])
+                self.QR_codes[QR_number] = QR_strings[0]
+                
+                img_file = self.new_file_name(QR_number)
+                os.rename("/home/pi/tmp.jpg", img_file)
+                self.QR_codes[QR_number] = img_file
+                
+                
+                
+            
         pass
 
         
@@ -97,8 +114,6 @@ class QR(threading.Thread, object):
         #On current QR. When X meters in height, the width of the picture is X meters assuming 4:3 ratio
         pass
     
-    def new_file_name(self):
-        img_file = "/home/pi/img" + str(self.index) + ".jpg"
-        self.index += 1
-        
+    def new_file_name(self, number):
+        img_file = "/home/pi/QR" + str(number) + ".jpg"
         return img_file

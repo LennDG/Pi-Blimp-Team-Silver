@@ -123,6 +123,10 @@ class PID(object):
         #Make result variables zero, sort of a reset
         self.Ci = 0
         self.Cd = 0
+        
+        #Init max and min Ci values
+        self.max_Ci = 50
+        self.min_Ci = -50
     
     #The calculating part
     def PID(self, error):
