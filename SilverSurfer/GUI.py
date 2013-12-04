@@ -217,15 +217,15 @@ class GUI(Frame):
        
         btn_command = Button(self.Frame_cmenu, text="COMMAND" , command= self.invoke_command,background ="gray11",foreground = "white" )
         btn_command.config( height = menu_btn_height, width = menu_btn_width + 3 ) 
-        btn_command.grid(row = 3, column = 0, padx = 5, pady = 3, sticky='W') 
+      #  btn_command.grid(row = 3, column = 0, padx = 5, pady = 3, sticky='W') 
           
             
             
-        entry_input = Entry(self.Frame_input) 
-        entry_input.config( width = 1 )
-        entry_input.grid(row = 4, column = 0,columnspan=3, padx = 3, pady = 3,sticky="WE") 
-        btn_input_enter = Button(self.Frame_input, text="ENTER",background ="gray11",foreground = "white") 
-        btn_input_enter.grid(row = 4, column = 3, padx = 2, pady = 3,sticky="WE") #pijltjes 
+        self.entry_input = Entry(self.Frame_input) 
+        self.entry_input.config( width = 1 )
+        self.entry_input.grid(row = 4, column = 0,columnspan=3, padx = 3, pady = 3,sticky="WE") 
+        self.btn_input_enter = Button(self.Frame_input, text="STABALIZE",command= self.invoke_stabilize,background ="gray11",foreground = "white") 
+        self.btn_input_enter.grid(row = 4, column = 3, padx = 2, pady = 3,sticky="WE") #pijltjes 
        
 #Grote Stop knop
        
@@ -476,7 +476,13 @@ class GUI(Frame):
     def stop_graphs(self):   
         self.height_graph.stop = True 
         self.stop_show_motors = True   
-    
+   
+    def invoke_stabilize(self):
+        height = self.entry_input.get()
+        self.send_string_command('STABALIZE:' + str(int(height)))
+       
+        
+ 
     def invoke_command(self):
         self.Frame_com_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_com_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
