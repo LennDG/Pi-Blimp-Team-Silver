@@ -93,14 +93,15 @@ class QR(threading.Thread, object):
                 os.rename("/home/pi/tmp.jpg", img_file)
                 self.QR_codes[QR_number] = img_file
                 
-                QR_object = self.scanner.zxing_read(img_file)
-                points = self.parse_points_QR(QR_object)
-                
-                
+            elif len(QR_strings) > 1:
+                #TODO: zoom stuff
+                pass  
+            
+            
             
         pass
     
-    def parse_points_QR(self, QRcode):
+    def get_points_QR(self, number):
         #Returns the text string of the QR, this may be very easy depending on what the zxing library returns
         pass
     
