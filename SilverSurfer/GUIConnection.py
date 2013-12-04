@@ -7,7 +7,7 @@ class GUIConn(threading.Thread, object):
     def __init__(self, inqueue, outqueue):
         threading.Thread.__init__(self)
         
-        HOST = '192.168.1.1'
+        HOST = '127.0.0.1' #'192.168.1.1'
         PORT = 8888
         
         self.inqueue= inqueue
