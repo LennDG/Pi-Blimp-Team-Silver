@@ -1,7 +1,5 @@
 import Commands, threading, Queue
 
-#TODO: This does not have to be threaded. Improve the parsing, more Python, less Java! for example, see Gate in PiConnection.
-#TODO: This should also not put in on the command queue immediately, but just return a command or list of commands, to simplify further processing.
 
 class Parser():
     
@@ -19,10 +17,7 @@ class Compiler():
                                      "D":Commands.Ascension, 
                                      "L":Commands.Turn, 
                                      "R":Commands.Turn, 
-                                     "VM":Commands.VertMove, 
-                                     "VS":Commands.VertStop, 
-                                     "HS":Commands.HorStop, 
-                                     "STOP":Commands.Stop}
+                                     "VM":Commands.VertMove}
         
         self.command_sign = {"V":1, 
                              "A":-1, 
