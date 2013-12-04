@@ -45,8 +45,8 @@ class Compiler():
             com = command.split(':')
             try:
                 temp = temp + [self.make_command(com[0], com[1], code.index(c)==0)]
-            except (KeyError,IndexError,ValueError):
-                print('Command Syntax not respected')
+            except (KeyError,IndexError,ValueError): #Happens when command is N
+                pass
                     
                     
         return temp

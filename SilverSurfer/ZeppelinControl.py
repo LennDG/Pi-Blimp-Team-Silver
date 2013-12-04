@@ -1,20 +1,27 @@
 #This is the file for the ZeppelinControl
-import MotorControl, time
+import MotorControl, time, threading
 
 class ZeppelinControl():
     
     def __init__(self, distance_sensor):
         
         self.motor_control = MotorControl.MotorControl()
-        self.current_height = 0
-        self.goal_height = 0
-        self.PID = PID(Kp = 1.0, Kd = 0.0, Ki =0.0)
+        self.current_height = 0.0
+        self.goal_height = 0.0
+        self.PID = PID(Kp = 1.0, Kd = 0.8, Ki =0.0, self)
         self.vert_basis = 0
         self.distance_sensor = distance_sensor
     
     @property
     def current_heigth(self):
         return self.distance_sensor.height
+    
+    def stabilize(self):
+        self.PID.PID_On = True
+        self.PID.start()
+    
+    def end_stabilize(self):
+        self.PID.PID_On = False
     
     def move(self, direction):
         #1 for forward, -1 for backward
@@ -43,51 +50,33 @@ class ZeppelinControl():
     def shutoff(self):
         #Stops all the engines, CAUTION: THIS WILL CAUSE ZEPPELIN CRASH
         self.motor_control.all_off()
-    
-    #This method calibrates the basis parameter by moving the zeppelin up and down untill it stabilises around a random height        
-    def calibrate(self, increment):
-        if self.isRising():
-            self.motor_control.vert_motor.direction = -1
-        else:
-            self.motor_control.vert_motor.direction =  1
-        self.subCalibrate(increment) #TODO: Hier is een foutje, subCalibrate heeft een depth nodig...
-        
-        self.vert_basis = self.motor_control.vert_motor.level #TODO: the vert_basis NEEEDS to be the bias in the PID object
-    
-    def subCalibrate(self, increment, depth):
-        if self.isRising():
-            while self.isRising():
-                self.motor_control.vert_motor.level -= self.motor_control.vert_motor.direction*increment
-        else:
-            while not self.isRising():
-                self.motor_control.vert_motor.level += self.motor_control.vert_motor.direction*increment
-        self.subCalibrate(increment/2, depth-1)
-    
-    #Returns if the zeppelin is gaining altitude.
-    def isRising(self):
-        height1 = self.current_height
-        time.sleep(0.2)
-        height2 = self.current_height
-        return height2 - height1 > 0
+
             
-    def stabilize(self):
-        error =  self.goal_height - self.current_height
-        motor_level = self.PID.PID(error) #Returns a value between -100.0 and 100.0
-        self.motor_control.vert_motor.level = motor_level
-            
-class PID(object):
+class PID(threading.Thread, object):
     #This is the PID object used for stabilizing the zeppelin
     
-    def __init__(self, Kp = 1.0, Kd = 0.0, Ki =0.0): #These are values for now, will change. Experimental determination.
+    def __init__(self, Kp = 1.0, Kd = 0.0, Ki =0.0, control): #These are values for now, will change. Experimental determination.
+        threading.Thread.__init__(self)
         self.Kp = Kp
         self.Kd = Kd
         self.Ki = Ki
         
+        self.control = control
+        
         #This value is the calculated base to let the zeppelin stabilize on a current height
         self.bias = 0.0
         
-        self.setup()
+        self.PID_On = False
         
+        self.setup()
+    @property
+    def goal_height(self):
+        return self.control.goal_height
+    
+    @property
+    def current_height(self):
+        return self.control.current_height
+    
     @property
     def Kp(self):
         return self._Kp
@@ -111,7 +100,14 @@ class PID(object):
     @Ki.setter
     def Ki(self, value):
         self._Ki = value
-        
+    
+    def run(self):
+        self.setup()
+        while True and PID_On:
+            error =  self.goal_height - self.current_height
+            motor_level = self.PID(error)
+            self.control.motor_control.vert_motor.level = motor_level
+            time.sleep(0.6) #this is the time necessary for a new height
         
     def setup(self):
         self.current_time = time.time()
