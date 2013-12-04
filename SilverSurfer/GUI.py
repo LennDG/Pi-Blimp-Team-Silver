@@ -18,7 +18,11 @@ class Plotter(Frame) : #te hard coded? herbruikbaar?
     def __init__(self,parent,max_x,max_y) : #extra method als handler (get height blablabla)
         Frame.__init__(self,parent)
         self.update_idletasks()
+       
         self.x = 0
+        self.y = 0
+        self.y_2=0
+        
         self.i = 0
         self.left_lim = 0
         self.update = 10  # to speed things up, never plot more than n_points on screen
@@ -27,21 +31,36 @@ class Plotter(Frame) : #te hard coded? herbruikbaar?
         self.interval=max_x  
         self.min_x = 0      
         self.xy_data = []
+        
+        #TODO:
+        self.xy_2_data =[]
+        
+        
         self.figure = pyplot.figure()
         # figsize (w,h tuple in inches) dpi (dots per inch)
         self.figure.set_size_inches((5,5), dpi=100, forward=True)
         self.subplot = self.figure.add_subplot(111)
         self.line, = self.subplot.plot([],[])
+        
+        #TODO:
+        self.line_2, = self.subplot.plot([],[])
+        
+        
         pyplot.xlim(self.min_x,self.max_x)
         pyplot.ylim(0,max_y)
         self.canvas = FigureCanvasTkAgg(self.figure, master=self)
         self.stop = True
         self.canvas.get_tk_widget().grid()
+        
+        
 
     def plotter(self):
         self.x += 1
-        self.y = abs(random.randn())
+        
         self.xy_data += [[self.x,self.y]]
+        
+        
+        self.xy_2_data += [[self.x,self.y_2]]
             
         self.min_x = self.x-self.interval
         self.max_x = self.x
@@ -55,6 +74,7 @@ class Plotter(Frame) : #te hard coded? herbruikbaar?
   
             
         if self.i>self.max_line:
+            self.xy_2_data= self.xy_2_data[self.i-self.interval:self.i]
             self.xy_data= self.xy_data[self.i-self.interval:self.i]
             self.left_lim=0
             self.i = self.interval
@@ -62,19 +82,24 @@ class Plotter(Frame) : #te hard coded? herbruikbaar?
         
             
         self.subplot.lines.remove(self.line) 
+        self.subplot.lines.remove(self.line_2)
         pyplot.xlim(self.min_x,self.max_x)
         self.line, = self.subplot.plot(
                         [row[0] for row in self.xy_data[self.left_lim:self.i]],
                             [row[1] for row in self.xy_data[self.left_lim:self.i]],
                             color="blue")
+        self.line_2, = self.subplot.plot(
+                        [row[0] for row in self.xy_2_data[self.left_lim:self.i]],
+                            [row[1] for row in self.xy_2_data[self.left_lim:self.i]],
+                            color="red")
+        
+        
         self.i += 1
         self.canvas.draw()
         self.canvas.get_tk_widget().update_idletasks()
        
-       #TODO:Veranderingen !!!!!!!! 
-    
         if self.stop == False:
-            self.after(10000, self.plotter)
+            self.after(100, self.plotter)
 
 
 
@@ -121,13 +146,13 @@ class GUI(Frame):
         self.pack(fill=BOTH, expand=1) 
         
         self.btn_start = Button(self, text="MAKE CONNECTION AND START GUI" , command= self.start_protocol, background = "red",foreground = "white")
-        self.btn_start.grid(  pady = 3, sticky='WE') 
+        self.btn_start.grid( sticky='WE') 
         
-        img_silsur = Image.open('250px-Toss.png')
-        imgr = img_silsur.resize((400, 400),Image.ANTIALIAS)
-        img_silsur = ImageTk.PhotoImage(imgr)
-        self.lbl_image_silsur = Label(self, image=img_silsur) 
-        self.lbl_image_silsur.grid(row = 1, column = 0, padx = 5, pady = 5, columnspan=3) 
+        self.img_silsur = Image.open('250px-Toss.png')
+        imgr = self.img_silsur.resize((400, 400),Image.ANTIALIAS)
+        self.img_silsur = ImageTk.PhotoImage(imgr)
+        self.lbl_image_silsur = Label(self, image=self.img_silsur) 
+        self.lbl_image_silsur.grid(row = 1, column = 0, padx = 5, pady = 5) 
         
         self.parser = GuiParser()
         self.compiler = GuiCompiler()
@@ -138,7 +163,7 @@ class GUI(Frame):
         
     def initGUI(self): 
         
-        self.parent.geometry("1300x650+300+300") 
+        self.parent.geometry("1100x650+300+300") 
         #flag_btn init op false
         self.flag_btn = False
         self.stop_show_height = True
@@ -163,12 +188,12 @@ class GUI(Frame):
         
         #input
         self.Frame_input = Frame(self,background="gray55")
-        self.Frame_input.grid(row = 0, column = 0, sticky='W') 
+        self.Frame_input.grid(row = 0, column = 0, sticky='WE') 
         
-        self.img1 = Image.open('sample.png')
-        imgr = self.img1.resize((400, 400),Image.ANTIALIAS)
-        self.img = ImageTk.PhotoImage(imgr)
-        lbl_image = Label(self.Frame_input, image=self.img) #TODO: image juist adress. 
+#         self.img1 = Image.open('sample.png')
+#         imgr = self.img1.resize((400, 400),Image.ANTIALIAS)
+#         self.img = ImageTk.PhotoImage(imgr)
+        lbl_image = Label(self.Frame_input, image=self.img_silsur) #TODO: image juist adress. 
         #lbl_image = Label(self.Frame_input, text="Afbeelding")
         #lbl_image.config(width = 70, height = 30) 
         lbl_image.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan=4) 
@@ -181,26 +206,26 @@ class GUI(Frame):
         self.Frame_cmenu.config(width= 1)
         self.Frame_cmenu.grid(row = 1, column = 0,  sticky='W') 
         
-        btn_record = Button(self.Frame_cmenu, text="RECORD",background ="gray11",foreground = "white") 
-        btn_record.config( height = menu_btn_height, width = menu_btn_width ) 
-        btn_record.grid(row = 1, column = 0, padx = 5, pady = 3, columnspan = 1,sticky='W') 
-        
-        btn_pic = Button(self.Frame_cmenu, text="TAKE PIC",background ="gray11",foreground = "white") 
-        btn_pic.config( height = menu_btn_height, width = menu_btn_width ) 
-        btn_pic.grid(row = 2, column = 0, padx = 5, pady = 3, columnspan = 1,sticky='W') #Manual input 
+#         btn_record = Button(self.Frame_cmenu, text="RECORD",background ="gray11",foreground = "white") 
+#         btn_record.config( height = menu_btn_height, width = menu_btn_width ) 
+#         btn_record.grid(row = 1, column = 0, padx = 5, pady = 3, columnspan = 1,sticky='W') 
+#         
+#         btn_pic = Button(self.Frame_cmenu, text="TAKE PIC",background ="gray11",foreground = "white") 
+#         btn_pic.config( height = menu_btn_height, width = menu_btn_width ) 
+#         btn_pic.grid(row = 2, column = 0, padx = 5, pady = 3, columnspan = 1,sticky='W') #Manual input 
        
        
         btn_command = Button(self.Frame_cmenu, text="COMMAND" , command= self.invoke_command,background ="gray11",foreground = "white" )
         btn_command.config( height = menu_btn_height, width = menu_btn_width + 3 ) 
-        btn_command.grid(row = 3, column = 0, padx = 5, pady = 3, sticky='W') 
+      #  btn_command.grid(row = 3, column = 0, padx = 5, pady = 3, sticky='W') 
           
             
             
-        entry_input = Entry(self.Frame_input) 
-        entry_input.config( width = 1 )
-        entry_input.grid(row = 4, column = 0,columnspan=3, padx = 3, pady = 3,sticky="WE") 
-        btn_input_enter = Button(self.Frame_input, text="ENTER",background ="gray11",foreground = "white") 
-        btn_input_enter.grid(row = 4, column = 3, padx = 2, pady = 3,sticky="WE") #pijltjes 
+        self.entry_input = Entry(self.Frame_input) 
+        self.entry_input.config( width = 1 )
+        self.entry_input.grid(row = 4, column = 0,columnspan=3, padx = 3, pady = 3,sticky="WE") 
+        self.btn_input_enter = Button(self.Frame_input, text="STABALIZE",command= self.invoke_stabilize,background ="gray11",foreground = "white") 
+        self.btn_input_enter.grid(row = 4, column = 3, padx = 2, pady = 3,sticky="WE") #pijltjes 
        
 #Grote Stop knop
        
@@ -321,14 +346,27 @@ class GUI(Frame):
         self.motor3 = StringVar()
         self.motor3.set('...')          
         
+        self.goal = StringVar()
+        self.goal.set('...')
+        
+        self.error = StringVar()
+        self.error.set('...')   
+        
         self.lbl_motor1 = Label(self.Frame_motors, textvariable=self.motor1)
-        self.lbl_motor1.grid(row = 0, column = 0, padx = 5, pady = 5,sticky='WE') 
+        self.lbl_motor1.grid(row = 1, column = 0, padx = 5, pady = 5,sticky='WE') 
         
         self.lbl_motor2 = Label(self.Frame_motors, textvariable=self.motor2)
-        self.lbl_motor2.grid(row = 0, column = 1, padx = 5, pady = 5,sticky='WE') 
+        self.lbl_motor2.grid(row = 1, column = 1, padx = 5, pady = 5,sticky='WE') 
         
         self.lbl_motor3 = Label(self.Frame_motors, textvariable=self.motor3)
-        self.lbl_motor3.grid(row = 0, column = 2, padx = 5, pady = 5,sticky='WE') 
+        self.lbl_motor3.grid(row = 1, column = 2, padx = 5, pady = 5,sticky='WE') 
+        
+        self.lbl_goal = Label(self.Frame_motors, textvariable=self.goal)
+        self.lbl_goal.grid(row = 0, column = 0, padx = 5, pady = 5,sticky='WE') 
+        
+        self.lbl_error = Label(self.Frame_motors, textvariable=self.error)
+        self.lbl_error.grid(row = 0, column = 2, padx = 5, pady = 5,sticky='WE') 
+        
         
         self.Frame_graphview = Frame(self.Frame_visual_view,background="gray55")
         self.Frame_graphview.config(width=800,height = 500)
@@ -356,13 +394,13 @@ class GUI(Frame):
         self.grid_columnconfigure(0, weight = 2)
         self.grid_columnconfigure(1,weigh=1)
         self.grid_rowconfigure(0, weight=1)
-       
-        self.Frame_input.grid_rowconfigure(0, weight=1)
-        self.Frame_input.grid_rowconfigure(1, weight=1)
-        self.Frame_input.grid_rowconfigure(2, weight=1)
-        
-        self.Frame_input.grid_columnconfigure(0, weight = 2)
-        self.Frame_input.grid_columnconfigure(1,weigh=1)
+#        
+#         self.Frame_input.grid_rowconfigure(0, weight=1)
+#         self.Frame_input.grid_rowconfigure(1, weight=1)
+#         self.Frame_input.grid_rowconfigure(2, weight=1)
+#         
+#         self.Frame_input.grid_columnconfigure(0, weight = 2)
+#         self.Frame_input.grid_columnconfigure(1,weigh=1)
         
        
     def invoke_change_view(self):
@@ -422,9 +460,13 @@ class GUI(Frame):
         
     def update_motors_view(self):
         if self.stop_show_motors == False:
-            self.motor1.set('motor 1 ' + str(abs(random.randn())))
-            self.motor2.set('motor 2 '+ str(abs(random.randn())))
-            self.motor3.set('motor 3 '+str(abs(random.randn())))
+            self.motor1.set('Left: '+ str(int(self.zep_state['left-motor'])))
+            self.motor2.set('Vert: '+ str(int(self.zep_state['vert-motor'])))
+            self.motor3.set('Right: '+str(int(self.zep_state['right-motor'])))
+            
+            self.error.set('Error: '+ str(self.zep_state['Error']))
+            self.goal.set('Goal: '+ str(self.zep_state['Goal']))
+            
             self.parent.after(200, self.update_motors_view)
     
         
@@ -434,7 +476,13 @@ class GUI(Frame):
     def stop_graphs(self):   
         self.height_graph.stop = True 
         self.stop_show_motors = True   
-    
+   
+    def invoke_stabilize(self):
+        height = self.entry_input.get()
+        self.send_string_command('STABALIZE:' + str(int(height)))
+       
+        
+ 
     def invoke_command(self):
         self.Frame_com_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_com_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
@@ -704,13 +752,23 @@ class GUI(Frame):
         
         self.send_string_command("INFO:0")
         self.send_string_command("STATUS:0")
+        
+        self.update_graph_values()
+        
         self.parent.after(500, self.update_gui)
+        
+    def update_graph_values(self):
+        self.height_graph.y =  abs(random.randn()) #float(self.zep_state['height'])
+        goal = self.zep_state['Goal']
+        if goal == 'not given':
+            self.height_graph.y_2 =0
+        else:
+            self.height_graph.y_2 = float(goal)
         
     def take_care_of_message_string(self,string):
         code = self.parser.parse_string_type(string)
         if code[0] == self.compiler.type_words[0]:
             self.update_dictionary(code[1])
-            print "Hey"
 
         elif code[0] == self.compiler.type_words[1] and code[1] != "":
             self.print_in_textbox(code[1])
@@ -727,6 +785,7 @@ class GUI(Frame):
         for s in array_att:
             att_and_val = s.split(':')
             self.zep_state[self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1]) 
+            
         
     def print_in_textbox(self,string):
         self.output.insert(INSERT, str(string) + '\n')   
@@ -751,60 +810,11 @@ class GuiParser():
 class GuiCompiler():
     
     def __init__(self):
-        self.type_words = ["INFO", "STATUS", "SWITCH", "SHUTDOWN"]
+        self.type_words = ["INFO", "STATUS","QR", "SWITCH", "SHUTDOWN"]
         #TODO: kan mooier, in zeppelin nog een extra dictionary maken met {'hoogte' : 'height',...} en deze meegeven in de compiler
         self.state_att_words = { "H":"height", "GH":"Goal","E":"Error","M1":"left-motor","M2":"right-motor","M3":"vert-motor"}
-        
+    
 
-     
-    
-            
-        
-    def compile(self, code):
-        
-        temp = []
-        i = 0
-        while i < len(code):
-            command = code[i]
-            command = command.split(':')
-            if len(command) != 2:
-                print("The command format was not respected")
-            else:
-                if not self.command_words.__contains__(command[0]):
-                    print(command[0] + " is not a valid command")
-                
-                else:
-                    try:
-                        command[1] = float(command[1])
-                    except ValueError:
-                        print('The parameter supplied is not a number')
-                    temp = temp + [self.make_command(command[0], command[1], i == 0)]
-            i = i + 1
-                    
-        return temp
-    
-class GuiCommandfactory(threading.Thread, object):
-    
-    def __init__(self, queue, zeppelin):
-        threading.Thread.__init__(self)
-        self.queue = queue
-        self.parser = GuiParser()
-        self.compiler = GuiCompiler()
-        self.zeppelin = zeppelin
-        
-         
-    def run(self):
-        
-        while True:
-            if  not self.queue.empty():
-                string = self.queue.get(False)
-                code = self.parser.parse_string(string)
-                command = self.compiler.compile(code)
-                self.zeppelin.add_command(command)
-                
-            else:
-                pass
-            
 class TEST(threading.Thread,object):
     def __init__(self,inputqueue,zep_state):
         threading.Thread.__init__(self)
@@ -818,8 +828,8 @@ class TEST(threading.Thread,object):
             print self.zep_state
 
 
-#gui = GUI(0)
-# h = 'hey:'
-# b = h.split(':')
-# print b
-print str([1,2,3,4,6].index(4))
+gui = GUI(0)
+#  h = 'hey:'
+#  b = h.split(':')
+#  print b
+#print str([1,2,3,4,6].index(4))
