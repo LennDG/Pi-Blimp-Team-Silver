@@ -29,11 +29,11 @@ class Compiler():
         
         self.non_parameter_commands=["VS","HS","STOP"]
     
-    def make_command(self, type, parameter, priority):
-        if type in self.non_parameter_commands:
-            return self.command_constructors[type]()
+    def make_command(self, command_type, parameter, priority):
+        if command_type in self.non_parameter_commands:
+            return self.command_constructors[command_type]()
         else:
-            return self.command_constructors[type](priority,self.command_sign[type]*parameter)
+            return self.command_constructors[command_type](priority,self.command_sign[command_type]*parameter)
         
             
         

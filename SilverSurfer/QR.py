@@ -1,7 +1,5 @@
 #File for scanning QR codes
 
-#TODO: test all the physical aspects, like resolution and what the zxing library returns
-
 import zxing, threading, zbar, os, math, re
 from subprocess import call
 from PIL import Image
@@ -9,6 +7,7 @@ from PIL import Image
 class Camera(object):
     
     def take_picture(self, img_file, width = 800, height = 600):
+        #TODO: Flag to increase to 1024 x 768
         call(["raspistill -w " + str(width) + " -h " + str(height) + " -q 75 " + " -t 0 -o " + img_file], shell=True)        
     
 
@@ -78,7 +77,7 @@ class QR(threading.Thread, object):
             elif len(QR_strings) is 1:
                 self.QR_scanned = True
                 
-                QR_number = int(QR_strings[QR_strings.index('N')+ 2:])
+                QR_number = int(QR_strings[0][QR_strings.index('N')+ 2:])
                 try: #Check for a new QR code
                     self.QR_points[QR_number]
                 except KeyError:
@@ -106,8 +105,8 @@ class QR(threading.Thread, object):
             for i in range(0,6,2):
                 tuple_list[i/2] = (int(point_list[i]), int(point_list[i+1]))
             self.QR_points[number] = tuple_list
-        except Exception as e:
-            print e
+        except Exception as euh:
+            print euh
     
     def calculate_angle(self,points,img):
         #On current QR

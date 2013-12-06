@@ -1,5 +1,5 @@
 
-import threading, time, ZeppelinControl, DistanceSensor, sys, PiConnection, QR, re
+import threading, time, ZeppelinControl, DistanceSensor, sys, PiConnection, QR, re, Compiler
      
 class Zeppelin(threading.Thread, object):
        
@@ -13,7 +13,7 @@ class Zeppelin(threading.Thread, object):
         
         self.AUTO_MODE = False #This will change some stuff depending on what mode we're in right now.
         
-        self.command_queue = queue
+        self.compiler = Compiler.Commandfactory()
         self.command_time = float("inf")
         self.executing_command = None
            
@@ -55,6 +55,7 @@ class Zeppelin(threading.Thread, object):
     def run(self): 
         QR_executed = {}#Dictionary of QR numbers and whether they are executed already
         current_QR = 1 #The QR that is currently being executed, starts at 1
+        command_list = []
         
         while True:                
             if not self.AUTO_MODE:
@@ -63,14 +64,18 @@ class Zeppelin(threading.Thread, object):
             else:
                 #Auto stuff
                 if max(self.QR.QR_codes) > current_QR: #New QR code found
+                    #TODO: STOP CURRENT COMMANDS HERE
                     current_QR = max(self.QR.QR_codes)
                     #get the points 
-                    while self.QR.QR_points(current_QR) is None:
+                    while self.QR.QR_points[current_QR] is None:
                         time.sleep(0.2)
+                    points = self.QR.QR_points[current_QR]
                     #get the angle
                     angle = self.QR.calculate_angle(points, self.QR.QR_images(current_QR))
                     #Calculate difference with goal angle
                     angle_error = self.goal_angle - angle
+                    #Parse the commands
+                    command_list = self.compiler.create_commands(self.QR_codes[current_QR])
                     #Make extra command for turning
                     
                     #Get new goal angle
@@ -80,7 +85,9 @@ class Zeppelin(threading.Thread, object):
                         self.goal_angle += int(L_angle)
                     if R_angle is not None:
                         self.goal_angle -= int(R_angle)
-                pass           
+                        
+            #Execute commands, either the new ones, or the ones executing
+            
                     
                     
         #indien dat correct is, doe zxing voor het punt en de afstand

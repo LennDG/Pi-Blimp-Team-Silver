@@ -50,6 +50,9 @@ class ZeppelinControl():
     def shutoff(self):
         #Stops all the engines, CAUTION: THIS WILL CAUSE ZEPPELIN CRASH
         self.motor_control.all_off()
+        
+    def calibrate(self):
+        
 
             
 class PID(threading.Thread, object):
@@ -103,7 +106,7 @@ class PID(threading.Thread, object):
     
     def run(self):
         self.setup()
-        while True and PID_On:
+        while True and self.PID_On:
             error =  self.goal_height - self.current_height
             motor_level = self.PID(error)
             self.control.motor_control.vert_motor.level = motor_level
