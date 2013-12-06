@@ -82,11 +82,8 @@ class QR(threading.Thread, object):
                 try: #Check for a new QR code
                     self.QR_points[QR_number]
                 except KeyError:
-                    try:
-                        self.calculate_points_QR(QR_number)
-                    except Exception:
-                        #Zxing is not finding anything, because it is not a great module...
-                        pass
+                    #If it is a new one, calculate the points
+                    self.calculate_points_QR(QR_number)
                 
                 self.QR_codes[QR_number] = QR_strings[0]
                 
@@ -102,12 +99,15 @@ class QR(threading.Thread, object):
     def calculate_points_QR(self, number):
         #Returns the text string of the QR, is not very easy, it has to parse the .data output of the zxing QR objects.
         #This will call the zxing read function
-        data = self.QRScanner.zxing_read(self.QR_images[number]).data 
-        point_list = re.findall(r'[-+]?\d*\.\d+', data) #regex magic
-        tuple_list = []
-        for i in range(0,6,2):
-            tuple_list[i/2] = (int(point_list[i]), int(point_list[i+1]))
-        self.QR_points[number] = tuple_list
+        try:
+            data = self.QRScanner.zxing_read(self.QR_images[number]).data 
+            point_list = re.findall(r'[-+]?\d*\.\d+', data) #regex magic
+            tuple_list = []
+            for i in range(0,6,2):
+                tuple_list[i/2] = (int(point_list[i]), int(point_list[i+1]))
+            self.QR_points[number] = tuple_list
+        except Exception as e:
+            print e
     
     def calculate_angle(self,points,img):
         #On current QR

@@ -64,8 +64,9 @@ class Zeppelin(threading.Thread, object):
                 #Auto stuff
                 if max(self.QR.QR_codes) > current_QR: #New QR code found
                     current_QR = max(self.QR.QR_codes)
-                    #get the points
-                    points = self.QR.QR_points(current_QR)
+                    #get the points 
+                    while self.QR.QR_points(current_QR) is None:
+                        time.sleep(0.2)
                     #get the angle
                     angle = self.QR.calculate_angle(points, self.QR.QR_images(current_QR))
                     #Calculate difference with goal angle
