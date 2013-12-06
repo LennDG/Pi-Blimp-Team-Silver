@@ -47,14 +47,15 @@ this command should move.
 '''
 class Move(Command):
     
-    def __init__(self, has_priority, distance):
+    def __init__(self, has_priority, distance, zeppelin):
         super(Move, self).__init__(has_priority)
         self.distance = distance
+        self.zeppelin = zeppelin
     
     '''
 This method will initiate the movement of the object that runs this command.
 '''
-    def run(self, zeppelin):
+    def run(self):
         p_1 = 0.55
         p_2 = 0.3
         resting_time = 5.92
@@ -62,15 +63,15 @@ This method will initiate the movement of the object that runs this command.
         if(self.distance < 0.5):
             pass
         else:
-            zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
+            self.zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
             self.sleep(p_1)
-            zeppelin.control.hor_stop()
+            self.zeppelin.control.hor_stop()
             self.sleep(resting_time)
             j = int(self.distance / one_length)
             for i in range(0, j-1):
-                zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
+                self.zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
                 self.sleep(p_2)
-                zeppelin.control.hor_stop()
+                self.zeppelin.control.hor_stop()
                 self.sleep(resting_time)
         self.sleep(resting_time)
         self.is_executed = True
@@ -78,24 +79,25 @@ This method will initiate the movement of the object that runs this command.
 
 class Turn(Command):
     
-    def __init__(self, has_priority, parameter):
+    def __init__(self, has_priority, parameter, zeppelin):
         
         super(Turn, self).__init__(has_priority, parameter)
+        self.zeppelin = zeppelin
     
-    def run(self, zeppelin):
+    def run(self):
         resting_time = 0
         unit = 0
         a = 0
         rest = self.distance % unit
         j = int(self.distance / unit)
         for i in range(0, j-1):
-            zeppelin.control.turn(self.distance) #distance points to the direction the zeppelin has to turn
+            self.zeppelin.control.turn(self.distance) #distance points to the direction the zeppelin has to turn
             self.sleep(a*unit)
-            zeppelin.control.hor_stop()
+            self.zeppelin.control.hor_stop()
             self.sleep(resting_time)
-        zeppelin.control.move(self.distance)
+        self.zeppelin.control.move(self.distance)
         self.sleep(a*rest)
-        zeppelin.control.hor_stop()
+        self.zeppelin.control.hor_stop()
         self.sleep(resting_time)
         self.is_executed = True
            

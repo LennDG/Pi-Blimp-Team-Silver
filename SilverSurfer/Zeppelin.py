@@ -55,12 +55,31 @@ class Zeppelin(threading.Thread, object):
     def run(self): 
         QR_executed = {}#Dictionary of QR numbers and whether they are executed already
         current_QR = 1 #The QR that is currently being executed, starts at 1
-                        
-        if not self.AUTO_MODE:
-            #Manual stuff
-            pass
-        else:
-             pass           
+        
+        while True:                
+            if not self.AUTO_MODE:
+                #Manual stuff
+                pass
+            else:
+                #Auto stuff
+                if max(self.QR.QR_codes) > current_QR: #New QR code found
+                    current_QR = max(self.QR.QR_codes)
+                    #get the points
+                    points = self.QR.QR_points(current_QR)
+                    #get the angle
+                    angle = self.QR.calculate_angle(points, self.QR.QR_images(current_QR))
+                    #Calculate difference with goal angle
+                    angle_error = self.goal_angle - angle
+                    #Make extra command for turning
+                    
+                    #Get new goal angle
+                    L_angle = re.search('L:(\d+)', self.QR.QR_codes(current_QR)).group(1)
+                    R_angle = re.search('R:(\d+)', self.QR.QR_codes(current_QR)).group(1)
+                    if L_angle is not None:
+                        self.goal_angle += int(L_angle)
+                    if R_angle is not None:
+                        self.goal_angle -= int(R_angle)
+                pass           
                     
                     
         #indien dat correct is, doe zxing voor het punt en de afstand
