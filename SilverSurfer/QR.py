@@ -1,14 +1,13 @@
 #File for scanning QR codes
 
-#TODO: test all the physical aspects, like resolution and what the zxing library returns
-
-import zxing, threading, zbar, os, math
+import zxing, threading, zbar, os, math, re
 from subprocess import call
 from PIL import Image
 
 class Camera(object):
     
     def take_picture(self, img_file, width = 800, height = 600):
+        #TODO: Flag to increase to 1024 x 768
         call(["raspistill -w " + str(width) + " -h " + str(height) + " -q 75 " + " -t 0 -o " + img_file], shell=True)        
     
 
@@ -54,17 +53,6 @@ class QRScanner(object):
             
         return symbols
         
-    def zoom(self, img_file):
-        cropped_file = "/home/pi/cropped_img.jpg"
-        
-        img = Image.open(img_file)
-        (width, height) = img.size(img)
-        
-        cropped_image = img.crop((50,50, width - 50, height - 50))
-        cropped_image.save(cropped_file)
-        
-        QRcode = self.read(cropped_file)
-        return QRcode
         
 
 class QR(threading.Thread, object):
@@ -72,38 +60,53 @@ class QR(threading.Thread, object):
     def __init__(self, zeppelin):
         threading.Thread.__init__(self)
         
+        self.QR_scanner = QRScanner()
+        
         self.QR_codes = {} #Key is the number of the QR code, the values are the data strings.
         self.QR_images = {} #Key is number of the QR, values are the image files
         self.QR_points = {} #Key is the number of the QR, values are the points on the last image!
-        self.scanner = QRScanner()
-        self.currentQR = 1
-        
+        self.QR_scanned = False #Tells if a QR is in the current vision
         self.zeppelin = zeppelin
         
     def run(self):
         while True:
             QR_strings = self.scanner.scan()
             if not QR_strings:
+                self.QR_scanned = False
                 continue
             elif len(QR_strings) is 1:
-                QR_number = int(QR_strings[QR_strings.index('N')+ 2:])
+                self.QR_scanned = True
+                
+                QR_number = int(QR_strings[0][QR_strings.index('N')+ 2:])
+                try: #Check for a new QR code
+                    self.QR_points[QR_number]
+                except KeyError:
+                    #If it is a new one, calculate the points
+                    self.calculate_points_QR(QR_number)
+                
                 self.QR_codes[QR_number] = QR_strings[0]
                 
                 img_file = self.new_file_name(QR_number)
                 os.rename("/home/pi/tmp.jpg", img_file)
-                self.QR_codes[QR_number] = img_file
+                self.QR_images[QR_number] = img_file
                 
             elif len(QR_strings) > 1:
                 #TODO: zoom stuff
-                pass  
-            
-            
-            
-        pass
+                #This will probably not happen, leave it unimplemented
+                continue
     
-    def get_points_QR(self, number):
-        #Returns the text string of the QR, this may be very easy depending on what the zxing library returns
-        pass
+    def calculate_points_QR(self, number):
+        #Returns the text string of the QR, is not very easy, it has to parse the .data output of the zxing QR objects.
+        #This will call the zxing read function
+        try:
+            data = self.QRScanner.zxing_read(self.QR_images[number]).data 
+            point_list = re.findall(r'[-+]?\d*\.\d+', data) #regex magic
+            tuple_list = []
+            for i in range(0,6,2):
+                tuple_list[i/2] = (int(point_list[i]), int(point_list[i+1]))
+            self.QR_points[number] = tuple_list
+        except Exception as euh:
+            print euh
     
     def calculate_angle(self,points,img):
         #On current QR

@@ -1,6 +1,6 @@
 #This is the server file, it is housed on the Pi
 
-import socket, threading
+import socket, threading, re
 
 class PiConn(threading.Thread, object):
     
@@ -40,6 +40,7 @@ class Gate(object):
                         'SWITCH' : self.switch, #Switches between Auto and Manual mode
                         'SHUTDOWN': self.shutdown, #Shuts the Pi down
                         'CONNECT' : self.connect, #Will tell the PC that the connection is okay
+                        'STABILIZE': self.stabilize,
                         'COMMAND' : self.command} #Issues commands
         
     def open(self):
@@ -86,6 +87,17 @@ class Gate(object):
         
     def connect(self, request):
         reply = 'CONNECT > CONNECTION ESTABLISHED'
+        return reply
+    
+    def stabilize(self, request):
+        height = re.search('(\d+)', request)
+        self.zep.goal_height = height.group(1)
+        if height.group(1) <= 0:
+            self.zep.stabilize(False)
+            reply = 'STABILIZE > STOPPING STABILIZE'
+        else:
+            self.zep.stabilize(True)
+            reply = 'STABILIZE > STABILIZING ON: ' + str(height.group(1))
         return reply
     
     def command(self, request):

@@ -40,7 +40,6 @@ This method must be implemented by all child classes. In its current state, it d
                 time.sleep(0.1)
             i = i + 1
         time.sleep(rest)
-
     
 '''
 This class describes the move command. A parameter can be supplied which will represent the distance the object that runs
@@ -48,54 +47,57 @@ this command should move.
 '''
 class Move(Command):
     
-    def __init__(self, has_priority, distance):
+    def __init__(self, has_priority, distance, zeppelin):
         super(Move, self).__init__(has_priority)
         self.distance = distance
+        self.zeppelin = zeppelin
     
     '''
 This method will initiate the movement of the object that runs this command.
 '''
-    def run(self, zeppelin):
-        resting_time = 0
-        one_length = 0
-        a = 0
-        i = 0
-        rest = self.distance % one_length
-        j = int(self.distance / one_length)
-        while(i!=j):
-            zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
-            self.sleep(a*one_length)
-            zeppelin.control.hor_stop
+    def run(self):
+        p_1 = 0.55
+        p_2 = 0.3
+        resting_time = 5.92
+        one_length = 0.5
+        if(self.distance < 0.5):
+            pass
+        else:
+            self.zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
+            self.sleep(p_1)
+            self.zeppelin.control.hor_stop()
             self.sleep(resting_time)
-            i = i+1
-        zeppelin.control.move(self.distance)
-        self.sleep(a*rest)
-        zeppelin.control.hor_stop
+            j = int(self.distance / one_length)
+            for i in range(0, j-1):
+                self.zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
+                self.sleep(p_2)
+                self.zeppelin.control.hor_stop()
+                self.sleep(resting_time)
         self.sleep(resting_time)
         self.is_executed = True
         
 
 class Turn(Command):
     
-    def __init__(self, has_priority, parameter):
+    def __init__(self, has_priority, parameter, zeppelin):
+        
         super(Turn, self).__init__(has_priority, parameter)
+        self.zeppelin = zeppelin
     
-    def run(self, zeppelin):
+    def run(self):
         resting_time = 0
         unit = 0
         a = 0
-        i = 0
         rest = self.distance % unit
         j = int(self.distance / unit)
-        while(i!=j):
-            zeppelin.control.turn(self.distance) #distance points to the direction the zeppelin has to turn
+        for i in range(0, j-1):
+            self.zeppelin.control.turn(self.distance) #distance points to the direction the zeppelin has to turn
             self.sleep(a*unit)
-            zeppelin.control.hor_stop
+            self.zeppelin.control.hor_stop()
             self.sleep(resting_time)
-            i = i+1
-        zeppelin.control.move(self.distance)
+        self.zeppelin.control.move(self.distance)
         self.sleep(a*rest)
-        zeppelin.control.hor_stop
+        self.zeppelin.control.hor_stop()
         self.sleep(resting_time)
         self.is_executed = True
            
@@ -107,13 +109,13 @@ class Ascension(Command):
         self.height = height
         
     def run(self, zeppelin):
-        zeppelin.control.goal_height = zeppelin.height + self.height
+        zeppelin.goal_height = zeppelin.height + self.height
         while(zeppelin.height < self.height - 10 or zeppelin.heigth > self.height +10):
             self.sleep(0.1)
         self.is_executed = True
         
     def stop(self, zeppelin):
-        zeppelin.control.goal_height = zeppelin.height
+        zeppelin.goal_height = zeppelin.height
 
 class VertMove(Command):
     def __init__(self, has_priority, level):
@@ -124,3 +126,8 @@ class VertMove(Command):
         zeppelin.control.vert_move(self.level)
         self.sleep(1000)
         zeppelin.control.vert_stop()
+        
+        
+        
+
+
