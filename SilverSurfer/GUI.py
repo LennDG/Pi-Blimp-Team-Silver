@@ -101,8 +101,7 @@ class Plotter(Frame) : #te hard coded? herbruikbaar?
         if self.stop == False:
             self.after(100, self.plotter)
 
-
-
+#wordt niet meer gebruikt
 class Outbox(threading.Thread,object):
     def __init__(self, outqueue):
         threading.Thread.__init__(self)
@@ -119,7 +118,7 @@ class Outbox(threading.Thread,object):
             
     def send_string(self,string):
         print string
-        
+#wordt niet meer gebruikt     
 class Inbox(threading.Thread,object):
     def __init__(self, inqueue):
         threading.Thread.__init__(self)
@@ -164,7 +163,7 @@ class GUI(Frame):
     def initGUI(self): 
         
         self.parent.geometry("1100x650+300+300") 
-        #flag_btn init op false
+        #flags initialiseren
         self.flag_btn = False
         self.stop_show_height = True
         self.stop_show_motors = True
@@ -190,12 +189,8 @@ class GUI(Frame):
         self.Frame_input = Frame(self,background="gray55")
         self.Frame_input.grid(row = 0, column = 0, sticky='WE') 
         
-#         self.img1 = Image.open('sample.png')
-#         imgr = self.img1.resize((400, 400),Image.ANTIALIAS)
-#         self.img = ImageTk.PhotoImage(imgr)
-        lbl_image = Label(self.Frame_input, image=self.img_silsur) #TODO: image juist adress. 
-        #lbl_image = Label(self.Frame_input, text="Afbeelding")
-        #lbl_image.config(width = 70, height = 30) 
+        lbl_image = Label(self.Frame_input, image=self.img_silsur) 
+
         lbl_image.grid(row = 0, column = 0, padx = 5, pady = 5, columnspan=4) 
         
         # 3 Menu knoppen 
@@ -217,7 +212,7 @@ class GUI(Frame):
        
         btn_command = Button(self.Frame_cmenu, text="COMMAND" , command= self.invoke_command,background ="gray11",foreground = "white" )
         btn_command.config( height = menu_btn_height, width = menu_btn_width + 3 ) 
-      #  btn_command.grid(row = 3, column = 0, padx = 5, pady = 3, sticky='W') 
+#  btn_command.grid(row = 3, column = 0, padx = 5, pady = 3, sticky='W') 
           
             
             
@@ -312,11 +307,10 @@ class GUI(Frame):
         self.btn_descend.bind("<Button-1>", self.descend)
         self.btn_descend.bind("<ButtonRelease-1>", self.v_release)
         
-        #output
+        #output: Decisions
         self.Frame_output = Frame(self,background="gray55")
         self.Frame_output.grid(row = 0, column = 1,  sticky='WE') 
         
-        #TODO: Frame pictures motors
         
         self.output = ScrolledText(self.Frame_output, undo=True)
         self.output['font'] = ('consolas', '12')
@@ -328,7 +322,6 @@ class GUI(Frame):
         
         self.Frame_motors = Frame(self.Frame_visual_view,background="gray55")
         
-        #TODO: Veranderingen !!!!!!!!!!!!!!
         self.img_motor_counter = Image.open('draai.png')
         imgr_motor_counter = self.img_motor_counter.resize((25, 25),Image.ANTIALIAS)
         self.img_motor_counter = ImageTk.PhotoImage(imgr_motor_counter)
@@ -482,7 +475,7 @@ class GUI(Frame):
         self.send_string_command('STABALIZE:' + str(int(height)))
        
         
- 
+#niet gebruikt
     def invoke_command(self):
         self.Frame_com_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_com_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
@@ -500,7 +493,7 @@ class GUI(Frame):
         btn_lift.grid(row = 2, column = 0, padx = 5, pady = 3, columnspan = 1, sticky='W')
         
         self.Frame_cmenu.grid_remove()
-
+#niet gebruikt
     def invoke_turn(self):
         self.Frame_turn_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_turn_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
@@ -512,16 +505,14 @@ class GUI(Frame):
         btn_input_turn_enter.grid(row = 1, column = 0, padx = 2, pady = 3, columnspan = 3,sticky='W') 
         
         self.Frame_com_menu.grid_remove()
-
+#niet gebruikt
     def invoke_turn_enter(self):
         #stuur string
         degr=self.entry_turn_input.get()
-        #command= Commands.Ascension(int(height))
-        #self.queue.put(command)
         self.turn(degr)
         self.Frame_turn_menu.grid_remove()
         self.Frame_cmenu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')
-        
+#niet gebruikt        
     def invoke_move(self):
         self.Frame_move_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_move_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
@@ -533,7 +524,7 @@ class GUI(Frame):
         btn_input_move_enter.grid(row = 1, column = 0, padx = 2, pady = 3, columnspan = 3,sticky='W') 
         
         self.Frame_com_menu.grid_remove()
-
+#niet gebruikt
     def invoke_move_enter(self):
         #stuur string
         dist=self.entry_move_input.get()
@@ -542,7 +533,7 @@ class GUI(Frame):
         self.move(dist)
         self.Frame_move_menu.grid_remove()
         self.Frame_cmenu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')
-        
+#niet gebruikt        
     def invoke_lift(self):
         self.Frame_lift_menu = Frame(self.Frame_input,background="gray55")
         self.Frame_lift_menu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')    
@@ -554,7 +545,7 @@ class GUI(Frame):
         btn_input_move_enter.grid(row = 1, column = 0, padx = 2, pady = 3, columnspan = 3,sticky='W') 
         
         self.Frame_com_menu.grid_remove()
-
+#niet gebruikt
     def invoke_lift_enter(self):
         #stuur strin
         height=self.entry_lift_input.get()
@@ -563,17 +554,10 @@ class GUI(Frame):
         self.lift(height)
         self.Frame_lift_menu.grid_remove()
         self.Frame_cmenu.grid(row = 1, column = 0, rowspan = 3, columnspan = 1, sticky='W')
-        
+#niet gebruikt        
     def printtest(self,*args):
         print 'check'
    
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #geen elegante schrijfwijze momenteel
-    #idee is om bij constructie van GUI ook het controllerobject van de zeppelin
-    #mee te geven als argument
-    #vervolgens:
-    #   def move_zep(self,*args):
-    #         self.controller.move(self, 0.1)
     
    #test methodes 
     def pushed(self,*args):
@@ -651,7 +635,8 @@ class GUI(Frame):
             #self.queue.put(command)
             self.send_string_command('D:' + 'infinity')
             self.flag_btn=True
-        
+            
+#niet gebruikt  
     def lift(self,height,*args):
         #print newHeight
         #command=Commands.Ascension(newHeight)
@@ -660,7 +645,7 @@ class GUI(Frame):
             self.send_string_command('S:' + str(int(height)))
         else:
             self.send_string_command('D:' + str(-int(height)))
-    
+#niet gebruikt
     def move(self,dist,*args):
         #command= Commands.Move(dist)
         #self.queue.put(command)
@@ -668,7 +653,7 @@ class GUI(Frame):
             self.send_string_command('V:' + str(int(dist)))
         else:
             self.send_string_command('A:' + str(-int(dist)))
-
+#niet gebruikt
     def turn(self,degree,*args):
         #command= Commands.Turn(degree)
         #self.queue.put(command)
@@ -697,6 +682,11 @@ class GUI(Frame):
     def switch(self,*args):
         new_modus = (self.zep_modus + 1) % 2
         self.send_string_command('SWITCH:' + str(new_modus))
+###########
+#         #
+#CONNECTIE#
+#         #
+###########
     
     def start_protocol(self,*args):
         self.parent.protocol("WM_DELETE_WINDOW", self.exit_protocol)  
@@ -704,20 +694,16 @@ class GUI(Frame):
         self.btn_start.grid_remove()
         self.establish_connection()
         self.initGUI()
-        #TODO:
-        test = TEST(self.inputqueue, self.zep_state)
-        test.start()
+        #TODO: Hieronder test uitgecomment
+#         test = TEST(self.inputqueue, self.zep_state)
+#         test.start()
         
         self.update_gui()
         
     def establish_connection(self):
         self.outputqueue  = Queue.Queue()
-        #self.sender = Outbox(outqueue)
-        #self.sender.start()
         self.inputqueue = Queue.Queue()
-#       self.receiver = Inbox(inputqueue)
-#       self.receiver.start()
-#        self.connection = GUIConnection.GUIConn(self.inputqueue,self.outputqueue)
+        self.connection = GUIConnection.GUIConn(self.inputqueue,self.outputqueue)
         
         
     def exit_protocol(self,*args):
@@ -732,14 +718,9 @@ class GUI(Frame):
         self.parent.destroy()
         
     def send_string_command(self,string):
-        self.outputqueue.put(string) #op outputqueue plaatsen?
+        self.outputqueue.put(string) 
         
-    #!!! Idee: Gui gaat met een thread werken en een queue
-    #in queue kunnen twee soorten text bestanden staan
-    #een textbestand stelt een update bestand voor over de staat van de zeppelin
-    #een tweede text bestand is een decision textbestand
-    #thread neemt eerste textbestand uit queue eb decodeert de info die de gui krijgt.    
-    #deze updatet zep_state ofwel voegt deze iets toe aan de decisionmaking textblock
+
     
     def update_gui(self):
         try:
@@ -815,21 +796,17 @@ class GuiCompiler():
         self.state_att_words = { "H":"height", "GH":"Goal","E":"Error","M1":"left-motor","M2":"right-motor","M3":"vert-motor"}
     
 
-class TEST(threading.Thread,object):
-    def __init__(self,inputqueue,zep_state):
-        threading.Thread.__init__(self)
-        self.zep_state = zep_state
-        self.inputqueue = inputqueue
-    def run(self):
-        while True:
-            print self.zep_state
-            foo = input('lol:')
-            self.inputqueue.put(foo)
-            print self.zep_state
+# class TEST(threading.Thread,object):
+#     def __init__(self,inputqueue,zep_state):
+#         threading.Thread.__init__(self)
+#         self.zep_state = zep_state
+#         self.inputqueue = inputqueue
+#     def run(self):
+#         while True:
+#             print self.zep_state
+#             foo = input('lol:')
+#             self.inputqueue.put(foo)
+#             print self.zep_state
 
 
 gui = GUI(0)
-#  h = 'hey:'
-#  b = h.split(':')
-#  print b
-#print str([1,2,3,4,6].index(4))
