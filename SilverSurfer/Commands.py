@@ -66,10 +66,11 @@ This method must be implemented by all child classes. In its current state, it d
     '''
     A sleep method that checks every 0.1s whether or not the thread has to stop.
     '''
-    def sleep(self, time):
+    def sleep(self, sleeptime):
         i = 0
-        rest = time % 0.1
-        j = time / 0.1
+        rest = sleeptime % 0.1
+        j = sleeptime / 0.1
+        j = int(j)
         while(i!=j):
             if(self.stop == True):
                 return
