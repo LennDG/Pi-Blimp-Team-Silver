@@ -109,9 +109,10 @@ class Gate(object):
                     'V' : Commands.ManualMove(1),
                     'A' : Commands.ManualMove(-1)}
         
+        reply = 'Not recognized'
         if any(word in request for word in commands):
             new_command = commands[word]
             new_command.execute()
-        reply = request + ' > Processing commands and executing them !!!!!!!!!NOT YET IMPLEMENTED!!!!!!!!!!!'
+            reply = 'Executing ' + word
         return reply
         #TODO: find out how to make commands better, because they aren't up to snuff right now! 
