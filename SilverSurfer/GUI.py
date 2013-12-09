@@ -472,7 +472,7 @@ class GUI(Frame):
    
     def invoke_stabilize(self):
         height = self.entry_input.get()
-        self.send_string_command('STABALIZE:' + str(int(height)))
+        self.send_string_command('STABILIZE:' + str(int(height)))
        
         
 #niet gebruikt

@@ -1,6 +1,6 @@
 #This is the server file, it is housed on the Pi
 
-import socket, threading, re
+import socket, threading, re, Commands
 
 class PiConn(threading.Thread, object):
     
@@ -52,6 +52,7 @@ class Gate(object):
         if any(word in request for word in self.replies):
             return self.replies[word](request)
         else:
+            
             return self.replies['COMMAND'](request)
 
     def status(self, request):
@@ -101,7 +102,16 @@ class Gate(object):
         return reply
     
     def command(self, request):
+        commands = {'L' : Commands.ManualTurn(1),
+                    'R' : Commands.ManualTurn(-1),
+                    'S' : Commands.VertMove(100),
+                    'D' : Commands.VertMove(-100),
+                    'V' : Commands.ManualMove(1),
+                    'A' : Commands.ManualMove(-1)}
+        
+        if any(word in request for word in commands):
+            new_command = commands[word]
+            new_command.execute()
         reply = request + ' > Processing commands and executing them !!!!!!!!!NOT YET IMPLEMENTED!!!!!!!!!!!'
         return reply
-        #TODO: find out how to make commands better, because they aren't up to snuff right now!
-        pass 
+        #TODO: find out how to make commands better, because they aren't up to snuff right now! 
