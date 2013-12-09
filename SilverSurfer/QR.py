@@ -65,21 +65,21 @@ class QR(threading.Thread, object):
         self.QR_codes = {} #Key is the number of the QR code, the values are the data strings.
         self.QR_images = {} #Key is number of the QR, values are the image files
         self.QR_points = {} #Key is the number of the QR, values are the points on the last image!
-        self.QR_scanned = False #Tells if a QR is in the current vision
+        self.new_QR_scanned = False #Tells if a QR is in the current vision
         self.zeppelin = zeppelin
         
     def run(self):
         while True:
             QR_strings = self.scanner.scan()
             if not QR_strings:
-                self.QR_scanned = False
+                self.new_QR_scanned = False
                 continue
             elif len(QR_strings) is 1:
-                self.QR_scanned = True
-                
+                self.new_QR_scanned = False
                 QR_number = int(QR_strings[0][QR_strings.index('N')+ 2:])
                 try: #Check for a new QR code
                     self.QR_points[QR_number]
+                    self.new_QR_scanned = True
                 except KeyError:
                     #If it is a new one, calculate the points
                     self.calculate_points_QR(QR_number)

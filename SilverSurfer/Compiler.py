@@ -10,7 +10,7 @@ class Parser():
 
 class Compiler():
     
-    def __init__(self):
+    def __init__(self, zeppelin):
         self.command_constructors = {"V":Commands.Move, 
                                      "A":Commands.Move, 
                                      "S":Commands.Ascension, 
@@ -28,12 +28,14 @@ class Compiler():
                              "VM":1}
         
         self.non_parameter_commands=["VS","HS","STOP"]
+        
+        self.zep = zeppelin
     
-    def make_command(self, command_type, parameter, priority):
+    def make_command(self, command_type, parameter, priority = False):
         if command_type in self.non_parameter_commands:
             return self.command_constructors[command_type]()
         else:
-            return self.command_constructors[command_type](priority,self.command_sign[command_type]*parameter)
+            return self.command_constructors[command_type](priority,self.command_sign[command_type]*parameter, self.zep)
         
             
         
@@ -53,9 +55,9 @@ class Compiler():
     
 class Commandfactory(object):
     
-    def __init__(self):
+    def __init__(self, zeppelin):
         self.parser = Parser()
-        self.compiler = Compiler()
+        self.compiler = Compiler(zeppelin)
         
     def create_commands(self,code_string):   
         code = self.parser.parse_string(code_string)

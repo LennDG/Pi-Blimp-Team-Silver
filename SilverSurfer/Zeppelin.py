@@ -13,7 +13,7 @@ class Zeppelin(threading.Thread, object):
         
         self.AUTO_MODE = False #This will change some stuff depending on what mode we're in right now.
         
-        self.compiler = Compiler.Commandfactory()
+        self.compiler = Compiler.Commandfactory(self)
         self.command_time = float("inf")
         self.executing_command = None
            
@@ -89,20 +89,16 @@ class Zeppelin(threading.Thread, object):
                         self.goal_angle -= int(R_angle)
                         
             #Execute commands, either the new ones, or the ones executing
-            while i < len(command_list):
-                if self.executing_command is not self.executing_command.is_executed:
-                    if not self.executing_command.is_alive():
+            #Executes commands in sequence by using i as an index
+            i = 0
+            self.STATUS = 'Executing QR ' + current_QR
+            while i < len(command_list) and not self.QR.new_QR_scanned:
+                self.executing_command = command_list[i]#New command
+                if self.executing_command is not self.executing_command.is_executed: #check if the command is already executed
+                    if not self.executing_command.is_alive(): #If it is not, start it.
                         self.executing_command.start()
                 else:
-                    try:
-                        self.executing_command = command_list
-                    
-                    
-        #indien dat correct is, doe zxing voor het punt en de afstand
-        #update de goals  en voer ze uit in juiste sequentie op basis van die punten.
-        #ondertussen zo vaak mogelijk de Zxing proberen te doen.
-        #Indien er geen in beeld is (hiervoor moet een vlag in QR worden gezet), blijven uitvoeren
-        #Wanneer er dan een nieuwe is, doe vanaf begin
+                    i = i + 1
 
 
     def shutdown(self):
