@@ -51,7 +51,21 @@ class ZeppelinControl():
         #Stops all the engines, CAUTION: THIS WILL CAUSE ZEPPELIN CRASH
         self.motor_control.all_off()
         
+    #This method calibrates the basis parameter by moving the zeppelin up and d$
     def calibrate(self):
+        bias = 0
+        while(not  self.isRising()):
+            bias = bias + 1
+            self.motor_control.vert_motor.level = bias
+            print bias
+    print "calibration finished"
+
+    #Returns if the zeppelin is gaining altitude.
+    def isRising(self):
+        height = self.current_height
+        print "height :" + str(height)
+        time.sleep(0.7)
+        return height > 6
         
 
             

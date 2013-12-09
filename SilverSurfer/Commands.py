@@ -1,5 +1,31 @@
 import time, threading
 
+class ManualMove(object):
+
+    def __init__(self, zeppelin, direction):
+        self.zeppelin = zeppelin
+        self.direction = direction
+
+    def execute(self):
+        self.zeppelin.control.move(self.direction)
+
+class ManualTurn(object):
+    
+    def __init__(self, zeppelin, direction):
+        self.zeppelin = zeppelin
+        self.direction = direction
+
+    def execute(self):
+        self.zeppelin.control.turn(self.direction)
+
+class Stop(object):
+    
+    def __init__(self, zeppelin):
+        self.zeppelin = zeppelin
+
+    def execute(self):
+        self.zeppelin.control.hor_stop()
+
 '''
 This module contains all the Command classes.
 '''

@@ -1,5 +1,5 @@
 
-import threading, time, ZeppelinControl, DistanceSensor, sys, PiConnection, QR, re, Compiler
+import threading, time, ZeppelinControl, DistanceSensor, sys, PiConnection, QR, re, Compiler, Commands
      
 class Zeppelin(threading.Thread, object):
        
@@ -76,8 +76,10 @@ class Zeppelin(threading.Thread, object):
                     angle_error = self.goal_angle - angle
                     #Parse the commands
                     command_list = self.compiler.create_commands(self.QR_codes[current_QR])
-                    #Make extra command for turning
-                    
+                    #Make extra command for turning and put on top of list
+                    #TODO: make turn command
+                    turn_command = Commands.Turn(False, angle_error, self)
+                    command_list.insert(0, turn_command)
                     #Get new goal angle
                     L_angle = re.search('L:(\d+)', self.QR.QR_codes(current_QR)).group(1)
                     R_angle = re.search('R:(\d+)', self.QR.QR_codes(current_QR)).group(1)
@@ -87,7 +89,13 @@ class Zeppelin(threading.Thread, object):
                         self.goal_angle -= int(R_angle)
                         
             #Execute commands, either the new ones, or the ones executing
-            
+            while i < len(command_list):
+                if self.executing_command is not self.executing_command.is_executed:
+                    if not self.executing_command.is_alive():
+                        self.executing_command.start()
+                else:
+                    try:
+                        self.executing_command = command_list
                     
                     
         #indien dat correct is, doe zxing voor het punt en de afstand
