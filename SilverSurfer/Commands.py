@@ -55,12 +55,13 @@ class Command(threading.Thread, object):
     '''
 This method must be implemented by all child classes. In its current state, it does not do anything.
 '''
-    def run(self, zeppelin):
+    def run(self):
         #This runs the command, sets the time necessary to run it in the zeppelin object
         pass
     
     def stop(self):
         self.stop = True
+        self.is_executed = True
     
     '''
     A sleep method that checks every 0.1s whether or not the thread has to stop.
