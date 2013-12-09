@@ -131,7 +131,7 @@ class Turn(Command):
         rest = self.distance % unit  
         j = int(self.distance / unit)
         for i in range(0, j-1):
-            self.zeppelin.control.turn(self.distance) #distance points to the direction the zeppelin has to turn
+            self.zeppelin.control.turn(self.distance)
             self.sleep(a*unit)
             self.zeppelin.control.hor_stop()
             self.sleep(resting_time)
