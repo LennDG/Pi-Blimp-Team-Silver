@@ -25,6 +25,16 @@ class Stop(object):
 
     def execute(self):
         self.zeppelin.control.hor_stop()
+        self.zeppelin.control.vert_stop()
+
+class ManualVertMove(object):
+    def __init__(self, zeppelin, level):
+        self.zeppelin = zeppelin
+        self.level = level
+        
+    def execute(self):
+        self.zeppelin.control.vert_move(self.level)
+        
 
 '''
 This module contains all the Command classes.

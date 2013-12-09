@@ -687,6 +687,7 @@ class GUI(Frame):
 #CONNECTIE#
 #         #
 ###########
+
     
     def start_protocol(self,*args):
         self.parent.protocol("WM_DELETE_WINDOW", self.exit_protocol)  
