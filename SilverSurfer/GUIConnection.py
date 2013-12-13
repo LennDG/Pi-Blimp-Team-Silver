@@ -7,7 +7,7 @@ class GUIConn(threading.Thread, object):
     def __init__(self, inqueue, outqueue):
         threading.Thread.__init__(self)
         
-        HOST = '127.0.0.1' #'192.168.1.1'
+        HOST = '192.168.1.1'
         PORT = 8888
         
         self.inqueue= inqueue
@@ -20,8 +20,10 @@ class GUIConn(threading.Thread, object):
         while True:
             try:
                 data = self.outqueue.get(True) #BLOCKING CALL
+                print data
                 self.s.sendall(data)
                 reply = self.s.recv(1024) #BLOCKING CALL
+                print reply
                 self.inqueue.put(reply)
             except Exception:
                 self.s.close()
