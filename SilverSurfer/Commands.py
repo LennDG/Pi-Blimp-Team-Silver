@@ -145,18 +145,19 @@ class Turn(Command):
 
 class Ascension(Command):
     
-    def __init__(self, has_priority, height):
+    def __init__(self, has_priority, height, zeppelin):
         super(Ascension, self).__init__(has_priority)
         self.height = height
+        self.zeppelin = zeppelin
         
-    def run(self, zeppelin):
-        zeppelin.goal_height = zeppelin.height + self.height
-        while(zeppelin.height < self.height - 10 or zeppelin.heigth > self.height +10):
+    def run(self):
+        self.zeppelin.goal_height = self.zeppelin.height + self.height
+        while(self.zeppelin.height < self.height - 10 or self.zeppelin.heigth > self.height +10):
             self.sleep(0.1)
         self.is_executed = True
         
-    def stop(self, zeppelin):
-        zeppelin.goal_height = zeppelin.height
+    def stop(self):
+        self.zeppelin.goal_height = self.zeppelin.height
 
 class VertMove(Command):
     def __init__(self, has_priority, level):
@@ -167,8 +168,3 @@ class VertMove(Command):
         zeppelin.control.vert_move(self.level)
         self.sleep(1000)
         zeppelin.control.vert_stop()
-        
-        
-        
-
-
