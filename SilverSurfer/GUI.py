@@ -665,13 +665,13 @@ class GUI(Frame):
     def h_stop(self,*args):
         #command = Commands.HorStop()
         #self.queue.put(command)
-        self.send_string_command('HS:0')
+        self.send_string_command('STOP:0')
         
     def v_stop(self,*args):
       #  command = Commands.VertStop()
         #command= Commands.VertMove(0)
         #self.queue.put(command)
-        self.send_string_command('VS:0')
+        self.send_string_command('STOP:0')
     
         
     def stop(self,*args):
@@ -705,6 +705,7 @@ class GUI(Frame):
         self.outputqueue  = Queue.Queue()
         self.inputqueue = Queue.Queue()
         self.connection = GUIConnection.GUIConn(self.inputqueue,self.outputqueue)
+        self.connection.start()
         
         
     def exit_protocol(self,*args):
@@ -740,7 +741,7 @@ class GUI(Frame):
         self.parent.after(500, self.update_gui)
         
     def update_graph_values(self):
-        self.height_graph.y =  abs(random.randn()) #float(self.zep_state['height'])
+        self.height_graph.y =  float(self.zep_state['height'])
         goal = self.zep_state['Goal']
         if goal == 'not given':
             self.height_graph.y_2 =0
