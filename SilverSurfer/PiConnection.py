@@ -49,11 +49,11 @@ class Gate(object):
     
     def reply(self, request):
         #Looks for the keywords in the request, handles them in the correct way.
-        if any(word in request for word in self.replies):
-            return self.replies[word](request)
-        else:
-            
-            return self.replies['COMMAND'](request)
+        for word in self.replies:
+            if word in request:
+                return self.replies[word](request)
+            else:
+                return self.replies['COMMAND'](request)
 
     def status(self, request):
         reply = 'STATUS > ' + self.zep.STATUS
