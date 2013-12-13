@@ -66,10 +66,11 @@ This method must be implemented by all child classes. In its current state, it d
     '''
     A sleep method that checks every 0.1s whether or not the thread has to stop.
     '''
-    def sleep(self, time):
+    def sleep(self, sleeptime):
         i = 0
-        rest = time % 0.1
-        j = time / 0.1
+        rest = sleeptime % 0.1
+        j = sleeptime / 0.1
+        j = int(j)
         while(i!=j):
             if(self.stop == True):
                 return
@@ -116,26 +117,29 @@ This method will initiate the movement of the object that runs this command.
 
 class Turn(Command):
     
-    def __init__(self, has_priority, parameter, zeppelin):
+    def __init__(self, has_priority, distance, zeppelin): # 1 = clockwise, -1 = counterclockwise
         
-        super(Turn, self).__init__(has_priority, parameter)
+        super(Turn, self).__init__(has_priority)
         self.zeppelin = zeppelin
-    
+        self.distance = distance    #"distance" is een foute naam, dit staat voor de hoek in aantal graden, maar ik wist niet of dit via overerving wel ging. Anyways this one works. -Peter
+        
+    #deze methode is NOG NIET GEKALIBREERD
     def run(self):
-        resting_time = 0
-        unit = 0
-        a = 0
-        rest = self.distance % unit
+        resting_time = 3    #tijd tussen impulsen
+        unit = 20           #hoeveel graden draaien we per impuls, MOET EEN DELER ZIJN VAN HET TOTAAL AANTAL GRADEN
+        a = 0.02            #Multiplier: hoe lang moeten we stroom zetten per impuls om unit aantal graden te draaien
+        brake_puls = 0.7*a*unit
+        rest = self.distance % unit  
         j = int(self.distance / unit)
         for i in range(0, j-1):
-            self.zeppelin.control.turn(self.distance) #distance points to the direction the zeppelin has to turn
+            self.zeppelin.control.turn(self.distance)
             self.sleep(a*unit)
             self.zeppelin.control.hor_stop()
             self.sleep(resting_time)
-        self.zeppelin.control.move(self.distance)
-        self.sleep(a*rest)
+        self.sleep(rest)
+        self.zeppelin.control.turn(self.distance)
+        self.sleep(brake_puls)
         self.zeppelin.control.hor_stop()
-        self.sleep(resting_time)
         self.is_executed = True
            
 

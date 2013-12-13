@@ -8,7 +8,7 @@ class ZeppelinControl():
         self.motor_control = MotorControl.MotorControl()
         self.current_height = 0.0
         self.goal_height = 0.0
-        self.PID = PID(Kp = 1.0, Kd = 0.8, Ki =0.0, self)
+        self.PID = PID(Kp = 1.0, Kd = 0.8, Ki =0.0)
         self.vert_basis = 0
         self.distance_sensor = distance_sensor
     
@@ -25,22 +25,22 @@ class ZeppelinControl():
     
     def move(self, direction):
         #1 for forward, -1 for backward
-        print "moving to forward " + str(direction)
+        print ("moving to forward " + str(direction))
         self.motor_control.move(direction)
     
     def turn(self, direction):
         #1 for left, -1 for right
-        print "turning to " + str(direction)
+        print ("turning to " + str(direction))
         self.motor_control.turn(direction)
         
     def vert_move(self, level):
         #Sets the vertical motor to a level, mostly used for testing purposes
-        print "Setting the vertical motor to " + str(level)
+        print ("Setting the vertical motor to " + str(level))
         self.motor_control.vert_motor.level = level
     
     def hor_stop(self): 
         #stops all horizontal movement (includes turning)
-        print "Horizontal stop"
+        print ("Horizontal stop")
         self.motor_control.stop()
     
     def vert_stop(self):
@@ -57,13 +57,13 @@ class ZeppelinControl():
         while(not  self.isRising()):
             bias = bias + 1
             self.motor_control.vert_motor.level = bias
-            print bias
+            print (bias)
     print "calibration finished"
 
     #Returns if the zeppelin is gaining altitude.
     def isRising(self):
         height = self.current_height
-        print "height :" + str(height)
+        print ("height :" + str(height))
         time.sleep(0.7)
         return height > 6
         
@@ -72,7 +72,7 @@ class ZeppelinControl():
 class PID(threading.Thread, object):
     #This is the PID object used for stabilizing the zeppelin
     
-    def __init__(self, Kp = 1.0, Kd = 0.0, Ki =0.0, control): #These are values for now, will change. Experimental determination.
+    def __init__(self, control, Kp = 1.0, Kd = 0.0, Ki =0.0): #These are values for now, will change. Experimental determination.
         threading.Thread.__init__(self)
         self.Kp = Kp
         self.Kd = Kd
