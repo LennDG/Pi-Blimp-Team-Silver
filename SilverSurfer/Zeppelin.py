@@ -58,47 +58,7 @@ class Zeppelin(threading.Thread, object):
         command_list = []
         
         while True:                
-            if not self.AUTO_MODE:
-                #Manual stuff
-                pass
-            else:
-                #Auto stuff
-                if max(self.QR.QR_codes) > current_QR: #New QR code found
-                    #TODO: STOP CURRENT COMMANDS HERE
-                    current_QR = max(self.QR.QR_codes)
-                    #get the points 
-                    while self.QR.QR_points[current_QR] is None:
-                        time.sleep(0.2)
-                    points = self.QR.QR_points[current_QR]
-                    #get the angle
-                    angle = self.QR.calculate_angle(points, self.QR.QR_images(current_QR))
-                    #Calculate difference with goal angle
-                    angle_error = self.goal_angle - angle
-                    #Parse the commands
-                    command_list = self.compiler.create_commands(self.QR_codes[current_QR])
-                    #Make extra command for turning and put on top of list
-                    #TODO: make turn command
-                    turn_command = Commands.Turn(False, angle_error, self)
-                    command_list.insert(0, turn_command)
-                    #Get new goal angle
-                    L_angle = re.search('L:(\d+)', self.QR.QR_codes(current_QR)).group(1)
-                    R_angle = re.search('R:(\d+)', self.QR.QR_codes(current_QR)).group(1)
-                    if L_angle is not None:
-                        self.goal_angle += int(L_angle)
-                    if R_angle is not None:
-                        self.goal_angle -= int(R_angle)
-                        
-            #Execute commands, either the new ones, or the ones executing
-            #Executes commands in sequence by using i as an index
-            i = 0
-            self.STATUS = 'Executing QR ' + current_QR
-            while i < len(command_list) and not self.QR.new_QR_scanned:
-                self.executing_command = command_list[i]#New command
-                if self.executing_command is not self.executing_command.is_executed: #check if the command is already executed
-                    if not self.executing_command.is_alive(): #If it is not, start it.
-                        self.executing_command.start()
-                else:
-                    i = i + 1
+            
 
 
     def shutdown(self):
