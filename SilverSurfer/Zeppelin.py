@@ -47,17 +47,28 @@ class Zeppelin(threading.Thread, object):
         self.control.goal_height = value
            
     def stabilize(self, on):
-        if on is True:
+        if on:
             self.control.stabilize()
         else:
             self.control.end_stabilize()       
              
     def run(self): 
-        QR_executed = {}#Dictionary of QR numbers and whether they are executed already
         current_QR = 1 #The QR that is currently being executed, starts at 1
         command_list = []
-        
-        while True:                
+        index = 0
+        self.stabilize(True)
+        while True:
+            if current_QR < max(self.QR.QR_codes):
+                current_QR = max(self.QR.QR_codes)
+                command_list = self.compiler.create_commands(self.QR.QR_codes[current_QR])
+                index = 0
+                command_list[index].start()               
+            if command_list[index].is_executed:
+                index += 1
+                command_list[index].start()
+            else:
+                time.sleep(0.3)
+                            
             
 
 

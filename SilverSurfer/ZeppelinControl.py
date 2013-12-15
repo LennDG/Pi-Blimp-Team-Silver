@@ -8,8 +8,8 @@ class ZeppelinControl():
         self.motor_control = MotorControl.MotorControl()
         self.current_height = 0.0
         self.goal_height = 0.0
-        self.PID = PID(Kp = 1.0, Kd = 0.8, Ki =0.0)
-        self.vert_basis = 0
+        self.PID = PID(Kp = 0.8, Kd = 2.5, Ki =0.0)
+        self.bias = 0
         self.distance_sensor = distance_sensor
     
     @property
@@ -53,11 +53,11 @@ class ZeppelinControl():
         
     #This method calibrates the basis parameter by moving the zeppelin up and d$
     def calibrate(self):
-        bias = 0
+        self.bias = 0
         while(not  self.isRising()):
-            bias = bias + 1
-            self.motor_control.vert_motor.level = bias
-            print (bias)
+            self.bias = self.bias + 1
+            self.motor_control.vert_motor.level = self.bias
+            print (self.bias)
     print "calibration finished"
 
     #Returns if the zeppelin is gaining altitude.
@@ -79,9 +79,6 @@ class PID(threading.Thread, object):
         self.Ki = Ki
         
         self.control = control
-        
-        #This value is the calculated base to let the zeppelin stabilize on a current height
-        self.bias = 0.0
         
         self.PID_On = False
         
@@ -181,12 +178,12 @@ class PID(threading.Thread, object):
         #Because of the rescale, this can just be added to the bias
         PID = self.Kp*error + self.Ki*self.Ci + self.Kd*self.Cd
         
-        output_value = self.bias + PID
-        
         #Set the output value to the appropriate scale
-        if output_value > 100.0:
-            output_value = 100
-        elif output_value < -100.0:
-            output_value = -100
+        if PID > 40.0:
+            PID = 40.0
+        elif PID < -40.0:
+            PID = -40.0
+            
+        output_value = self.control.bias + PID
         
         return output_value
