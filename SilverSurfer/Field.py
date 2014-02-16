@@ -17,37 +17,36 @@ class Node(object):
             # Do Nothing
             
         elif (not self.neighbours[relative_position] == 0):
-            self.neighbours[relative_position].add_node(new_node, relative_position) #Als de node niet kan toegevoegd worden aan deze node, wordt
-            #die gewoon ene verder toegevoegd.   
+            self.neighbours[relative_position].add_node(new_node, relative_position) #Als de node niet
+                            # kan toegevoegd worden aan deze node, wordt die gewoon ene verder toegevoegd.   
         else:
+            basis_x = self.position.xcoord
+            basis_y = self.position.ycoord
+            delta_x = 0
+            delta_y = 0
             
-            if relative_position == 0:
-                xcoord = self.position.xcoord - DISTANCE*1/2
-                ycoord = self.position.ycoord + DISTANCE*sqrt(3)/2
-            elif relative_position == 1:
-                xcoord = self.position.xcoord + DISTANCE*1/2
-                ycoord = self.position.ycoord + DISTANCE*sqrt(3)/2
-            elif relative_position == 2:
-                xcoord = self.position.xcoord + DISTANCE
-                ycoord = self.position.ycoord
-            elif relative_position == 3:
-                xcoord = self.position.xcoord + DISTANCE*1/2
-                ycoord = self.position.ycoord - DISTANCE*sqrt(3)/2
-            elif relative_position == 4:
-                xcoord = self.position.xcoord - DISTANCE*1/2
-                ycoord = self.position.ycoord - DISTANCE*sqrt(3)/2
-            elif relative_position == 5:
-                xcoord = self.position.xcoord - DISTANCE
-                ycoord = self.position.ycoord
-            else:
-                print "This is not a valid relative position, please use a value ranging from 0 to 5." #throw hier een exception aub.
+            differences = { 0 : (-DISTANCE*1/2, DISTANCE*sqrt(3)/2),
+                            1 : (DISTANCE*1/2, DISTANCE*sqrt(3)/2),
+                            2 : (DISTANCE,0),
+                            3 : (DISTANCE*1/2, -DISTANCE*sqrt(3)/2),
+                            4 : (-DISTANCE*1/2, -DISTANCE*sqrt(3)/2),
+                            5 : (-DISTANCE, 0)
+                            }
+            try:
+                delta_x, delta_y = differences[relative_position]
+            except KeyError:
+                print "The relative position must be between 0 and 5 inclusive."
+                
+            xcoord = basis_x + delta_x
+            ycoord = basis_y + delta_y
             
-            new_position = Position.Position(xcoord, ycoord)
+            new_position = Position.Position(xcoord, ycoord,0)
             if new_node.position == 0:    
                 new_node.position = new_position
                 
             if not new_node.position.equals(new_position):
-                print "This not cannot be placed in this place of the grid, as it already has another place." #hier ook een exception
+                print "This not cannot be placed in this place of the grid, as it already has another place." 
+                #hier ook een exception
                 
             else:
                 self.neighbours[relative_position] = new_node  #add the node to the correct position on self.
