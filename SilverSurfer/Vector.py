@@ -1,4 +1,4 @@
-from math import sqrt, acos
+from math import sqrt, asin, acos, pi, copysign
 
 class Vector(object):
     
@@ -7,11 +7,18 @@ class Vector(object):
         self.xcoord = xcoord
         self.ycoord = ycoord
     
-    #hoek van 0..2*Pi
+    #hoek van -pi...pi
     @property    
     def angle(self):
-        x_vector = Vector(1,0)
-        return acos(self.inner_product(x_vector)/self.norm())
+        angle = asin(self.ycoord/self.norm)
+        if self.xcoord >= 0:
+            pass
+        elif self.ycoord >= 0:
+            angle = pi - angle 
+        else:
+            angle = -pi - angle
+        return angle
+             
         
     @property    
     def norm(self):
@@ -21,5 +28,3 @@ class Vector(object):
         X = self.xcoord*other.xcoord
         Y = self.ycoord*other.ycoord
         return X + Y
-    
-    
