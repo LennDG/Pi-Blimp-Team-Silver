@@ -5,6 +5,7 @@ from Vector import Vector
 
 DISTANCE = 0.4
 
+"""This method returns 1 if the number is positive, -1 when negative"""
 def sign(number):
     if number == 0:
         return 1
@@ -24,8 +25,6 @@ def equivalent_values(value_1, value_2, mode):
     elif mode == 2:
         value_1 = int(str(value_1)[0])
         value_2 = int(str(value_2)[0])
-    else:
-        pass
     return value_1 == value_2
 
 class Node(object):
@@ -36,8 +35,7 @@ class Node(object):
         self.position = position
         
         
-    
-        
+    """Checks whether the node in question is our starting node"""   
     def has_default_position(self):
         return self.position == Vector(9999999999, 9999999999)
         
