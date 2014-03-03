@@ -62,7 +62,7 @@ class QR(threading.Thread, object):
         
         self.QR_scanner = QRScanner()
         
-        self.QR_codes = {} #Key is the number of the QR code, the values are the data strings.
+        self.QR_codes = {0 : ''} #Key is the number of the QR code, the values are the data strings.
         self.QR_images = {} #Key is number of the QR, values are the image files
         self.QR_points = {} #Key is the number of the QR, values are the points on the last image!
         self.new_QR_scanned = False #Tells if a QR is in the current vision

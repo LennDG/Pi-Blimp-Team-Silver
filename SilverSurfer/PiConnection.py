@@ -14,6 +14,7 @@ class PiConn(threading.Thread, object):
         
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((HOST, PORT))
+        self.s.setblocking(True)
 
     def run(self):
         self.s.listen(1)

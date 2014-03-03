@@ -6,7 +6,7 @@ class Zeppelin(threading.Thread, object):
         #TODO: We might have to rewrite A LOT of this code...
        
        
-    def __init__(self,queue):
+    def __init__(self):
         threading.Thread.__init__(self)
         
         self.STATUS = ''
@@ -53,19 +53,23 @@ class Zeppelin(threading.Thread, object):
             self.control.end_stabilize()       
              
     def run(self): 
-        current_QR = 1 #The QR that is currently being executed, starts at 1
+        current_QR = 0 #The QR that is currently being executed, starts at 1
         command_list = []
         index = 0
         self.stabilize(True)
+        self.STATUS = 'Waiting for first QR'
         while True:
             if current_QR < max(self.QR.QR_codes):
                 current_QR = max(self.QR.QR_codes)
                 command_list = self.compiler.create_commands(self.QR.QR_codes[current_QR])
-                index = 0
-                command_list[index].start()               
-            if command_list[index].is_executed:
-                index += 1
+                self.STATUS = 'Executing QR number ' + str(current_QR) + ': ' + self.QR.QR_codes[current_QR] + '\n Executing command 1'
                 command_list[index].start()
+            if current_QR is 0: 
+                continue                          
+            if command_list[index].is_executed and index + 1 < len(command_list):
+                index += 1
+                self.STATUS = 'Executing command: ' + str(index)
+                command_list[index].start()               
             else:
                 time.sleep(0.3)
                             
