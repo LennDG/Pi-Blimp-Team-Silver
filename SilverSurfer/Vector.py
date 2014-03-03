@@ -22,7 +22,8 @@ class Vector(object):
         return angle
              
         
-    @property    
+    @property
+    #Retrieves the length of the vector    
     def norm(self):
         return sqrt(self.xcoord**2 + self.ycoord**2)
     

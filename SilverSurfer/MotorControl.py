@@ -18,8 +18,10 @@ class MotorControl():
     def __init__(self):
         
         #Make all Motor objects
-        self.left_motor = Motor.Motor(cw_pin = 4, ccw_pin = 24)
-        self.right_motor = Motor.Motor(cw_pin = 10, ccw_pin = 11)
+        self.left_motor = Motor.Motor(cw_pin = 4, ccw_pin = 24, 10)
+        self.left_motor.start()
+        self.right_motor = Motor.Motor(cw_pin = 10, ccw_pin = 11, 10)
+        self.right_motor.start()
         self.vert_motor = Motor.VerticalMotor(cw_pin = 7, ccw_pin = 9) #Make sure that the PWM connector on the board is correct 
         
     
