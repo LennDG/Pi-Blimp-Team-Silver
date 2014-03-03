@@ -10,7 +10,7 @@ class Motor(threading.thread, object):
         
         GPIO.setmode(GPIO.BCM)
         
-        self.level = 0
+        self.level = 0.0
         
         self.frequency = frequency
         
