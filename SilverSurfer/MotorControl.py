@@ -29,10 +29,6 @@ class MotorControl():
     # acceleration The acceleration in percentage with which the zeppelin should propel itself forward.
     def move(self, angle, acceleration):
         
-        # Reset motors
-        self.left_off()
-        self.right_off()
-        
         # Normalize angle
         angle = angle%(2*pi)
         
@@ -61,9 +57,6 @@ class MotorControl():
             
         self.left_motor.level = direction.xcoord
         self.right_motor.level = direction.ycoord
-        
-        self.left_motor.enable()
-        self.right_motor.enable()
             
             
     def stop(self):#Maybe needs to spin engines in other directions based on speed. For now, just disable them
@@ -76,10 +69,10 @@ class MotorControl():
         self.vert_off()
         
     def left_off(self): #This shuts the left engine down
-        self.left_motor.disable()
+        self.left_motor.level = 0
     
     def right_off(self):#This shuts the right engine down
-        self.right_motor.disable()
+        self.right_motor.level = 0
         
     def vert_off(self): #This shuts the vertical engine off
-        self.vert_motor.disable()
+        self.vert_motor.level = 0
