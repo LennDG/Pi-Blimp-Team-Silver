@@ -6,7 +6,7 @@ class Zeppelin(threading.Thread, object):
         #TODO: We might have to rewrite A LOT of this code...
        
        
-    def __init__(self,queue):
+    def __init__(self):
         threading.Thread.__init__(self)
         
         self.STATUS = ''
@@ -47,58 +47,33 @@ class Zeppelin(threading.Thread, object):
         self.control.goal_height = value
            
     def stabilize(self, on):
-        if on is True:
+        if on:
             self.control.stabilize()
         else:
             self.control.end_stabilize()       
              
     def run(self): 
-        QR_executed = {}#Dictionary of QR numbers and whether they are executed already
-        current_QR = 1 #The QR that is currently being executed, starts at 1
+        current_QR = 0 #The QR that is currently being executed, starts at 1
         command_list = []
-        
-        while True:                
-            if not self.AUTO_MODE:
-                #Manual stuff
-                pass
+        index = 0
+        self.stabilize(True)
+        self.STATUS = 'Waiting for first QR'
+        while True:
+            if current_QR < max(self.QR.QR_codes):
+                current_QR = max(self.QR.QR_codes)
+                command_list = self.compiler.create_commands(self.QR.QR_codes[current_QR])
+                self.STATUS = 'Executing QR number ' + str(current_QR) + ': ' + self.QR.QR_codes[current_QR] + '\n Executing command 1'
+                command_list[index].start()
+            if current_QR is 0: 
+                continue                          
+            if command_list[index].is_executed and index + 1 < len(command_list):
+                index += 1
+                self.STATUS = 'Executing command: ' + str(index)
+                command_list[index].start()               
             else:
-                #Auto stuff
-                if max(self.QR.QR_codes) > current_QR: #New QR code found
-                    #TODO: STOP CURRENT COMMANDS HERE
-                    current_QR = max(self.QR.QR_codes)
-                    #get the points 
-                    while self.QR.QR_points[current_QR] is None:
-                        time.sleep(0.2)
-                    points = self.QR.QR_points[current_QR]
-                    #get the angle
-                    angle = self.QR.calculate_angle(points, self.QR.QR_images(current_QR))
-                    #Calculate difference with goal angle
-                    angle_error = self.goal_angle - angle
-                    #Parse the commands
-                    command_list = self.compiler.create_commands(self.QR_codes[current_QR])
-                    #Make extra command for turning and put on top of list
-                    #TODO: make turn command
-                    turn_command = Commands.Turn(False, angle_error, self)
-                    command_list.insert(0, turn_command)
-                    #Get new goal angle
-                    L_angle = re.search('L:(\d+)', self.QR.QR_codes(current_QR)).group(1)
-                    R_angle = re.search('R:(\d+)', self.QR.QR_codes(current_QR)).group(1)
-                    if L_angle is not None:
-                        self.goal_angle += int(L_angle)
-                    if R_angle is not None:
-                        self.goal_angle -= int(R_angle)
-                        
-            #Execute commands, either the new ones, or the ones executing
-            #Executes commands in sequence by using i as an index
-            i = 0
-            self.STATUS = 'Executing QR ' + current_QR
-            while i < len(command_list) and not self.QR.new_QR_scanned:
-                self.executing_command = command_list[i]#New command
-                if self.executing_command is not self.executing_command.is_executed: #check if the command is already executed
-                    if not self.executing_command.is_alive(): #If it is not, start it.
-                        self.executing_command.start()
-                else:
-                    i = i + 1
+                time.sleep(0.3)
+                            
+            
 
 
     def shutdown(self):

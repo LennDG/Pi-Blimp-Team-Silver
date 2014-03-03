@@ -94,6 +94,8 @@ class Move(Command):
 This method will initiate the movement of the object that runs this command.
 '''
     def run(self):
+        direction = self.distance
+        self.distance = abs(self.distance)
         p_1 = 0.55
         p_2 = 0.3
         resting_time = 5.92
@@ -101,13 +103,13 @@ This method will initiate the movement of the object that runs this command.
         if(self.distance < 0.5):
             pass
         else:
-            self.zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
+            self.zeppelin.control.move(direction) #distance points to the direction the zeppelin has to move
             self.sleep(p_1)
             self.zeppelin.control.hor_stop()
             self.sleep(resting_time)
             j = int(self.distance / one_length)
             for i in range(0, j-1):
-                self.zeppelin.control.move(self.distance) #distance points to the direction the zeppelin has to move
+                self.zeppelin.control.move(direction) #distance points to the direction the zeppelin has to move
                 self.sleep(p_2)
                 self.zeppelin.control.hor_stop()
                 self.sleep(resting_time)
@@ -130,14 +132,14 @@ class Turn(Command):
         a = 0.02            #Multiplier: hoe lang moeten we stroom zetten per impuls om unit aantal graden te draaien
         brake_puls = 0.7*a*unit
         rest = self.distance % unit  
-        j = int(self.distance / unit)
+        j = abs(int(self.distance / unit))
         for i in range(0, j-1):
             self.zeppelin.control.turn(self.distance)
             self.sleep(a*unit)
             self.zeppelin.control.hor_stop()
             self.sleep(resting_time)
         self.sleep(rest)
-        self.zeppelin.control.turn(self.distance)
+        self.zeppelin.control.turn(-self.distance)
         self.sleep(brake_puls)
         self.zeppelin.control.hor_stop()
         self.is_executed = True

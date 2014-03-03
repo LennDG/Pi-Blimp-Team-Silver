@@ -1,13 +1,18 @@
 #This is the file for the Motor class
 import RPi.GPIO as GPIO
+import threading, time
 
-class Motor(object):
+class Motor(threading.thread, object):
     
-    def __init__(self, cw_pin, ccw_pin):
+    def __init__(self, cw_pin, ccw_pin, frequency):
+        
+        threading.Thread.__init__(self)
         
         GPIO.setmode(GPIO.BCM)
         
-        self.direction = 0
+        self.level = 0.0
+        
+        self.frequency = frequency
         
         self.cw_pin = cw_pin
         self.ccw_pin = ccw_pin
@@ -21,33 +26,42 @@ class Motor(object):
         GPIO.output(ccw_pin, 0)
         
     @property
-    def direction(self):
-        return self._direction
+    def level(self):
+        return self._level
     
-    @direction.setter
-    def direction(self, value): #This sets the direction
-        self._direction = value
+    @level.setter
+    def level(self, value): #This sets the level of the motor
+        if value > 100.0:
+            value = 100.0
+        elif value < -100.0:
+            value = -100.0
+        self._level = value
+        
+    def run(self):
+        while True:
+            if self.level > 0.0:
+                on_time = self.level*1./self.frequency
+                GPIO.output(self.cw_pin, 1)
+                time.sleep(on_time)
+                GPIO.output(self.cw_pin, 0)
+                time.sleep(1/self.frequency - on_time)
+                continue
+            elif self.level < 0.0:
+                on_time = self.level*1/self.frequency
+                GPIO.output(self.ccw_pin, 1)
+                time.sleep(on_time)
+                GPIO.output(self.ccw_pin, 0)
+                time.sleep(1./self.frequency - on_time)
+                continue
+            elif self.level == 0.0:
+                GPIO.output(self.cw_pin, 0)
+                GPIO.output(self.ccw_pin, 0)
+        pass
+        
     
-    def enable(self): #This turns the motor on and sets the direction according
-        if self.direction ==1:
-            GPIO.output(self.ccw_pin, 0)
-            GPIO.output(self.cw_pin, 1)
-            
-        elif self.direction == -1:
-            GPIO.output(self.cw_pin, 0)
-            GPIO.output(self.ccw_pin, 1)
-
-    
-    def disable(self): #This turns the motor off
-        GPIO.output(self.cw_pin, 0)
-        GPIO.output(self.ccw_pin, 0)
-        self.direction = 0
-    
-    
-class VerticalMotor(Motor):
+class VerticalMotor(object):
     
     def __init__(self, cw_pin, ccw_pin):
-        super(VerticalMotor, self).__init__(cw_pin, ccw_pin)
         self._level = 0.0
         self.PWM = 18 #Should not be changing since it's hardwired into the Pi!
         GPIO.setup(self.PWM, GPIO.OUT)

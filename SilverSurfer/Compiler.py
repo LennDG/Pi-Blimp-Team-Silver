@@ -36,6 +36,7 @@ class Compiler():
         for c in code:
             command = c
             com = command.split(':')
+            com[1] = float(com[1])
             try:
                 temp = temp + [self.make_command(com[0], com[1], code.index(c)==0)]
             except (KeyError,IndexError,ValueError): #Happens when command is N
