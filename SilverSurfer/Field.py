@@ -215,7 +215,7 @@ class Field(object):
             pass
         return results
         
-    def find_lines(self, figure_1, figure_2):
+    def find_pair(self, figure_1, figure_2):
         results = []
         possible_initials = self.search_field(figure_1)
         for initial in possible_initials:
