@@ -15,7 +15,6 @@ RELATIVE_FACTOR = 1
 class MotorControl():
     
     
-    
     def __init__(self):
         
         #Make all Motor objects
@@ -42,10 +41,10 @@ class MotorControl():
         if acceleration > 100:
             acceleration = 100
         
-        # Create a vector pointing in the direction the zeppelin should move, with norm the force.
+        # Create a vector pointing in the direction the zeppelin should move, with norm the acceleration.
         # The positive y-axis in the direction of the right motor, the positive x-axis
         # in the direction of the left motor..
-        direction = Vector(0,acceleration).turn(angle - pi/4)     
+        direction = Vector(0, acceleration).turn(angle - pi/4)     
         
         # Correct the vector for differences in motors and orientations. Depends on the value of the factor.
         # Always make sure the resizing results in smaller values, as values exceeding 100 can distort the

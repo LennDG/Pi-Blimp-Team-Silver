@@ -1,6 +1,7 @@
 from __future__ import division
 from math import sqrt
 from Vector import Vector
+from Figure import Figure
 
 
 DISTANCE = 0.4
@@ -10,33 +11,24 @@ def sign(number):
         return 1
     else:
         return abs(number)/number
-'''
-Returns true if the values are equivalent in the given mode.
-modes:
-0 : total
-1 : color
-2 : shape
-'''    
-def equivalent_values(value_1, value_2, mode):
-    if mode == 1:
-        value_1 = value_1%10
-        value_2 = value_2%10
-    elif mode == 2:
-        value_1 = int(str(value_1)[0])
-        value_2 = int(str(value_2)[0])
-    else:
-        pass
-    return value_1 == value_2
 
 class Node(object):
     
-    def __init__(self, value, position=Vector(9999999999, 9999999999)):
-        self.value = value
+    def __init__(self, figure, position=Vector(9999999999, 9999999999)):
+        self.figure = figure
         self.neighbours = [0,0,0,0,0,0]
-        self.position = position
-        
-        
+        self._position = position
     
+    @property    
+    def position(self):
+        return self._position
+    
+    @position.setter
+    def position(self, position):
+        if self.has_default_position():
+            self._position = position
+        else:
+            print "You cannot change the position of a node that has already been placed on a grid."
         
     def has_default_position(self):
         return self.position == Vector(9999999999, 9999999999)
@@ -92,10 +84,89 @@ class Node(object):
                     left_neighbour.add_node(new_node, (relative_position + 1)%6)  #add the node to the correct position on the left neighbour.
                 if right_neighbour != 0:
                     right_neighbour.add_node(new_node, (relative_position - 1)%6)  #add the node to the correct position on the left neighbour.
+        
+
+class Field(object):
     
+    def __init__(self, parsed_csv_file):
+        
+        # convert the lists of tuples of numbers into lists of nodes
+        rows = []
+        for row in parsed_csv_file:
+            line = []
+            for element in row:
+                node = Node(Figure(element[0], element[1]))
+                line.append(node)
+            rows.append(line)
+            
+        #Set the position of the first node to 0,0
+        rows[0][0].position = Vector(0,0)
+        
+        # Add the first nodes of each row to each other.    
+        relative_direction = 3
+        increment = 1
+        for x in range(0, len(rows)-1):
+            current_element = rows[x][0]
+            next_element = rows[x+1][0]
+            current_element.add_node(next_element, relative_direction)
+            relative_direction += increment
+            increment = increment*-1
+            
+        # For each row, add the rest of the row to the first node, one by one.
+        for row in rows:
+            current_node = row[0]
+            for x in range(1, len(row)):
+                next_node = row[x]
+                current_node.add_node(next_node, 2)
+                current_node = next_node
+        
+        # Set the top left node to the correct node.    
+        self.top_left_node = rows[0][0]
+        
+    def row_extreme(self, node_in_row, direction):
+        if node_in_row == 0:
+            return 0
+        relative_direction = int(0.5 + 1.5*direction)%6
+        current_node = node_in_row
+        while current_node.neighbours[relative_direction] != 0:
+            current_node = current_node.neighbours[relative_direction]
+        return current_node
+    
+    def next_row(self, node_in_row, hor_direction, vert_direction=-1):  # 1 is up, -1 is down, 1 is left to right, -1 right to left
+        relative_position = int(2 + -3*vert_direction/2.0 - hor_direction*vert_direction/2.0)
+        #afgeleid van a*v**2 + b*v + c*h*v met de 4 vergelijkingen van wat de relative direction moet zijn.
+        if self.row_extreme(node_in_row, hor_direction).neighbours[relative_position] == 0:
+            return 0 #There is no next row.
+        else:
+            return self.row_extreme(node_in_row.neighbours[relative_position],hor_direction) 
+        
+    def search_field(self, target_figure):
+        current_node = self.top_left_node
+        direction = 1
+        intermediate_results = []
+        results = []
+        while current_node != 0:
+            intermediate_results, current_node = self.search_row(current_node, target_figure, direction)
+            for result in intermediate_results:
+                results.append(result)
+            current_node = self.next_row(current_node, direction)
+            direction = direction*-1
+        return results
+    
+    def search_row(self, first_node_of_row, target_figure, direction=1):
+        relative_position = int(0.5 + 1.5*direction)%6
+        previous_node = first_node_of_row
+        current_node = first_node_of_row
+        results = []
+        while current_node != 0:
+            if current_node.figure == target_figure:
+                results.append(current_node)
+                previous_node = current_node
+            current_node = current_node.neighbours[relative_position]
+        return results, previous_node
     
     def find_node(self, xcoord, ycoord):
-        current_node = self
+        current_node = self.top_left_node
         right_height = False
         found = False
         while not found:
@@ -125,258 +196,35 @@ class Node(object):
                 found = True
         return current_node
     
-    def find_triangle(self, node_1, node_2, node_3): # node = value, mode
-        value_1, mode_1 = node_1
-        value_2, mode_2 = node_2
-        value_3, mode_3 = node_3
+    def find_triangle(self, figure_1, figure_2, figure_3):
         results = []
-        if equivalent_values(self.value, value_1, mode_1):
+        possible_initials = self.search_field(figure_1)
+        print("length of initials = " + str(len(possible_initials)))
+        print possible_initials[0].figure.shape
+        for initial in possible_initials:
             for x in range(0,6):
-                first_neighbour = self.neighbours[x]
-                if first_neighbour != 0 and equivalent_values(first_neighbour.value, value_2, mode_2):
+                first_neighbour = initial.neighbours[x]
+                if first_neighbour != 0 and first_neighbour.figure == figure_2:
                     second_neighbour = first_neighbour.neighbours[x+2]
-                if second_neighbour != 0 and equivalent_values(second_neighbour.value, value_3, mode_3):
-                    results.append(self, first_neighbour, second_neighbour)
+                    if second_neighbour != 0 and second_neighbour.figure == figure_3:
+                        results.append((initial, first_neighbour, second_neighbour))
                 else:
                     pass
         else:
             pass
         return results
         
-    def find_line(self, node_1, node_2):
+    def find_lines(self, figure_1, figure_2):
         results = []
-        value_1, mode_1 = node_1
-        value_2, mode_2 = node_2
-        if equivalent_values(self.value, value_1, mode_1):
+        possible_initials = self.search_field(figure_1)
+        for initial in possible_initials:
             for x in range(0,6):
-                neighbour = self.neighbours[x]
-                if neighbour != 0 and equivalent_values(neighbour.value, value_2, mode_2):
-                    results.append(self, neighbour)
+                neighbour = initial.neighbours[x]
+                if neighbour != 0 and neighbour.figure == figure_2:
+                    results.append((initial, neighbour))
         return results        
-        
-      
-    def iterate_row(self, value, direction=1):
-        relative_position = int(0.5 + 1.5*direction)%6
-        previous_node = self
-        current_node = self
-        results = []
-        while current_node != 0:
-            if current_node.value == value:
-                results.append(current_node)
-                previous_node = current_node
-            current_node = current_node.neighbours[relative_position]
-        return results, previous_node
-        
-    def row_extreme(self, direction):
-        relative_position = int(0.5 + 1.5*direction)%6
-        current_node = self
-        while current_node.neighbours[relative_position] != 0:
-            current_node = current_node.neighbours[relative_position]
-        return current_node
-    
-    def next_row(self, vert_direction, hor_direction):  # 1 is up, -1 is down, 1 is left to right, -1 right to left
-        relative_position = int(2.0 + -3.0*vert_direction/2.0 - hor_direction*vert_direction/2.0)
-        #afgeleid van a*v**2 + b*v + c*h*v met de 4 vergelijkingen van wat de relative direction moet zijn.
-        print relative_position
-        if self.neighbours[relative_position] == 0:
-            return 0 #There is no next row.
-        else:
-            return self.neighbours[relative_position].row_extreme(hor_direction) 
-        
-    def iterate_field(self, value, vert_direction=-1, hor_direction=1):
-        current_node = self
-        intermediate_results = []
-        results = []
-        while current_node != 0:
-            intermediate_results, current_node = current_node.iterate_row(value, hor_direction)
-            for result in intermediate_results:
-                results.append(result)
-            current_node = current_node.next_row(vert_direction, hor_direction)
-            hor_direction = hor_direction*-1
-        return results
-    
-    def iterate_concentrically(self, relative_direction, value, rotation, depth):
-        previous_node = 0
-        current_node = self 
-        results = []
-        intermediate_results = []
-        i = 1
-        print i
-        while i <= depth:
-            intermediate_results, current_node, previous_node, relative_direction, rotation = current_node.basic_concentric(previous_node, relative_direction, value, i, rotation)
-            if current_node == 0:
-                print "There is no more field to iterate."
-                i = depth + 1
-            else:
-                for result in intermediate_results:
-                    results.append(result)
-                i += 1
-            
-        return results
-            
-            
-    def resolve_boundary_encounter(self, previous_node, relative_direction, switch_direction, i, rotation):
-        next_node = 0
-        switch_direction = i - switch_direction
-        rotation = rotation*-1
-        while next_node == 0:
-            relative_direction += rotation
-            next_node = self.neighbours[relative_direction]
-            if next_node == previous_node:
-                while switch_direction != 0:
-                    next_node = next_node.neighbours[relative_direction]
-                    switch_direction -= 1
-                if next_node == 0:
-                    return 0,0,0,0,0,0
-                else:
-                    pass
-            else:
-                switch_direction -= 1
-            if switch_direction == 0:
-                switch_direction = i
-        return next_node, self, relative_direction, switch_direction, i, rotation
-            
-        
-        
-    def basic_concentric(self, previous_node, relative_direction, value, i, rotation):
-        results = []
-        switch_direction = i - 1
-        nodes_visited = 1
-        current_node = self.neighbours[relative_direction]
-        back_up_node = current_node
-        back_up_direction = 0
-        backed_up = False
-        if current_node == 0:
-            current_node, previous_node, relative_direction, switch_direction, i, rotation  = self.resolve_boundary_encounter(previous_node, relative_direction, switch_direction, i, rotation)
-            if current_node == 0:
-                return 0,0,0,0,0
-            backed_up = True
-        else:
-            relative_direction = (relative_direction + rotation)%6
-            back_up_direction = (relative_direction + 3)%6
-            previous_node = self
-        if current_node.value == value:
-                results.append(current_node)
-        print current_node.value
-        
-        while nodes_visited < 6*i:
-            if switch_direction == 0:
-                relative_direction = (relative_direction + rotation)%6
-                switch_direction = i
-            new_node = current_node.neighbours[relative_direction]
-            if new_node == 0:
-                if backed_up == True:
-                    nodes_visited = 6*i
-                else:
-                    current_node = back_up_node
-                    relative_direction = back_up_direction
-                    previous_node = current_node.neighbours[(relative_direction + 3)%6]
-                    switch_direction = 1
-                    rotation = rotation*1
-                    backed_up = True
-            else:
-                previous_node = current_node
-                current_node = new_node
-                nodes_visited += 1
-                switch_direction -= 1
-            if current_node.value == value:
-                results.append(current_node)
-            print current_node.value
-        
-        return results, current_node, previous_node, relative_direction, rotation
-    
-def calculate_side_length(top_left_node):
-    side_length = 0
-    current_node = top_left_node
-    while current_node.neighbours[2] != 0:
-        side_length += 1
-        current_node = current_node.neighbours[2]
-    return side_length
-        
-def first_meaningful(left_node):
-    current_node = left_node
-    first_meaningful = 0
-
-
-        
-def make_field(field):
-    first_elements = []
-    left_top_node = Node(field[0][0])
-    for row in field:
-        first_element_of_row = Node(row[0])
-        current_node = first_element_of_row
-        first_elements.append(first_element_of_row)
-        for x in range(1, len(row)):
-            next_node = Node(row[x])
-            current_node.add_node(next_node)
-            current_node = next_node
-    relative_direction = 3
-    increment = 1
-    for x in range(0, len(first_elements)-1):
-        current_element = first_elements[x]
-        next_element = first_elements[x+1]
-        current_element.add_node(next_element, relative_direction)
-        relative_direction += increment
-        increment = increment*-1
     
 
-    
-    return left_top_node
-        
-    
-                
-              
-            
-            
-                
-                
-
-def create_field():
-    iterating_node = 0
-    starting_node = Node(1, Vector(0,0))
-    high_1 = Node(6)
-    high_2 = Node(10)
-    low_1 = Node(13)
-    low_2 = Node(17)  #Creating the first nodes of each row.
-    starting_node.add_node(high_1, 1)
-    high_1.add_node(high_2, 1)
-    starting_node.add_node(low_1, 3)
-    low_1.add_node(low_2, 3)
-    current_node = starting_node
-    for x in range(2, 6):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-        if x == 2:
-            iterating_node = current_node
-    current_node = high_1    
-    for x in range(7, 10):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-    current_node = high_2
-    for x in range(11, 13):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-    current_node = low_1
-    for x in range(14, 17):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-    current_node = low_2
-    for x in range(18, 20):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-    return iterating_node
-        
-def iterate_test(starting_node, rel_direction):
-    results = starting_node.iterate_concentrically(rel_direction, 3, 1, 4)
-    
-starting_node = create_field()
-iterate_test(starting_node, 1)
-    
     
         
     
