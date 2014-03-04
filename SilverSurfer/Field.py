@@ -53,6 +53,8 @@ class Node(object):
     def position(self, position):
         if self.has_default_position():
             self._position = position
+        elif self.position == position:
+            pass # The node is already at the right position.
         else:
             raise Exception("You cannot change the position of a node that has already been placed on a grid.")
     
@@ -193,7 +195,7 @@ class Field(object):
     def row_extreme(self, node_in_row, direction):
         
         if node_in_row == 0:
-            raise Exception("A node-object has to be supplied")
+            return 0
         
         # Determine the appropriate relative direction, based on whether
         # we are looking for the left or right row_extreme
@@ -247,7 +249,7 @@ class Field(object):
         relative_position = int(0.5 + 1.5*direction)%6
         
         # initialize current_node and previous_node and the result list
-        previous_node = node_of_row.row_extreme(-1*direction)
+        previous_node = self.row_extreme(node_of_row, -1*direction)
         current_node = previous_node
         results = []
         
@@ -363,7 +365,7 @@ class Field(object):
     This method finds all the pairs of nodes whose figures form the given pair
     of figures, and returns them as a list of tuples.
     """    
-    def find_pair(self, figure_1, figure_2):
+    def find_pairs(self, figure_1, figure_2):
         
         # Initialize the list of results.
         results = []
@@ -381,5 +383,70 @@ class Field(object):
                     results.append((initial, neighbour))
         
         # Return the list
-        return results        
+        return results   
+    
+    
+def calculate_minimal_distance(positions):
+    side_length = 99999999999999999999999.0
+    for x in range(0, len(positions)):
+        for y in range(x, len(positions)):
+            length = (positions[x] - positions[y]).norm
+            if length < side_length:
+                side_length = length
+    return side_length
+
+
+def extract_pairs(positions):
+    allowable_error = 0.05
+    results = []
+    side_length = calculate_minimal_distance(positions)
+    for x in range(0, len(positions)):
+        for y in range(x, len(positions)):
+            distance = (positions[x] - positions[y]).norm
+            if abs(distance - side_length) < allowable_error:
+                result = (x,y)
+                results.append(result)
+                
+    return results
+
+def check_for_triangle(positions, index_1, index_2, index_3, index_4, index_5, index_6):
+    if positions[index_1] == positions[index_6] and positions[index_1] == positions[index_1] and positions[index_1]:
+        return (index_1, index_2, index_4)
+    else:
+        return 0
+            
+    
+def extract_triangle(figure_images):
+    final_result = 0
+    positions = []
+    figures = []
+    for image in figure_images:
+        figure = Figure(image[0], image[1])
+        position = Vector(image[2], image[3])
+        figures.append(figure)
+        positions.append(position)
+    pairs = extract_pairs(positions)
+    for x in range(0, len(pairs)):
+        index_1, index_2 = pairs[x]
+        for y in range(x, len(pairs)):
+            index_3, index_4 = pairs[y]
+            for z in range(y, len(pairs)):
+                results = []
+                index_5, index_6 = pairs[z]
+                results.append(check_for_triangle(positions, index_1, index_2, index_3, index_4, index_5, index_6))
+                results.append(check_for_triangle(positions, index_1, index_2, index_3, index_4, index_6, index_5))
+                results.append(check_for_triangle(positions, index_1, index_2, index_4, index_3, index_5, index_6))
+                results.append(check_for_triangle(positions, index_1, index_2, index_4, index_3, index_6, index_5))
+                results.append(check_for_triangle(positions, index_2, index_1, index_3, index_4, index_5, index_6))
+                results.append(check_for_triangle(positions, index_2, index_1, index_3, index_4, index_6, index_5))
+                results.append(check_for_triangle(positions, index_2, index_1, index_4, index_3, index_5, index_6))
+                results.append(check_for_triangle(positions, index_2, index_1, index_4, index_3, index_6, index_5))
+                for result in results:
+                    if result != 0:
+                        final_result = result
+    figure_1 = figures[final_result[0]]
+    figure_2 = figures[final_result[1]]
+    figure_3 = figures[final_result[2]]
+    
+    return figure_1, figure_2, figure_3 
     
