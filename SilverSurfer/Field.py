@@ -1,64 +1,107 @@
 from __future__ import division
 from math import sqrt
 from Vector import Vector
+from Figure import Figure
 
+"""
+This file contains the field class which is constructed out of node objects, whose class this file
+also contains.
+
+@author: Rob Coekaerts
+@version 1.0
+"""
 
 DISTANCE = 0.4
 
-"""This method returns 1 if the number is positive, -1 when negative"""
+
+"""
+This method returns 1 if the given number is positive, -1 when negative.
+"""
 def sign(number):
     if number == 0:
         return 1
     else:
         return abs(number)/number
-'''
-Returns true if the values are equivalent in the given mode.
-modes:
-0 : total
-1 : color
-2 : shape
-'''    
-def equivalent_values(value_1, value_2, mode):
-    if mode == 1:
-        value_1 = value_1%10
-        value_2 = value_2%10
-    elif mode == 2:
-        value_1 = int(str(value_1)[0])
-        value_2 = int(str(value_2)[0])
-    return value_1 == value_2
 
+
+
+""""
+The class Node represents a node in a field. A node is defined by the position it occupies
+and it holds information about all its neighbouring nodes and the figure that is placed
+on the node.
+"""
 class Node(object):
     
-    def __init__(self, value, position=Vector(9999999999, 9999999999)):
-        self.value = value
+    
+    # By default, a standard vector is assigned to a node.
+    def __init__(self, figure, position=Vector(9999999999, 9999999999)):
+        self.figure = figure
         self.neighbours = [0,0,0,0,0,0]
-        self.position = position
-        
-        
-    """Checks whether the node in question is our starting node"""   
+        self._position = position
+    
+    
+    @property    
+    def position(self):
+        return self._position
+    
+    
+    """
+    The position of a node can only be changed if its current position is still
+    the standard position.
+    """
+    @position.setter
+    def position(self, position):
+        if self.has_default_position():
+            self._position = position
+        elif self.position == position:
+            pass # The node is already at the right position.
+        else:
+            raise Exception("You cannot change the position of a node that has already been placed on a grid.")
+    
+    
+    """
+    Returns whether this node's position is still the default position, given to it
+    by its constructor
+    Return self.position == Vector(9999999999, 9999999999)
+    """    
     def has_default_position(self):
         return self.position == Vector(9999999999, 9999999999)
-        
+    
+    
+    """
+    Determines the position of this node if it were to be added at the relative position
+    on the given node. 
+    """    
     def determine_position(self, reference_node, relative_position):
-        reference_position = reference_node.position
-        reference_xcoord = reference_position.xcoord
-        reference_ycoord = reference_position.ycoord
+        
+        # Assign the coordinates of the reference node
+        reference_xcoord = reference_node.position.xcoord
+        reference_ycoord = reference_node.position.ycoord
+        
+        # Calculate the differences that will have to be added to the reference position.
         differences = {     0 : (-DISTANCE*1/2, DISTANCE*sqrt(3)/2),
                             1 : (DISTANCE*1/2, DISTANCE*sqrt(3)/2),
                             2 : (DISTANCE,0),
                             3 : (DISTANCE*1/2, -DISTANCE*sqrt(3)/2),
                             4 : (-DISTANCE*1/2, -DISTANCE*sqrt(3)/2),
                             5 : (-DISTANCE, 0)
-                            }
-        try:
-            delta_x, delta_y = differences[relative_position]
-        except KeyError:
-            print "The relative position must be between 0 and 5 inclusive."
+                         }
+        
+        # Assign delta x and delta y, the increments that will have to be added to
+        # the reference position.
+        delta_x, delta_y = differences[relative_position]
+        
+        # Construct and return the position vector.
         xcoord = reference_xcoord + delta_x
         ycoord = reference_ycoord + delta_y
         return Vector(xcoord, ycoord)
     
     
+    """
+    This method adds the given node to self at the given relative position. It also adds
+    the given node to the direct neighbours of self at the appropriate relative position
+    as to obtain a consistent field.
+    """
     def add_node(self, new_node, relative_position):
         
         if self.neighbours[relative_position] == new_node:
@@ -69,31 +112,195 @@ class Node(object):
         
         else: 
             
-            new_position = new_node.determine_position(self, relative_position)
+            # Determine the position the new node will occupy in the field
+            new_node.position = new_node.determine_position(self, relative_position)
             
-            if new_node.has_default_position():    
-                new_node.position = new_position
-                
-            if not new_node.position == new_position:
-                print "The new node cannot be placed in this place of the grid, as it already lies somewhere else."
-                
-            else:
-                self.neighbours[relative_position] = new_node  #add the node to the correct position on self.
-                new_node.neighbours[(relative_position + 3)%6] = self  #Add self to the correct position on the node
-                
-                index_left_neighbour = (relative_position - 1)%6  #Calculate the index of the left neighbour of the new node
-                index_right_neighbour = (relative_position + 1)%6 #Calculate the index of the right neighbour of the new node
-                left_neighbour = self.neighbours[index_left_neighbour]
-                right_neighbour = self.neighbours[index_right_neighbour]
-                
-                if left_neighbour != 0:
-                    left_neighbour.add_node(new_node, (relative_position + 1)%6)  #add the node to the correct position on the left neighbour.
-                if right_neighbour != 0:
-                    right_neighbour.add_node(new_node, (relative_position - 1)%6)  #add the node to the correct position on the left neighbour.
+            # Assign the node to the correct position on self and vice versa
+            self.neighbours[relative_position] = new_node
+            new_node.neighbours[(relative_position + 3)%6] = self 
+            
+            # Calculate the indices of the neighbours on self that are also neighbours
+            # to the new node and get those nodes.
+            index_left_neighbour = (relative_position - 1)%6 
+            index_right_neighbour = (relative_position + 1)%6
+            left_neighbour = self.neighbours[index_left_neighbour]
+            right_neighbour = self.neighbours[index_right_neighbour]
+            
+            # Add the new node to the appropriate positions on these neighbours with
+            # this method so that possible neighbours of these neighbours will also add
+            # the new node.
+            if left_neighbour != 0:
+                left_neighbour.add_node(new_node, (relative_position + 1)%6)
+            if right_neighbour != 0:
+                right_neighbour.add_node(new_node, (relative_position - 1)%6)
+ 
+ 
+        
+"""
+The class field represents a field object that is implicitely defined by its top left corner node and the
+internodal relations between this node and other nodes.
+"""
+class Field(object):
     
     
+    """
+    This constructor constructs a field given a list, that contains a distinct list for 
+    each row in the field. These row lists contain tuples with colors and shapes to define 
+    the figures to be placed on the field. Positions are automaticly assigned. The top
+    left corner node lies at position (0,0).
+    """
+    def __init__(self, parsed_csv_file):
+        
+        # convert the lists of tuples into lists of nodes
+        rows = []
+        for row in parsed_csv_file:
+            line = []
+            for element in row:
+                node = Node(Figure(element[0], element[1]))
+                line.append(node)
+            rows.append(line)
+            
+        #Set the position of the top left node to (0,0)
+        rows[0][0].position = Vector(0,0)
+        
+        # Add the first nodes of each row to each other.    
+        relative_direction = 3
+        increment = 1
+        for x in range(0, len(rows)-1):
+            current_element = rows[x][0]
+            next_element = rows[x+1][0]
+            current_element.add_node(next_element, relative_direction)
+            relative_direction += increment
+            increment = increment*-1
+            
+        # For each row, add the rest of the row to the first node, one by one.
+        for row in rows:
+            current_node = row[0]
+            for x in range(1, len(row)):
+                next_node = row[x]
+                current_node.add_node(next_node, 2)
+                current_node = next_node
+        
+        # Set the top left node to the correct node.    
+        self.top_left_node = rows[0][0]
+    
+    
+    """
+    This auxiliairy method will return the outer node of the row the given node lies in, 
+    given the parameter direction.
+    
+    Direction = 1 to find the outer node on the right
+              = -1 to find the outer node on the left
+    """    
+    def row_extreme(self, node_in_row, direction):
+        
+        if node_in_row == 0:
+            return 0
+        
+        # Determine the appropriate relative direction, based on whether
+        # we are looking for the left or right row_extreme
+        relative_direction = int(0.5 + 1.5*direction)%6
+        
+        # Start at the given node.
+        current_node = node_in_row
+        
+        # Advance through the nodes until there is no node on the left/right anymore.
+        while current_node.neighbours[relative_direction] != 0:
+            current_node = current_node.neighbours[relative_direction]
+        
+        # At this point, the current node will be the outer node of the row.
+        return current_node
+    
+    
+    """
+    This auxiliairy method returns the outer node in the given horizontal direction on the next row,
+    defined by a vertical direction or 0 if there is no next row.
+    
+    hor_direction    1 for the righter outer node on the next row
+                    -1 for the left outer node on the next row
+    vert_direction   1 for the outer node on the row above the row the given node lies in.
+                    -1 for the outer node on the row below the row the given node lies in.
+    """
+    def next_row(self, node_in_row, hor_direction, vert_direction=-1):
+        
+        # Determines the relative position to find a node on the row above/below this row
+        # If you wonder how this came about, ask Rob.
+        relative_position = int(2 + -3*vert_direction/2.0 - hor_direction*vert_direction/2.0)
+        
+        # Return the outer node of the row or 0 if there is no row above/below this one.
+        if self.row_extreme(node_in_row, hor_direction).neighbours[relative_position] == 0:
+            return 0 #There is no next row.
+        else:
+            return self.row_extreme(node_in_row.neighbours[relative_position],hor_direction)
+    
+    
+    """
+    This auxiliary method searches the given figure among the nodes in the row of the given node. 
+    It starts at the given node in the specified direction. This method uses the method row_extreme
+    to find the initial node of the row to be searched. It returns a tuple consisting of a list with
+    the results and the last node that has been visited.
+    
+    direction    1 searches from left to right
+                -1 searches from right to left
+    """    
+    def search_row(self, node_of_row, target_figure, direction=1):
+        
+        # Determine the relative position based on the direction.
+        relative_position = int(0.5 + 1.5*direction)%6
+        
+        # initialize current_node and previous_node and the result list
+        previous_node = self.row_extreme(node_of_row, -1*direction)
+        current_node = previous_node
+        results = []
+        
+        # Search until the end of the row has been reached.
+        while current_node != 0:
+            if current_node.figure == target_figure:
+                results.append(current_node)
+                previous_node = current_node
+            current_node = current_node.neighbours[relative_position]
+            
+        # Return the results and the node that has last been visited.
+        return results, previous_node
+    
+    
+    """
+    This method searches the field row by row to find all the nodes that have the given
+    figure. The search starts at the top left corner node and goes left to right, right
+    to left on the next row and so on untill the end of grid has been reached.
+    """    
+    def search_field(self, target_figure):
+        
+        # Start at the top left corner node, from left to right.
+        current_node = self.top_left_node
+        direction = 1
+        
+        # Initialize the result lists.
+        intermediate_results = []
+        results = []
+        
+        # Search until the end of the grid has been reached.
+        while current_node != 0:
+            
+            # search the current row and add all results to the result list.
+            intermediate_results, current_node = self.search_row(current_node, target_figure, direction)
+            for result in intermediate_results:
+                results.append(result)
+            
+            # Move on to the next row.
+            current_node = self.next_row(current_node, direction)
+            direction = direction*-1
+        
+        # Return all the results.    
+        return results
+    
+    
+    """
+    This method finds the node on the field that is closest to the position that
+    is specified by the given coordinates.
+    """
     def find_node(self, xcoord, ycoord):
-        current_node = self
+        current_node = self.top_left_node
         right_height = False
         found = False
         while not found:
@@ -123,259 +330,123 @@ class Node(object):
                 found = True
         return current_node
     
-    def find_triangle(self, node_1, node_2, node_3): # node = value, mode
-        value_1, mode_1 = node_1
-        value_2, mode_2 = node_2
-        value_3, mode_3 = node_3
-        results = []
-        if equivalent_values(self.value, value_1, mode_1):
+    
+    """
+    This method returns the trio of nodes that form the same triangle of figures as
+    the given figures in clockwise direction or 0 if no such triangle is found on the
+    field.
+    
+    figures    A tuple of three figures that define a triangle, covered in clockwise
+               direction
+    """
+    def find_triangle(self, figures):
+        
+        # Find all the nodes on the field that have the first figure on them and
+        # hence could be the initial node of the triangle.
+        possible_initials = self.search_field(figures[0])
+        
+        for initial in possible_initials:
+            # For all neighbours of this potential initial node, check whether it
+            # has the second figure on it.
             for x in range(0,6):
-                first_neighbour = self.neighbours[x]
-                if first_neighbour != 0 and equivalent_values(first_neighbour.value, value_2, mode_2):
+                first_neighbour = initial.neighbours[x]
+                if first_neighbour != 0 and first_neighbour.figure == figures[1]:
+                    # If the neighbour of the first neighbour in position x+2(check for yourself)
+                    # has the third figure on it, we have found the triangle
                     second_neighbour = first_neighbour.neighbours[x+2]
-                if second_neighbour != 0 and equivalent_values(second_neighbour.value, value_3, mode_3):
-                    results.append(self, first_neighbour, second_neighbour)
-                else:
-                    pass
-        else:
-            pass
-        return results
+                    if second_neighbour != 0 and second_neighbour.figure == figures[2]:
+                        return initial, first_neighbour, second_neighbour
+                    
+        # If no results are found, return 0
+        return 0
+    
+    
+    """
+    This method finds all the pairs of nodes whose figures form the given pair
+    of figures, and returns them as a list of tuples.
+    """    
+    def find_pairs(self, figure_1, figure_2):
         
-    def find_line(self, node_1, node_2):
+        # Initialize the list of results.
         results = []
-        value_1, mode_1 = node_1
-        value_2, mode_2 = node_2
-        if equivalent_values(self.value, value_1, mode_1):
+        
+        # Find all the nodes on the field that have the first figure on it, and hence
+        # could be half of the pair to be found.
+        possible_initials = self.search_field(figure_1)
+        
+        # For each of these possible initial nodes, check whether one of the neighbours
+        # contains the second figure. If so, append this pair to the list of results.
+        for initial in possible_initials:
             for x in range(0,6):
-                neighbour = self.neighbours[x]
-                if neighbour != 0 and equivalent_values(neighbour.value, value_2, mode_2):
-                    results.append(self, neighbour)
-        return results        
+                neighbour = initial.neighbours[x]
+                if neighbour != 0 and neighbour.figure == figure_2:
+                    results.append((initial, neighbour))
         
-      
-    def iterate_row(self, value, direction=1):
-        relative_position = int(0.5 + 1.5*direction)%6
-        previous_node = self
-        current_node = self
-        results = []
-        while current_node != 0:
-            if current_node.value == value:
-                results.append(current_node)
-                previous_node = current_node
-            current_node = current_node.neighbours[relative_position]
-        return results, previous_node
-        
-    def row_extreme(self, direction):
-        relative_position = int(0.5 + 1.5*direction)%6
-        current_node = self
-        while current_node.neighbours[relative_position] != 0:
-            current_node = current_node.neighbours[relative_position]
-        return current_node
+        # Return the list
+        return results   
     
-    def next_row(self, vert_direction, hor_direction):  # 1 is up, -1 is down, 1 is left to right, -1 right to left
-        relative_position = int(2.0 + -3.0*vert_direction/2.0 - hor_direction*vert_direction/2.0)
-        #afgeleid van a*v**2 + b*v + c*h*v met de 4 vergelijkingen van wat de relative direction moet zijn.
-        print relative_position
-        if self.neighbours[relative_position] == 0:
-            return 0 #There is no next row.
-        else:
-            return self.neighbours[relative_position].row_extreme(hor_direction) 
-        
-    def iterate_field(self, value, vert_direction=-1, hor_direction=1):
-        current_node = self
-        intermediate_results = []
-        results = []
-        while current_node != 0:
-            intermediate_results, current_node = current_node.iterate_row(value, hor_direction)
-            for result in intermediate_results:
-                results.append(result)
-            current_node = current_node.next_row(vert_direction, hor_direction)
-            hor_direction = hor_direction*-1
-        return results
     
-    def iterate_concentrically(self, relative_direction, value, rotation, depth):
-        previous_node = 0
-        current_node = self 
-        results = []
-        intermediate_results = []
-        i = 1
-        print i
-        while i <= depth:
-            intermediate_results, current_node, previous_node, relative_direction, rotation = current_node.basic_concentric(previous_node, relative_direction, value, i, rotation)
-            if current_node == 0:
-                print "There is no more field to iterate."
-                i = depth + 1
-            else:
-                for result in intermediate_results:
-                    results.append(result)
-                i += 1
-            
-        return results
-            
-            
-    def resolve_boundary_encounter(self, previous_node, relative_direction, switch_direction, i, rotation):
-        next_node = 0
-        switch_direction = i - switch_direction
-        rotation = rotation*-1
-        while next_node == 0:
-            relative_direction += rotation
-            next_node = self.neighbours[relative_direction]
-            if next_node == previous_node:
-                while switch_direction != 0:
-                    next_node = next_node.neighbours[relative_direction]
-                    switch_direction -= 1
-                if next_node == 0:
-                    return 0,0,0,0,0,0
-                else:
-                    pass
-            else:
-                switch_direction -= 1
-            if switch_direction == 0:
-                switch_direction = i
-        return next_node, self, relative_direction, switch_direction, i, rotation
-            
-        
-        
-    def basic_concentric(self, previous_node, relative_direction, value, i, rotation):
-        results = []
-        switch_direction = i - 1
-        nodes_visited = 1
-        current_node = self.neighbours[relative_direction]
-        back_up_node = current_node
-        back_up_direction = 0
-        backed_up = False
-        if current_node == 0:
-            current_node, previous_node, relative_direction, switch_direction, i, rotation  = self.resolve_boundary_encounter(previous_node, relative_direction, switch_direction, i, rotation)
-            if current_node == 0:
-                return 0,0,0,0,0
-            backed_up = True
-        else:
-            relative_direction = (relative_direction + rotation)%6
-            back_up_direction = (relative_direction + 3)%6
-            previous_node = self
-        if current_node.value == value:
-                results.append(current_node)
-        print current_node.value
-        
-        while nodes_visited < 6*i:
-            if switch_direction == 0:
-                relative_direction = (relative_direction + rotation)%6
-                switch_direction = i
-            new_node = current_node.neighbours[relative_direction]
-            if new_node == 0:
-                if backed_up == True:
-                    nodes_visited = 6*i
-                else:
-                    current_node = back_up_node
-                    relative_direction = back_up_direction
-                    previous_node = current_node.neighbours[(relative_direction + 3)%6]
-                    switch_direction = 1
-                    rotation = rotation*1
-                    backed_up = True
-            else:
-                previous_node = current_node
-                current_node = new_node
-                nodes_visited += 1
-                switch_direction -= 1
-            if current_node.value == value:
-                results.append(current_node)
-            print current_node.value
-        
-        return results, current_node, previous_node, relative_direction, rotation
-    
-def calculate_side_length(top_left_node):
-    side_length = 0
-    current_node = top_left_node
-    while current_node.neighbours[2] != 0:
-        side_length += 1
-        current_node = current_node.neighbours[2]
+def calculate_minimal_distance(positions):
+    side_length = 99999999999999999999999.0
+    for x in range(0, len(positions)):
+        for y in range(x, len(positions)):
+            length = (positions[x] - positions[y]).norm
+            if length < side_length:
+                side_length = length
     return side_length
-        
-def first_meaningful(left_node):
-    current_node = left_node
-    first_meaningful = 0
 
 
-        
-def make_field(field):
-    first_elements = []
-    left_top_node = Node(field[0][0])
-    for row in field:
-        first_element_of_row = Node(row[0])
-        current_node = first_element_of_row
-        first_elements.append(first_element_of_row)
-        for x in range(1, len(row)):
-            next_node = Node(row[x])
-            current_node.add_node(next_node)
-            current_node = next_node
-    relative_direction = 3
-    increment = 1
-    for x in range(0, len(first_elements)-1):
-        current_element = first_elements[x]
-        next_element = first_elements[x+1]
-        current_element.add_node(next_element, relative_direction)
-        relative_direction += increment
-        increment = increment*-1
-    
-
-    
-    return left_top_node
-        
-    
+def extract_pairs(positions):
+    allowable_error = 0.05
+    results = []
+    side_length = calculate_minimal_distance(positions)
+    for x in range(0, len(positions)):
+        for y in range(x, len(positions)):
+            distance = (positions[x] - positions[y]).norm
+            if abs(distance - side_length) < allowable_error:
+                result = (x,y)
+                results.append(result)
                 
-              
-            
-            
-                
-                
+    return results
 
-def create_field():
-    iterating_node = 0
-    starting_node = Node(1, Vector(0,0))
-    high_1 = Node(6)
-    high_2 = Node(10)
-    low_1 = Node(13)
-    low_2 = Node(17)  #Creating the first nodes of each row.
-    starting_node.add_node(high_1, 1)
-    high_1.add_node(high_2, 1)
-    starting_node.add_node(low_1, 3)
-    low_1.add_node(low_2, 3)
-    current_node = starting_node
-    for x in range(2, 6):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-        if x == 2:
-            iterating_node = current_node
-    current_node = high_1    
-    for x in range(7, 10):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-    current_node = high_2
-    for x in range(11, 13):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-    current_node = low_1
-    for x in range(14, 17):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-    current_node = low_2
-    for x in range(18, 20):
-        new_node = Node(x)
-        current_node.add_node(new_node, 2)
-        current_node = new_node
-    return iterating_node
-        
-def iterate_test(starting_node, rel_direction):
-    results = starting_node.iterate_concentrically(rel_direction, 3, 1, 4)
-    
-starting_node = create_field()
-iterate_test(starting_node, 1)
-    
-    
-        
-    
+def check_for_triangle(positions, index_1, index_2, index_3, index_4, index_5, index_6):
+    if positions[index_1] == positions[index_6] and positions[index_1] == positions[index_1] and positions[index_1]:
+        return (index_1, index_2, index_4)
+    else:
+        return 0
             
+    
+def extract_triangle(figure_images):
+    final_result = 0
+    positions = []
+    figures = []
+    for image in figure_images:
+        figure = Figure(image[0], image[1])
+        position = Vector(image[2], image[3])
+        figures.append(figure)
+        positions.append(position)
+    pairs = extract_pairs(positions)
+    for x in range(0, len(pairs)):
+        index_1, index_2 = pairs[x]
+        for y in range(x, len(pairs)):
+            index_3, index_4 = pairs[y]
+            for z in range(y, len(pairs)):
+                results = []
+                index_5, index_6 = pairs[z]
+                results.append(check_for_triangle(positions, index_1, index_2, index_3, index_4, index_5, index_6))
+                results.append(check_for_triangle(positions, index_1, index_2, index_3, index_4, index_6, index_5))
+                results.append(check_for_triangle(positions, index_1, index_2, index_4, index_3, index_5, index_6))
+                results.append(check_for_triangle(positions, index_1, index_2, index_4, index_3, index_6, index_5))
+                results.append(check_for_triangle(positions, index_2, index_1, index_3, index_4, index_5, index_6))
+                results.append(check_for_triangle(positions, index_2, index_1, index_3, index_4, index_6, index_5))
+                results.append(check_for_triangle(positions, index_2, index_1, index_4, index_3, index_5, index_6))
+                results.append(check_for_triangle(positions, index_2, index_1, index_4, index_3, index_6, index_5))
+                for result in results:
+                    if result != 0:
+                        final_result = result
+    figure_1 = figures[final_result[0]]
+    figure_2 = figures[final_result[1]]
+    figure_3 = figures[final_result[2]]
+    
+    return figure_1, figure_2, figure_3 
+    
