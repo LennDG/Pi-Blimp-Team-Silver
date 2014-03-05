@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-import time
 import math
 
 class Shape():
@@ -90,9 +89,9 @@ def analyse_approx(approx):
     if negatives/len(cosines) >= 0.8:
         #Cirle or heart
         if variance < 0.01:
-            return "circle"
+            return "Circle"
         else:
-            return "heart"        
+            return "Heart"        
     #Check star
     if 0.3 <= negatives/len(cosines) <= 0.7:
         if variance > 0.2:
