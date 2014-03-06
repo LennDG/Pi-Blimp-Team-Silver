@@ -2,14 +2,6 @@ import numpy as np
 import cv2
 import math
 
-class Shape():
-    
-    def __init__(self, color, shape, x, y):
-        self.color = color
-        self.shape = shape
-        self.x = x
-        self.y = y
-
 #Define high Red
 lower_red = np.array([150, 70, 70], dtype=np.uint8)
 upper_red = np.array([180, 255, 255], dtype=np.uint8)
@@ -70,7 +62,7 @@ def analyse_approx(approx):
     for cos in cosines:
         if abs(cos) < 0.1:
             perp_count += 1
-    if perp_count > 2:
+    if perp_count >= 2:
         return "Rectangle"
     
     #Count negatives
@@ -101,7 +93,7 @@ def analyse_approx(approx):
 
 def detect_targets(img_loc):
     
-    shapes = []
+    figures = []
     #Read image
     img = cv2.imread(img_loc)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -126,9 +118,15 @@ def detect_targets(img_loc):
             centroid_x = int(M['m10']/M['m00'])
             centroid_y = int(M['m01']/M['m00'])
 
-            shape = Shape(color[2], shape_name, centroid_x, centroid_y)
-            shapes.append(shape)
-    return shapes
+            figure = (color[2], shape_name, centroid_x, centroid_y)
+            figures.append(figure)
+            
+    #Remove duplicate figures
+    for figure1 in figures:
+        for figure2 in figures:
+            if abs(figure1[2]-figure2[2]) <= 50 and abs(figure1[3]-figure2[3]) <= 50 and figure1 != figure2:
+                figures.remove(figure2)
+    return figures
 
 
     

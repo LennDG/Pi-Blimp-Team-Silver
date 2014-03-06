@@ -1,4 +1,6 @@
 import threading, time, Navigator, DistanceSensor, CSV_parser, Field
+import ImageRecognition as IR
+from subprocess import call
      
 class Zeppelin(threading.Thread, object):
        
@@ -30,7 +32,9 @@ class Zeppelin(threading.Thread, object):
         # Voorlopig maken we hier een doelpositie aan omdat we nog geen connectie hebben.     
              
     def run(self):
-        
+        #We may change this to the memory instead of disk
+        img_loc = "/home/pi/image.jpg"
+        call(["rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/start_camd.sh " + img_loc], shell=True)     
         while True:
             
             
@@ -43,15 +47,16 @@ class Zeppelin(threading.Thread, object):
                     self.navigator.land()
                 else:
                     # take picture
-                    
+                    #IMPLEMENTED BY LENN
+                    call(["rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/do_caputure.sh"], shell=True)
                     # decode picture
+                    targets = IR.detect_targets(img_loc)
                     # will result in figure_images, other data and a timestamp
-                    figure_images = 0
                     other_data = 0
                     time = 0
                     
                     # Extract the triangle of figures out of the data provided
-                    figures = Field.extract_triangle(figure_images)
+                    figures = Field.extract_triangle(targets)
                     
                     # match triangle in field
                     nodes = self.field.find_triangle(figures)
