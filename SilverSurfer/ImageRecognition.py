@@ -1,6 +1,10 @@
 import numpy as np
 import cv2
 import math
+from subprocess import call
+
+#Define location of the image, will probably change to memory instead of disk
+img_loc = "/home/pi/image.jpg"
 
 #Define high Red
 lower_red = np.array([150, 70, 70], dtype=np.uint8)
@@ -33,6 +37,12 @@ upper_white = np.array([180, 40, 255], dtype=np.uint8)
 white = [lower_white, upper_white ,'white']
 
 colors = [red_low, red_high, green, blue, yellow, white]
+
+def start_daemon():
+    call(["rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/start_camd.sh " + img_loc], shell=True)  
+
+def take_picture():
+    call(["rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/do_caputure.sh"], shell=True)
 
 def cosine(point1, point2, point0):
     #Math magic... works!
@@ -91,7 +101,7 @@ def analyse_approx(approx):
     
     return "Undefined"
 
-def detect_targets(img_loc):
+def detect_targets():
     
     figures = []
     #Read image
