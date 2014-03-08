@@ -79,6 +79,7 @@ class Navigator(threading.Thread, object):
         
         self.distance_sensor.start()
         self.stabilizer.start()
+        self.image_processor.start_daemon()
         self.navigating = True
         
         while self.navigating:

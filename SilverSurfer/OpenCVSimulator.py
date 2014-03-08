@@ -114,6 +114,9 @@ class OpenCVSimulator(object):
         angular_velocity = self.simulate_angular_velocity()
         new_angle = self.navigator.angle + angular_velocity*interval
         return new_angle
+    
+    def start_daemon(self):
+        pass
         
     
     

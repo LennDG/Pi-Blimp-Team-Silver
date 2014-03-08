@@ -6,11 +6,11 @@ This file initialises our version of the zeppelin and starts running the program
 """
 
 from Zeppelin import Zeppelin
+from ImageRecognitionClient import ImageRecognitionClient
 from Navigator import Navigator
 from MotorControl import MotorControl
 import Motor
 from DistanceSensor import DistanceSensor
-from OpenCVSimulator import OpenCVSimulator
 import CSVParser
 from Field import Field
 
@@ -66,12 +66,8 @@ field = Field(parsed_format)
 
 """ Image processing """
 
-# OpenCV, For now, the simulated version is used as the real one is not available yet.
-
-# The mean deviation from the images of nodes are from their supposed position in pixels.
-error_level = 1
-
-image_processor = OpenCVSimulator(error_level)
+# OpenCV 
+image_processor = ImageRecognitionClient()
 
 
 """ Navigator """
