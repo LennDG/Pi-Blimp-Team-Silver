@@ -3,7 +3,7 @@ import threading
 
 class DistanceSensor(threading.Thread, object):
     
-    def __init__(self):
+    def __init__(self, data_amount):
         
         threading.Thread.__init__(self)
         
@@ -30,7 +30,7 @@ class DistanceSensor(threading.Thread, object):
  
         # Setup some other variables
         # -----------------------------------------------------------------
-        self.data_amount = 10         # takes 20 values for the data
+        self.data_amount = data_amount         # takes 10 values for the data
         self.trig_duration = 0.06        # Trigger duration
         self.inttimeout = 2100        # Timeout on echo signal
         self.v_snd = 340.29            # Speed of sound in m/s

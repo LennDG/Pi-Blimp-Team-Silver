@@ -1,28 +1,18 @@
 #This is the file for the Motor Control class.
-import Motor
 from Vector import Vector
 from math import pi
-
-# parameters
-    
-# The factor by which a motor increases its acceleration for the same power going forwards 
-FORWARD_FACTOR = 1  
-    
-# The factor by which the left motor is stronger than the right motor.
-RELATIVE_FACTOR = 1
 
 
 class MotorControl():
     
+    FORWARD_SCALING = 1
     
-    def __init__(self):
+    def __init__(self, left_motor, right_motor, vert_motor):
         
-        #Make all Motor objects
-        self.left_motor = Motor.Motor(cw_pin = 4, ccw_pin = 24, 10)
-        self.left_motor.start()
-        self.right_motor = Motor.Motor(cw_pin = 10, ccw_pin = 11, 10)
-        self.right_motor.start()
-        self.vert_motor = Motor.VerticalMotor(cw_pin = 7, ccw_pin = 9) #Make sure that the PWM connector on the board is correct 
+        # Assign all the motor objects. They should already be running.
+        self.left_motor = left_motor
+        self.right_motor = right_motor
+        self.vert_motor = vert_motor
         
     
     # This method will make the zeppelin move forward or backward, depending on the direction.
@@ -44,18 +34,16 @@ class MotorControl():
         # in the direction of the left motor..
         direction = Vector(0, acceleration).turn(angle - pi/4)     
         
-        # Correct the vector for differences in motors and orientations. Depends on the value of the factor.
+        # Correct the vector for differences in orientations. Depends on the value of the factor.
         # Always make sure the resizing results in smaller values, as values exceeding 100 can distort the
         # direction
         
-        # Differences in motors
-        direction.xcoord = direction.xcoord/RELATIVE_FACTOR
         
         # Differences in orientations
         if direction.ycoord > 0:
-            direction.ycoord = direction.ycoord/FORWARD_FACTOR
+            direction.ycoord = direction.ycoord*MotorControl.FORWARD_SCALING
         if direction.xcoord > 0:
-            direction.xcoord = direction.xcoord/FORWARD_FACTOR
+            direction.xcoord = direction.xcoord*MotorControl.FORWARD_SCALING
             
         self.left_motor.level = direction.xcoord
         self.right_motor.level = direction.ycoord

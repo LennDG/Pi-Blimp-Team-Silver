@@ -288,8 +288,9 @@ class Field(object):
                 results.append(result)
             
             # Move on to the next row.
-            current_node = self.next_row(current_node, direction)
             direction = direction*-1
+            current_node = self.next_row(current_node, direction)
+            
         
         # Return all the results.    
         return results
@@ -353,7 +354,7 @@ class Field(object):
                 if first_neighbour != 0 and first_neighbour.figure == figures[1]:
                     # If the neighbour of the first neighbour in position x+2(check for yourself)
                     # has the third figure on it, we have found the triangle
-                    second_neighbour = first_neighbour.neighbours[x+2]
+                    second_neighbour = first_neighbour.neighbours[(x+2)%6]
                     if second_neighbour != 0 and second_neighbour.figure == figures[2]:
                         return initial, first_neighbour, second_neighbour
                     
@@ -385,68 +386,87 @@ class Field(object):
         # Return the list
         return results   
     
+    @classmethod
+    def calculate_minimal_distance(cls, positions):
+        side_length = 99999999999999999999999.0
+        for x in range(0, len(positions)):
+            for y in range(x+1, len(positions)):
+                length = (positions[x] - positions[y]).norm
+                if length < side_length:
+                    side_length = length
+        return side_length
     
-def calculate_minimal_distance(positions):
-    side_length = 99999999999999999999999.0
-    for x in range(0, len(positions)):
-        for y in range(x, len(positions)):
-            length = (positions[x] - positions[y]).norm
-            if length < side_length:
-                side_length = length
-    return side_length
-
-
-def extract_pairs(positions):
-    allowable_error = 0.05
-    results = []
-    side_length = calculate_minimal_distance(positions)
-    for x in range(0, len(positions)):
-        for y in range(x, len(positions)):
-            distance = (positions[x] - positions[y]).norm
-            if abs(distance - side_length) < allowable_error:
-                result = (x,y)
-                results.append(result)
+   
+    @classmethod
+    def extract_pairs(cls, positions):
+        allowable_error = 40
+        results = []
+        side_length = cls.calculate_minimal_distance(positions)
+        for x in range(0, len(positions)):
+            for y in range(x+1, len(positions)):
+                distance = (positions[x] - positions[y]).norm
+                if abs(distance - side_length) < allowable_error:
+                    result = (x,y)
+                    results.append(result)
+                    
+        return results
+   
+    
+    
+    """
+    This method checks whether the 3 given duos form a triangle. The duos are defined by the positions
+    of its endpoints.
+    """   
+    @classmethod
+    def check_for_triangle(cls, positions, index_1, index_2, index_3, index_4, index_5, index_6):
+        if positions[index_1] == positions[index_6] and positions[index_2] == positions[index_3] and positions[index_4] == positions[index_5]:
+            return (index_1, index_2, index_4)
+        else:
+            return 0
                 
-    return results
-
-def check_for_triangle(positions, index_1, index_2, index_3, index_4, index_5, index_6):
-    if positions[index_1] == positions[index_6] and positions[index_1] == positions[index_1] and positions[index_1]:
-        return (index_1, index_2, index_4)
-    else:
-        return 0
-            
     
-def extract_triangle(figure_images):
-    final_result = 0
-    positions = []
-    figures = []
-    for image in figure_images:
-        figure = Figure(image[0], image[1])
-        position = Vector(image[2], image[3])
-        figures.append(figure)
-        positions.append(position)
-    pairs = extract_pairs(positions)
-    for x in range(0, len(pairs)):
-        index_1, index_2 = pairs[x]
-        for y in range(x, len(pairs)):
+    @classmethod    
+    def extract_triangle(cls, figure_images):
+        
+        # Initialise results
+        final_result = 0
+        positions = []
+        figures = []
+        
+        # Make a list of figures and a list of positions where the indices link them together?
+        for image in figure_images:
+            figure = Figure(image[0], image[1])
+            position = Vector(image[2], image[3])
+            figures.append(figure)
+            positions.append(position)
+            
+        # Get all the pairs of nodes which are neighbours from this collection.    
+        pairs = cls.extract_pairs(positions)
+        
+        index_1, index_2 = pairs[0]
+        for y in range(1, len(pairs)):
             index_3, index_4 = pairs[y]
-            for z in range(y, len(pairs)):
+            for z in range(y+1, len(pairs)):
                 results = []
                 index_5, index_6 = pairs[z]
-                results.append(check_for_triangle(positions, index_1, index_2, index_3, index_4, index_5, index_6))
-                results.append(check_for_triangle(positions, index_1, index_2, index_3, index_4, index_6, index_5))
-                results.append(check_for_triangle(positions, index_1, index_2, index_4, index_3, index_5, index_6))
-                results.append(check_for_triangle(positions, index_1, index_2, index_4, index_3, index_6, index_5))
-                results.append(check_for_triangle(positions, index_2, index_1, index_3, index_4, index_5, index_6))
-                results.append(check_for_triangle(positions, index_2, index_1, index_3, index_4, index_6, index_5))
-                results.append(check_for_triangle(positions, index_2, index_1, index_4, index_3, index_5, index_6))
-                results.append(check_for_triangle(positions, index_2, index_1, index_4, index_3, index_6, index_5))
+                results.append(cls.check_for_triangle(positions, index_1, index_2, index_3, index_4, index_5, index_6))
+                results.append(cls.check_for_triangle(positions, index_1, index_2, index_3, index_4, index_6, index_5))
+                results.append(cls.check_for_triangle(positions, index_1, index_2, index_4, index_3, index_5, index_6))
+                results.append(cls.check_for_triangle(positions, index_1, index_2, index_4, index_3, index_6, index_5))
+                results.append(cls.check_for_triangle(positions, index_2, index_1, index_3, index_4, index_5, index_6))
+                results.append(cls.check_for_triangle(positions, index_2, index_1, index_3, index_4, index_6, index_5))
+                results.append(cls.check_for_triangle(positions, index_2, index_1, index_4, index_3, index_5, index_6))
+                results.append(cls.check_for_triangle(positions, index_2, index_1, index_4, index_3, index_6, index_5))
                 for result in results:
                     if result != 0:
                         final_result = result
-    figure_1 = figures[final_result[0]]
-    figure_2 = figures[final_result[1]]
-    figure_3 = figures[final_result[2]]
-    
-    return figure_1, figure_2, figure_3 
+                            
+        if final_result == 0:
+            return 0
+        else:    
+            figure_1 = figures[final_result[0]]
+            figure_2 = figures[final_result[1]]
+            figure_3 = figures[final_result[2]]
+        
+        return figure_1, figure_2, figure_3 
     
