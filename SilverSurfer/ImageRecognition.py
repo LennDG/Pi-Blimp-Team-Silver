@@ -145,7 +145,7 @@ def generate_image():
     time_stamp = take_picture()
     targets = detect_targets()
     zeppelin_image = (250,250) # We'll have to program this a bit more flexible not hardcoded.
-    return (targets, zeppelin_image, time_stamp)
+    return targets, zeppelin_image, time_stamp
 
 
     
