@@ -11,4 +11,5 @@ class ImageRecognitionClient(object):
         IR.start_daemon()
     
     def generate_image(self):
-        IR.generate_image()
+        return IR.generate_image()
+        
