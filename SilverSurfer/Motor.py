@@ -2,7 +2,7 @@
 import RPi.GPIO as GPIO
 import threading, time
 
-class Motor(threading.thread, object):
+class Motor(threading.Thread, object):
     
     def __init__(self, cw_pin, ccw_pin, frequency):
         
@@ -63,6 +63,8 @@ class VerticalMotor(object):
     
     def __init__(self, cw_pin, ccw_pin):
         self._level = 0.0
+        self.cw_pin = cw_pin
+        self.ccw_pin = ccw_pin
         self.PWM = 18 #Should not be changing since it's hardwired into the Pi!
         GPIO.setup(self.PWM, GPIO.OUT)
         self.enabler = GPIO.PWM(self.PWM,100)
