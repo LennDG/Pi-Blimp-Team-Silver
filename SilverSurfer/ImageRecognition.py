@@ -75,7 +75,7 @@ def analyse_approx(approx):
         if abs(cos) < 0.1:
             perp_count += 1
     if perp_count >= 2:
-        return "Rectangle"
+        return "rectangle"
     
     #Count negatives
     negatives = 0. 
@@ -93,15 +93,15 @@ def analyse_approx(approx):
     if negatives/len(cosines) >= 0.8:
         #Cirle or heart
         if variance < 0.01:
-            return "Circle"
+            return "circle"
         else:
-            return "Heart"        
+            return "heart"        
     #Check star
     if 0.3 <= negatives/len(cosines) <= 0.7:
         if variance > 0.2:
-            return "Star"
+            return "star"
     
-    return "Undefined"
+    return "undefined"
 
 def detect_targets():
     
@@ -139,7 +139,7 @@ def detect_targets():
             if abs(figure1[2]-figure2[2]) <= 50 and abs(figure1[3]-figure2[3]) <= 50 and figure1 != figure2:
                 figures.remove(figure2)
     for figure in figures:
-        if figure[1] == 'Undefined':
+        if figure[1] == 'undefined':
             figures.remove(figure)
     return figures
 

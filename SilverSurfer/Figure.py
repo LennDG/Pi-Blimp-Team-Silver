@@ -8,7 +8,7 @@ This module contains the class Figure, together with the implementation of color
 
 
 colors = "blue", "white", "red", "yellow", "green", "x"
-shapes = "heart", "oval", "rectangle", "star", "x"
+shapes = "heart", "circle", "rectangle", "star", "x"
     
 '''
 checks whether the given color is a valid color.
