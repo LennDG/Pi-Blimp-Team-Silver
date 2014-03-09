@@ -138,6 +138,9 @@ def detect_targets():
         for figure2 in figures:
             if abs(figure1[2]-figure2[2]) <= 50 and abs(figure1[3]-figure2[3]) <= 50 and figure1 != figure2:
                 figures.remove(figure2)
+    for figure in figures:
+        if figure[1] == 'Undefined':
+            figures.remove(figure)
     return figures
 
 
