@@ -97,9 +97,9 @@ class Navigator(threading.Thread, object):
                 # Simulate the taking and decoding of a picture
                 # will result in figure_images, zeppelin_image and time_stamp
                 image_information = self.image_processor.generate_image()
-                figure_images = image_information[0], image_information[1], image_information[2]
-                zeppelin_image = image_information[3]
-                time_stamp = image_information[4]
+                figure_images = image_information[0]
+                zeppelin_image = image_information[1]
+                time_stamp = image_information[2]
                
                 
                 # Extract the triangle of figures out of the data provided
