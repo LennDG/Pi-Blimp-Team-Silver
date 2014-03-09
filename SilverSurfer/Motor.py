@@ -63,8 +63,13 @@ class VerticalMotor(object):
     
     def __init__(self, cw_pin, ccw_pin):
         self._level = 0.0
+        
         self.cw_pin = cw_pin
         self.ccw_pin = ccw_pin
+        
+        GPIO.setup(cw_pin, GPIO.OUT)
+        GPIO.setup(ccw_pin, GPIO.OUT)
+        
         self.PWM = 18 #Should not be changing since it's hardwired into the Pi!
         GPIO.setup(self.PWM, GPIO.OUT)
         self.enabler = GPIO.PWM(self.PWM,100)

@@ -40,10 +40,10 @@ white = [lower_white, upper_white ,'white']
 colors = [red_low, red_high, green, blue, yellow, white]
 
 def start_daemon():
-    call(["rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/start_camd.sh " + img_loc], shell=True)  
+    call(["~/rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/start_camd.sh " + img_loc], shell=True)  
 
 def take_picture():
-    call(["rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/do_caputure.sh"], shell=True)
+    call(["~/rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/do_caputure.sh"], shell=True)
     return time.time()
 
 def cosine(point1, point2, point0):
