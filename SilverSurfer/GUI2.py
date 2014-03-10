@@ -667,7 +667,7 @@ class GUI(Frame):
         map_compiler = GuiCompiler()
         #obj_coord is dictionaire
         #obj_coord[a]=[[x,y,color]]
-        obj_coord = map_compiler.compile_map("test.csv", 40, self.canvas_map_width,self.canvas_map_height)
+        obj_coord = map_compiler.compile_map("field.csv", 40, self.canvas_map_width,self.canvas_map_height)
         
         for word in obj_coord:
             for coordinates_and_color in obj_coord[word]:
@@ -817,7 +817,7 @@ class GuiCompiler():
     def __init__(self):
         self.type_words = ["INFO", "STATUS","QR", "SWITCH", "SHUTDOWN"]
         self.state_att_words = { "H":"z", "GH":"Goal","E":"Error","LM":"left-motor","RM":"right-motor","VM":"vert-motor","Y":"y","X":"x"}
-        self.shapes = {'H' :"heart",'O':"circle",'S':"star",'R':"rectangle"}
+        self.shapes = {'H' :"heart",'C':"circle",'S':"star",'R':"rectangle"}
         self.colors = {'W':"grey",'B':"blue",'G':"green",'R':"red",'Y':"yellow"}
         self.objects = {'rectangle':self.create_rectangle,'circle':self.create_circle,'star':self.create_star,'heart':self.create_hart}
         

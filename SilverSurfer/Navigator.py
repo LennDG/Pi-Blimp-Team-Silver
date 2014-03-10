@@ -2,7 +2,6 @@ from Vector import Vector
 from PID import PID
 import threading
 import time
-import ImageRecognition as IR
 
 '''
 This file contains the class Navigator.
