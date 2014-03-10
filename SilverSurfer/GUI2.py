@@ -739,7 +739,7 @@ class GUI(Frame):
         
     
     def update_graph_values(self):
-        self.height_graph.y =  2#float(self.zeppelin_database.zeppelins['SilverSurfer']['height'])/100
+        self.height_graph.y =  float(self.zeppelin_database.zeppelins['SilverSurfer']['z'])/100
         goal = self.zeppelin_database.zeppelins['SilverSurfer']['Goal']
         if goal == 'not given':
             self.height_graph.y_2 =0
@@ -851,15 +851,16 @@ class GuiCompiler():
         anchor_x = GUI.canvas_map_X_SCALE*x_co
         anchor_y = GUI.canvas_map_Y_SCALE*y_co
         canvas.create_polygon(anchor_x,anchor_y,
-                              anchor_x+1,anchor_y-1,
-                              anchor_x+2,anchor_y-2,
-                              anchor_x+3,anchor_y-1,
-                              anchor_x+3,anchor_y+1,
-                              anchor_x, anchor_y+5,
-                              anchor_x-3,anchor_y+1,
-                              anchor_x-3,anchor_y-1,
-                              anchor_x-2,anchor_y-2,
-                              anchor_x-1,anchor_y-1)    
+                              anchor_x+GUI.fig_map_SCALE*1,anchor_y-GUI.fig_map_SCALE*1,
+                              anchor_x+GUI.fig_map_SCALE*2,anchor_y-GUI.fig_map_SCALE*2,
+                              anchor_x+GUI.fig_map_SCALE*3,anchor_y-GUI.fig_map_SCALE*1,
+                              anchor_x+GUI.fig_map_SCALE*3,anchor_y+GUI.fig_map_SCALE*1,
+                              anchor_x, anchor_y+GUI.fig_map_SCALE*5,
+                              anchor_x-GUI.fig_map_SCALE*3,anchor_y+GUI.fig_map_SCALE*1,
+                              anchor_x-GUI.fig_map_SCALE*3,anchor_y-GUI.fig_map_SCALE*1,
+                              anchor_x-GUI.fig_map_SCALE*2,anchor_y-GUI.fig_map_SCALE*2,
+                              anchor_x-GUI.fig_map_SCALE*1,anchor_y-GUI.fig_map_SCALE*1,
+                              fill = color)    
       
     
         
