@@ -1,6 +1,5 @@
 import threading
 import time
-import PiConnection
 from Vector import Vector
      
 class Zeppelin(threading.Thread, object):
@@ -13,18 +12,12 @@ class Zeppelin(threading.Thread, object):
         # Assign the navigator object
         self.navigator = navigator
         
-        
-        
         # I am going to supply a list of goal positions for now, this is going to change later.
         self.positions = []
-        self.positions.append(Vector(200,-100))
-        self.positions.append(Vector(40,-200))
-        self.positions.append(Vector(200,200))
-        self.positions.append(Vector(40,-200))
-        
-        #"The gates are open" - D-Devils
-        self.gate = PiConnection.Gate(self)
-        self.gate.open() #Starts looking for the first signs of connection.
+        self.positions.append(Vector(2,-1))
+        self.positions.append(Vector(0.4,-2))
+        self.positions.append(Vector(2,2))
+        self.positions.append(Vector(0.4,-2))
         
     def moveto(self, x, y, z):
         new_position = Vector(x, y)

@@ -11,7 +11,7 @@ also contains.
 @version 1.0
 """
 
-DISTANCE = 40
+DISTANCE = 0.4
 
 
 """

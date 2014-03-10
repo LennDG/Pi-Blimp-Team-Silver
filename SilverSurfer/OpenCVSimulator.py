@@ -12,7 +12,7 @@ class OpenCVSimulator(object):
     IMAGE_PIXEL_WIDTH = 500 
 
     # The scope of a picture at 1m altitude.
-    IMAGE_WIDTH = 40
+    IMAGE_WIDTH = 0.4
     
     def __init__(self, error_level, velocity_error, angular_instability):
         
@@ -22,7 +22,7 @@ class OpenCVSimulator(object):
         self.ERROR_LEVEL = error_level
         self.VELOCITY_ERROR = velocity_error
         self.ANGULAR_INSTABILITY = angular_instability
-        self.height = 150
+        self.height = 1.5
         self.last_updated = time.time()
     
       
@@ -76,7 +76,7 @@ class OpenCVSimulator(object):
     def generate_image(self):
         
         zeppelin_position, angle, time_stamp = self.calculate_next_state()
-        self.height = self.navigator.distance_sensor.height
+        self.height = self.navigator.distance_sensor.height/100
         
         nodes = self.find_triangle(zeppelin_position.xcoord, zeppelin_position.ycoord)
         
@@ -104,13 +104,8 @@ class OpenCVSimulator(object):
         image_3 = nodes[2].figure.color, nodes[2].figure.shape, node_3_position.xcoord, node_3_position.ycoord
         zeppelin_image = zeppelin_image.xcoord, zeppelin_image.ycoord
         
-        images = []
-        images.append(image_1)
-        images.append(image_2)
-        images.append(image_3)
-        
         # Return result
-        return images, zeppelin_image, time_stamp
+        return image_1, image_2, image_3, zeppelin_image, time_stamp
     
     def simulate_angular_velocity(self):
         return self.navigator.angular_velocity + self.ANGULAR_INSTABILITY*random.gauss(0,1)
