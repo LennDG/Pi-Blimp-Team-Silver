@@ -18,7 +18,7 @@ class CSVParser(object):
                        "X": "x"}
         
         shapes = {     "H": "heart", 
-                       "C": "oval", 
+                       "C": "circle", 
                        "R": "rectangle", 
                        "S": "star",
                        "X": "x"}
