@@ -2,8 +2,6 @@ from Vector import Vector
 from PID import PID
 import threading
 import time
-import ImageRecognition as IR
-
 '''
 This file contains the class Navigator.
 
@@ -20,9 +18,9 @@ This file contains the class Navigator.
 '''
 class Navigator(threading.Thread, object):
     
-    MAXIMUM_SPEED = 0.25
-    SLOW_DOWN_DISTANCE = 2
-    ALLOWED_DEVIATION = 0.3
+    MAXIMUM_SPEED = 25
+    SLOW_DOWN_DISTANCE = 200
+    ALLOWED_DEVIATION = 30
 
     '''
     This constructor initializes the object with a distance sensor and a control module for its motors.
@@ -148,7 +146,7 @@ class Navigator(threading.Thread, object):
         
         # Calculating the angle properties
         new_angle = (image_difference - node_difference).angle
-        self.angular_velocity = (self.angle - new_angle)/time_lapsed
+        self.angular_velocity = (self.angle - new_angle)/(time_lapsed+0.0000000000001)
         self.angle = new_angle
         
         # Calculating positional properties.
@@ -157,7 +155,7 @@ class Navigator(threading.Thread, object):
         relative_position = relative_position*enlargement_factor
         relative_position = relative_position.turn(- new_angle)
         new_position = node_1.position + relative_position
-        self.velocity = (new_position - self.position)/time_lapsed
+        self.velocity = (new_position - self.position)/(time_lapsed+0.000000000001)
         self.position = new_position
         print "current position: " + str(self.position.xcoord) + ", " + str(self.position.ycoord)
     
