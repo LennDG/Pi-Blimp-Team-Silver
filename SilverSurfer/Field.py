@@ -291,6 +291,7 @@ class Field(object):
             direction = direction*-1
             current_node = self.next_row(current_node, direction)
             
+            
         
         # Return all the results.    
         return results
@@ -466,11 +467,13 @@ class Field(object):
                     for result in results:
                         if result != 0:
                             final_result.append(result)
+        uber_final_result = []
                             
         if final_result == 0:
             return 0
         else:
             for result in final_result:
-                result = figures[result[0]], figures[result[1]], figures[result[2]]
-            return final_result
+                uber_final_result.append((figures[result[0]], figures[result[1]], figures[result[2]]))
+            
+            return uber_final_result
     
