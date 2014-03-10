@@ -18,6 +18,11 @@ class Zeppelin(threading.Thread, object):
         self.positions.append(Vector(0.4,-2))
         self.positions.append(Vector(2,2))
         self.positions.append(Vector(0.4,-2))
+        
+    def moveto(self, x, y, z):
+        new_position = Vector(x, y)
+        self.navigator.goal_position = new_position
+        self.navigator.goal_height = z
              
     def run(self):
         
