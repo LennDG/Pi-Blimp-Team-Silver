@@ -749,7 +749,13 @@ class GUI(Frame):
     def update_info_positions(self):
         info = '*----Position Zeppelins----* \n'
         for zep in self.zeppelin_database.zeppelins:
-            info =info + "------------ \n" + zep + "\n"+ 'x: ' + str(self.zeppelin_database.zeppelins[zep]['x']) + '  '+ 'y: ' + str(self.zeppelin_database.zeppelins[zep]['y']) + '  '+ 'z: ' + str(self.zeppelin_database.zeppelins[zep]['z'])                                                                                                  
+            info =(info + "------------ \n" + zep + "\n"+ 
+                   'x: ' + str(self.zeppelin_database.zeppelins[zep]['x']) + '  '+ 
+                   'y: ' + str(self.zeppelin_database.zeppelins[zep]['y']) + '  '+ 
+                   'z: ' + str(self.zeppelin_database.zeppelins[zep]['z']) + ' \n'+
+                   'goal_x: ' + str(self.zeppelin_database.zeppelins[zep]['gx']) + '  '+ 
+                   'goal_y: ' + str(self.zeppelin_database.zeppelins[zep]['gy']) + '  '+ 
+                   'goal_z: ' + str(self.zeppelin_database.zeppelins[zep]['Goal']))                                                                                                  
         self.positions_zeppelins_string.set(info)
     
             
@@ -796,6 +802,8 @@ class GUI(Frame):
             self.zeppelin_database.zeppelins['SilverSurfer'][self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1]) 
             
         
+            
+        
     def print_in_textbox(self,string):
         self.output.insert(INSERT, str(string) + '\n')  
         
@@ -816,7 +824,7 @@ class GuiCompiler():
     
     def __init__(self):
         self.type_words = ["INFO", "STATUS","QR", "SWITCH", "SHUTDOWN"]
-        self.state_att_words = { "H":"z", "GH":"Goal","E":"Error","LM":"left-motor","RM":"right-motor","VM":"vert-motor","Y":"y","X":"x"}
+        self.state_att_words = { "H":"z", "GH":"Goal","E":"Error","LM":"left-motor","RM":"right-motor","VM":"vert-motor","Y":"y","X":"x","GY":"gy","GX":"gx"}
         self.shapes = {'H' :"heart",'C':"circle",'S':"star",'R':"rectangle"}
         self.colors = {'W':"grey",'B':"blue",'G':"green",'R':"red",'Y':"yellow"}
         self.objects = {'rectangle':self.create_rectangle,'circle':self.create_circle,'star':self.create_star,'heart':self.create_hart}
@@ -940,7 +948,7 @@ class GuiCompiler():
 class zeppelinDatabase():
     
     def __init__(self):
-        self.zeppelins = {'SilverSurfer':{'left-motor' : 0, 'right-motor':0, 'vert-motor':0, 'Goal':'not given', 'Error':'not given', 'Status':'not given','x':10,'y':10,'z':10 }}
+        self.zeppelins = {'SilverSurfer':{'left-motor' : 0, 'right-motor':0, 'vert-motor':0, 'Goal':'not given', 'Error':'not given', 'Status':'not given','x':10,'y':10,'z':10,'gx':10,'gy':10 }}
 
     def addZeppelin(self,name):
         self.zeppelins[name]={'x':0,'y':0,'z':0}

@@ -1,6 +1,7 @@
 import threading
 import time
 from Vector import Vector
+import PiConnection
      
 class Zeppelin(threading.Thread, object):
        
@@ -18,6 +19,9 @@ class Zeppelin(threading.Thread, object):
         self.positions.append(Vector(40,-200))
         self.positions.append(Vector(200,200))
         self.positions.append(Vector(40,-200))
+        
+        self.gate = PiConnection.Gate(self)
+        self.gate.open()
         
     def moveto(self, x, y, z):
         new_position = Vector(x, y)
