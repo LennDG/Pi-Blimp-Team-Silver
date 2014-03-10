@@ -435,6 +435,7 @@ class Field(object):
         
         # Make a list of figures and a list of positions where the indices link them together?
         for image in figure_images:
+            print image[0], image[1]
             figure = Figure(image[0], image[1])
             position = Vector(image[2], image[3])
             figures.append(figure)
