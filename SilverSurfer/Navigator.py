@@ -20,9 +20,9 @@ This file contains the class Navigator.
 '''
 class Navigator(threading.Thread, object):
     
-    MAXIMUM_SPEED = 0.25
-    SLOW_DOWN_DISTANCE = 2
-    ALLOWED_DEVIATION = 0.3
+    MAXIMUM_SPEED = 25
+    SLOW_DOWN_DISTANCE = 200
+    ALLOWED_DEVIATION = 30
 
     '''
     This constructor initializes the object with a distance sensor and a control module for its motors.
@@ -104,13 +104,17 @@ class Navigator(threading.Thread, object):
                
                 
                 # Extract the triangle of figures out of the data provided
-                triangle = self.field.extract_triangle(figure_images)
+                triangles = self.field.extract_triangles(figure_images)
                 
-                if triangle == 0:
+                if triangles == 0:
                     print "Not enough nodes visible"
                 else:
                     # match triangle in field
-                    nodes = self.field.find_triangle(triangle)
+                    i = 0
+                    nodes = 0
+                    while nodes == 0 and i < len(triangles):
+                        nodes = self.field.find_triangle(triangles[i])
+                        i += 1
                     
                     if nodes == 0:
                         print "Shape detection failed."

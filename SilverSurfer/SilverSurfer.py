@@ -19,14 +19,14 @@ from Field import Field
 frequency = 10
 
 # Left motor
-cw_pin = 4
-ccw_pin = 24
+cw_pin = 24
+ccw_pin = 4
 left_motor = Motor.Motor(cw_pin, ccw_pin, frequency)
 left_motor.start()
 
 # Right motor
-cw_pin = 10
-ccw_pin = 11
+cw_pin = 17
+ccw_pin = 23
 right_motor = Motor.Motor(cw_pin, ccw_pin, frequency)
 right_motor.start()
 
