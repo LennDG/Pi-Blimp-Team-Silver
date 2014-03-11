@@ -151,6 +151,7 @@ class Field(object):
     """
     def __init__(self, parsed_csv_file):
         
+        self.status = ""
         # convert the lists of tuples into lists of nodes
         rows = []
         for row in parsed_csv_file:
@@ -437,7 +438,7 @@ class Field(object):
         
         # Make a list of figures and a list of positions where the indices link them together?
         for image in figure_images:
-            print image[0], image[1]
+            print image[0],image[1]
             figure = Figure(image[0], image[1])
             position = Vector(image[2], image[3])
             figures.append(figure)
@@ -447,7 +448,7 @@ class Field(object):
         
         pairs = cls.extract_pairs(positions)
         
-        if pairs == 0:
+        if len(pairs) == 0:
             return 0
         else:
             index_1, index_2 = pairs[0]

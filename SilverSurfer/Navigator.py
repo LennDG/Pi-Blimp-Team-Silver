@@ -19,7 +19,7 @@ This file contains the class Navigator.
 '''
 class Navigator(threading.Thread, object):
     
-    MAXIMUM_SPEED = 25
+    MAXIMUM_SPEED = 20
     SLOW_DOWN_DISTANCE = 200
     ALLOWED_DEVIATION = 30
 
@@ -164,6 +164,8 @@ class Navigator(threading.Thread, object):
         self.velocity = (new_position - self.position)/time_lapsed
         self.position = new_position
         print "current position: " + str(self.position.xcoord) + ", " + str(self.position.ycoord)
+        
+        self.update_motor_control()
     
     
     """
@@ -172,6 +174,8 @@ class Navigator(threading.Thread, object):
     """    
     def calculate_goal_velocity(self):
         
+        if self.goal_position == 0:
+            return Vector(0,0)
         path = self.goal_position - self.position
         goal_velocity = 0
         
@@ -179,6 +183,13 @@ class Navigator(threading.Thread, object):
             goal_velocity = Vector(Navigator.MAXIMUM_SPEED,0).turn(path.angle)
         else:
             goal_velocity = Vector(path.norm/Navigator.SLOW_DOWN_DISTANCE, 0).turn(path.angle)
+            
+        velocity = goal_velocity - self.velocity
+        if path.norm >= Navigator.SLOW_DOWN_DISTANCE:
+            velocity = Vector(Navigator.MAXIMUM_SPEED,0).turn(velocity.angle)
+        else:
+            velocity = Vector(velocity.norm/Navigator.SLOW_DOWN_DISTANCE, 0).turn(velocity.angle)
+        print "velocity to achieve: " + str(velocity.xcoord) + ", " + str(velocity.ycoord)
             
         return goal_velocity
             
@@ -189,11 +200,12 @@ class Navigator(threading.Thread, object):
     """    
     def update_motor_control(self):
         
-        goal_velocity = self.calculate_goal_velocity
-        velocity = goal_velocity - self.velocity
+        goal_velocity = self.calculate_goal_velocity()
+        
         
         scaling_factor = 100/Navigator.MAXIMUM_SPEED
-        acceleration = Vector(velocity.xcoord*scaling_factor, velocity.ycoord*scaling_factor)
+        acceleration = Vector(goal_velocity.xcoord*scaling_factor, goal_velocity.ycoord*scaling_factor)
+        print str(acceleration.xcoord) + ', ' + str(acceleration.ycoord)
         
         # The angle with which the zeppelin moves is the angle the acceleration makes with the x-axis
         # added to the angle the front of the zeppelin makes with the x-axis.

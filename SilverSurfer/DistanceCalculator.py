@@ -42,6 +42,5 @@ class DistanceCalculator(threading.Thread, object):
         if new_height < 0:
             new_height = 0
         self.height = new_height
-        print self.height
         
         

@@ -25,8 +25,9 @@ class Zeppelin(threading.Thread, object):
         
     def moveto(self, x, y, z):
         new_position = Vector(x, y)
-        self.navigator.goal_position = new_position
         self.navigator.goal_height = z
+        self.navigator.goal_position = new_position
+
              
     def run(self):
         
@@ -35,6 +36,9 @@ class Zeppelin(threading.Thread, object):
         self.navigator.distance_sensor.height = 150
         
         while True:
+            
+            if self.navigator.goal_height == 0 and self.navigator.height < 20:
+                self.navigator.goal_position = 0
             
             if self.navigator.goal_position == 0:
                 pass

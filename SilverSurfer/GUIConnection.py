@@ -67,7 +67,7 @@ class GUIConn2dot0(threading.Thread, object):
                 self.connection.close()           
 
     def callback(self,ch, method, properties, body):
-        print " [x] Received %r" % (body,)
+        print body
         self.gui.inputqueue.put(body)       
 
     def send_message_to_zep(self,message):

@@ -31,11 +31,10 @@ class Motor(threading.Thread, object):
     
     @level.setter
     def level(self, value): #This sets the level of the motor
-        if value > 100.0:
-            value = 100.0
-        elif value < -100.0:
-            value = -100.0
-        value = value/100.
+        if value > 0.9:
+            value = 0.9
+        elif value < -0.9:
+            value = -0.9
         self._level = value
         
     def run(self):

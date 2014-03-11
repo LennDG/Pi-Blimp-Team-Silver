@@ -12,7 +12,8 @@ class Vector(object):
     #hoek van -pi...pi
     @property    
     def angle(self):
-        angle = asin(self.ycoord/self.norm)
+        
+        angle = asin(self.ycoord/(self.norm + 0.0001))
         if self.xcoord >= 0:
             pass
         elif self.ycoord >= 0:

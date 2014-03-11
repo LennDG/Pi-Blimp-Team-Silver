@@ -350,7 +350,7 @@ class GUI(Frame):
         #MAP Zeppelins en rooster
         self.canvas_map_height = 400
         self.canvas_map_width = 500
-        self.canvas_map = Canvas(self.Frame_output,height =self.canvas_map_height, width =self.canvas_map_width, bg = "white")
+        self.canvas_map = Canvas(self.Frame_output,height =self.canvas_map_height+20, width =self.canvas_map_width+20, bg = "white")
         self.canvas_map.grid(row = 0, column = 0, padx = 5, pady = 5,columnspan=3)
         
         #Dictionary met actieve canvas-zeppelinobjecte
@@ -651,7 +651,7 @@ class GUI(Frame):
         self.move_to(int(coords_spl[0]),int(coords_spl[1]),int(coords_spl[2]))
         
     def move_to(self,x,y,z):
-        self.send_string_command('MOVETO:'+ str(x) +" "+str(y)+" "+str(z))
+        self.send_string_command('MOVETO:'+ str(x) +" "+str(-y)+" "+str(z))
     
 
         

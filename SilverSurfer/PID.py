@@ -103,9 +103,10 @@ class PID(threading.Thread, object):
         
         # Calculate the PID value, ensure soft landings.
         if self.navigator.height < 50 and self.navigator.goal_height == 0:
-            error = 0
+            self.Kp = self.Kp/2.0
             self.Ci = 0
         elif self.navigator.height < 20 and self.navigator.goal_height == 0:
+            self.Kp = 0
             self.Cd = 0
             self.navigator.flying = False
         PID_value = PID.Kp*error + PID.Ki*self.Ci + PID.Kd*self.Cd

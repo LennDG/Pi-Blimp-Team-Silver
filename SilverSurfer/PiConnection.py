@@ -125,19 +125,34 @@ class Gate(threading.Thread,object):
         left_motor = 0 #self.zep.control.motor_control.left_motor.direction
         right_motor = 0 # self.zep.control.motor_control.right_motor.direction
         vert_motor = 0 #self.zep.control.motor_control.vert_motor.level
-      
-        reply = ('INFO > H:' 
-                 + str(height) 
-                 +'; GH:' 
-                 + str(goal_height) 
-                 + '; E:' + str(error) 
-                 + '; LM:' + str(left_motor) 
-                 + '; RM:' + str(right_motor) 
-                 + '; VM:' + str(vert_motor) 
-                 + '; X:' +str(int(self.zep.navigator.position.xcoord))
-                 +'; Y:' +str(-1*int(self.zep.navigator.position.ycoord))
-                 + '; GX:' + str(int(self.zep.navigator.goal_position.xcoord))
-                 +'; GY:' +str(-1*int(self.zep.navigator.goal_position.ycoord)))
+        if(self.zep.navigator.goal_position == 0):
+            reply = ('INFO > H:' 
+                     + str(height) 
+                     +'; GH:' 
+                     + str(goal_height) 
+                     + '; E:' + str(error) 
+                     + '; LM:' + str(left_motor) 
+                     + '; RM:' + str(right_motor) 
+                     + '; VM:' + str(vert_motor) 
+                     +  '; X:' +str(int(self.zep.navigator.position.xcoord))
+                     +'; Y:' +str(-1*int(self.zep.navigator.position.ycoord))
+                     + '; GX:' + str(int(self.zep.navigator.goal_position))
+                     +'; GY:' +str(-1*int(self.zep.navigator.goal_position)))
+            
+        else:
+           reply = ('INFO > H:' 
+                     + str(height) 
+                     +'; GH:' 
+                     + str(goal_height) 
+                     + '; E:' + str(error) 
+                     + '; LM:' + str(left_motor) 
+                     + '; RM:' + str(right_motor) 
+                     + '; VM:' + str(vert_motor) 
+                     +  '; X:' +str(int(self.zep.navigator.position.xcoord))
+                     +'; Y:' +str(-1*int(self.zep.navigator.position.ycoord))
+                     + '; GX:' + str(int(self.zep.navigator.goal_position.xcoord))
+                     +'; GY:' +str(-1*int(self.zep.navigator.goal_position.ycoord))) 
+            
         return reply
     
     def switch(self, request):
