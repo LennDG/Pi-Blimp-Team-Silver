@@ -15,10 +15,10 @@ class Zeppelin(threading.Thread, object):
         
         # I am going to supply a list of goal positions for now, this is going to change later.
         self.positions = []
-        self.positions.append(Vector(200,-100))
-        self.positions.append(Vector(40,-200))
-        self.positions.append(Vector(200,200))
-        self.positions.append(Vector(40,-200))
+#         self.positions.append(Vector(200,-100))
+#         self.positions.append(Vector(40,-200))
+#         self.positions.append(Vector(200,200))
+#         self.positions.append(Vector(40,-200))
         
         self.gate = PiConnection.Gate(self)
         self.gate.open()
@@ -37,14 +37,16 @@ class Zeppelin(threading.Thread, object):
         while True:
             
             if self.navigator.goal_position == 0:
-                self.navigator.goal_position = self.positions[i]
-                i = (i + 1)%4
-                print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
-                
+                pass
+#                 self.navigator.goal_position = self.positions[i]
+#                 i = (i + 1)%4
+#                 print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
+#                 
             elif self.navigator.goal_reached == True:
-                self.navigator.goal_position = self.positions[i]
-                i = (i + 1)%4
-                print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
-                
+                self.navigator.goal_height = 0
+#                 self.navigator.goal_position = self.positions[i]
+#                 i = (i + 1)%4
+#                 print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
+#                 
             else:
                 time.sleep(1)
