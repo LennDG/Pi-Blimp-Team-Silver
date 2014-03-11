@@ -136,7 +136,7 @@ class Gate(threading.Thread,object):
                  + '; VM:' + str(vert_motor) 
                  + '; X:' +str(int(self.zep.navigator.position.xcoord))
                  +'; Y:' +str(-1*int(self.zep.navigator.position.ycoord))
-                 + ': GX:' + str(int(self.zep.navigator.goal_position.xcoord))
+                 + '; GX:' + str(int(self.zep.navigator.goal_position.xcoord))
                  +'; GY:' +str(-1*int(self.zep.navigator.goal_position.ycoord)))
         return reply
     

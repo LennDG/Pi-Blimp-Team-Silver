@@ -799,7 +799,7 @@ class GUI(Frame):
         array_att = parser.parse_string_att(state_string)
         for s in array_att:
             att_and_val = s.split(':')
-            self.zeppelin_database.zeppelins['SilverSurfer'][self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1]) 
+            self.zeppelin_database.zeppelins['SilverSurfer'][self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1])
             
         
             
