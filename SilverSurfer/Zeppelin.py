@@ -20,7 +20,7 @@ class Zeppelin(threading.Thread, object):
 #         self.positions.append(Vector(200,200))
 #         self.positions.append(Vector(40,-200))
         
-        self.gate = PiConnection.Gate(self)
+        self.gate = PiConnection.Gate2dot1(self)
         self.gate.open()
         
     def moveto(self, x, y, z):

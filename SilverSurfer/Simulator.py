@@ -80,6 +80,7 @@ navigator.start()
 zeppelin = Zeppelin(navigator)
 zeppelin.start()
 
-                    
+print "Simulator is up and running, baby."
+                  
                                     
             

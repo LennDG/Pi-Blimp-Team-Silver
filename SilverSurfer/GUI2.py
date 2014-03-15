@@ -507,12 +507,12 @@ class GUI(Frame):
  
         
     def update_motors_view(self):
-        self.motor1.set( str(int(self.zeppelin_database.zeppelins['SilverSurfer']['left-motor'])))
-        self.motor2.set( str(int(self.zeppelin_database.zeppelins['SilverSurfer']['vert-motor'])))
-        self.motor3.set(str(int(self.zeppelin_database.zeppelins['SilverSurfer']['right-motor'])))
-        self.error.set( str(self.zeppelin_database.zeppelins['SilverSurfer']['Error']))
-        self.goal.set( str(self.zeppelin_database.zeppelins['SilverSurfer']['Goal']))
-        self.height.set(str(self.zeppelin_database.zeppelins['SilverSurfer']['z']))
+        self.motor1.set( str(int(self.zeppelin_database.zeppelins['silversurfer']['left-motor'])))
+        self.motor2.set( str(int(self.zeppelin_database.zeppelins['silversurfer']['vert-motor'])))
+        self.motor3.set(str(int(self.zeppelin_database.zeppelins['silversurfer']['right-motor'])))
+        self.error.set( str(self.zeppelin_database.zeppelins['silversurfer']['Error']))
+        self.goal.set( str(self.zeppelin_database.zeppelins['silversurfer']['Goal']))
+        self.height.set(str(self.zeppelin_database.zeppelins['silversurfer']['z']))
         self.parent.after(200, self.update_motors_view)
     
         
@@ -649,10 +649,10 @@ class GUI(Frame):
     def invoke_move_to(self):
         coords= self.entry_input_move_to.get()
         coords_spl = coords.split(" ")
-        self.move_to(int(coords_spl[0]),int(coords_spl[1]),int(coords_spl[2]))
+        self.move_to(coords_spl[0],coords_spl[1],coords_spl[2])
         
     def move_to(self,x,y,z):
-        self.send_string_command('MOVETO:'+ str(x) +" "+str(-y)+" "+str(z))
+        self.GUIconnection.move_to(x,y,z)
     
 
         
@@ -660,7 +660,7 @@ class GUI(Frame):
     def establish_connection(self):
         self.outputqueue  = Queue.Queue()
         self.inputqueue = Queue.Queue()
-        self.GUIconnection = GUIConnection.GUIConn2dot0(self)
+        self.GUIconnection = GUIConnection.GUIConn2dot1(self)
         self.GUIconnection.start()
         
         
@@ -740,8 +740,8 @@ class GUI(Frame):
         
     
     def update_graph_values(self):
-        self.height_graph.y =  float(self.zeppelin_database.zeppelins['SilverSurfer']['z'])/100
-        goal = self.zeppelin_database.zeppelins['SilverSurfer']['Goal']
+        self.height_graph.y =  float(self.zeppelin_database.zeppelins['silversurfer']['z'])/100
+        goal = self.zeppelin_database.zeppelins['silversurfer']['Goal']
         if goal == 'not given':
             self.height_graph.y_2 =0
         else:
@@ -785,9 +785,9 @@ class GUI(Frame):
             self.update_SilverSurfer_dictionary(code[1])
 
         elif code[0] == self.compiler.type_words[1] and code[1] != "":
-            if code[1] != self.zeppelin_database.zeppelins['SilverSurfer']['Status']: 
+            if code[1] != self.zeppelin_database.zeppelins['silversurfer']['Status']: 
                 self.print_in_textbox(string)
-                self.zeppelin_database.zeppelins['SilverSurfer']['Status'] = code[1]
+                self.zeppelin_database.zeppelins['silversurfer']['Status'] = code[1]
         
         elif code[0]== self.compiler.type_words[2] or code[0]== self.compiler.type_words[3]:
             self.print_in_textbox(string) 
@@ -800,7 +800,7 @@ class GUI(Frame):
         array_att = parser.parse_string_att(state_string)
         for s in array_att:
             att_and_val = s.split(':')
-            self.zeppelin_database.zeppelins['SilverSurfer'][self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1])
+            self.zeppelin_database.zeppelins['silversurfer'][self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1])
             
         
             
@@ -949,7 +949,7 @@ class GuiCompiler():
 class zeppelinDatabase():
     
     def __init__(self):
-        self.zeppelins = {'SilverSurfer':{'left-motor' : 0, 'right-motor':0, 'vert-motor':0, 'Goal':'not given', 'Error':'not given', 'Status':'not given','x':10,'y':10,'z':10,'gx':10,'gy':10 }}
+        self.zeppelins = {'silversurfer':{'left-motor' : 0, 'right-motor':0, 'vert-motor':0, 'Goal':'not given', 'Error':'not given', 'Status':'not given','x':10,'y':10,'z':10,'gx':10,'gy':10 }}
 
     def addZeppelin(self,name):
         self.zeppelins[name]={'x':0,'y':0,'z':0}
