@@ -4,31 +4,33 @@ Created on 4-mrt.-2014
 @author: Pepino
 '''
 import pika
+import logging
+logging.basicConfig()
 
-
-adress_server = 'localhost'
+adress_server = '192.168.1.6'
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(
                adress_server))
 channel = connection.channel()
 
-channel.queue_declare(queue='hello') 
-
-
-
-# Receiving messages from the queue is more complex. 
-#It works by subscribing a callback function to a queue. 
-#Whenever we receive a message, this callback function is called by the Pika library. 
-#In our case this function will print on the screen the contents of the message.
+channel.queue_declare(queue='helloFromPC') 
+channel.queue_declare(queue='helloFromPI') 
 
 def callback(ch, method, properties, body):
     print " [x] Received %r" % (body,)
+    channel.basic_publish(exchange='', routing_key='helloFromPC', body='PC sending Hello')
+    print "PC sending Hello"
 
-# Next, we need to tell RabbitMQ that this particular callback function should receive messages from our hello queue:
+channel.basic_publish(exchange='', routing_key='helloFromPC', body='PC sending Hello')
 
 channel.basic_consume(callback,
-                      queue='hello',
+                      queue='helloFromPI',
                       no_ack=True)
 
-print ' [*] Waiting for messages. To exit press CTRL+C'
 channel.start_consuming()
+
+
+
+
+
+

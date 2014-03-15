@@ -106,7 +106,7 @@ class Plotter(Frame) :
         self.canvas.get_tk_widget().update_idletasks()
        
         #if self.stop == False:
-        self.after(100, self.plotter)
+        self.after(1500, self.plotter)
             
 
 
@@ -454,10 +454,10 @@ class GUI(Frame):
         self.tb_AI_alfa.grid() 
  
         
-        self.Frame_game_beta = Frame(self.Frame_AI)
+        self.Frame_game_beta = Frame(self.Frame_input)
         self.tb_AI_beta = ScrolledText(self.Frame_game_beta, undo=True)
         self.tb_AI_beta['font'] = ('consolas', '12')
-        self.tb_AI_beta.config(width = 25, height =10 )  
+        self.tb_AI_beta.config(width = 40, height =20 )  
         self.tb_AI_beta.grid() 
         
 
@@ -489,16 +489,17 @@ class GUI(Frame):
         
     def invoke_change_view_to_AI(self):    
         self.Frame_control.grid_remove()
-
+        self.Frame_picture.grid_remove()
         self.Frame_game_alfa.grid(row=3)
+        self.Frame_game_beta.grid(row=0)
 
         self.view_state = 'AI'  
         
     def invoke_change_view_to_test(self):
         self.Frame_game_alfa.grid_remove()
-
+        self.Frame_game_beta.grid_remove()
         self.Frame_control.grid(row=3)
-
+        self.Frame_picture.grid(row=0,column=0)
         
         self.view_state = 'test'   
       

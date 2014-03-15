@@ -1,14 +1,14 @@
 #This is the client conneciton side, housed on PC
 
 import socket, threading, time
-import pika
+import pika, logging
 
 class GUIConn(threading.Thread, object):
     
     def __init__(self, inqueue, outqueue):
         threading.Thread.__init__(self)
-        
-        HOST = '192.168.1.1'
+
+        HOST = '192.168.1.6'
         PORT = 8888
         
         self.inqueue= inqueue
@@ -38,9 +38,9 @@ class GUIConn2dot0(threading.Thread, object):
     def __init__(self,gui):
         
         threading.Thread.__init__(self)
-        
+        logging.basicConfig()
         self.gui = gui
-        adress_server = 'localhost'
+        adress_server = '192.168.1.6'
         
         #Make channel
         self.connection = pika.BlockingConnection(pika.ConnectionParameters( adress_server))
