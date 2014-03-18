@@ -3,6 +3,23 @@
 import ZeppelinControl, Motor, time
 
 def main():
+    frequency = 10
+
+    # Left motor
+    cw_pin = 24
+    ccw_pin = 4
+    left_motor = Motor.Motor(cw_pin, ccw_pin, frequency)
+    left_motor.start()
+
+    # Right motor
+    cw_pin = 17
+    ccw_pin = 23
+    right_motor = Motor.Motor(cw_pin, ccw_pin, frequency)
+
+    # Vertical motor
+    cw_pin = 7
+    ccw_pin = 9
+    vert_motor = Motor.VerticalMotor(cw_pin, ccw_pin)
     zep_control = ZeppelinControl.ZeppelinControl(0)
     up_test(zep_control)
     up_test(zep_control)
