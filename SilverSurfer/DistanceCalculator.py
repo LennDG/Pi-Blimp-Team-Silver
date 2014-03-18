@@ -4,11 +4,11 @@ import threading
 class DistanceCalculator(threading.Thread, object):
     
     C_W = 1 # Think this is about right.
-    MASS = 0.3 # Determine this
+    MASS = 0.3 # Determine this 
     SURFACE_AREA = 2 # Determine this
     AIR_DENSITY = 1000 # I think this is alright
     GRAVITY = 9.81
-    MOTOR_POWER = 2 # test this
+    MOTOR_POWER = 2 # test this #verschil in gewicht
     
     def __init__(self, error_level, data_amount):
         
