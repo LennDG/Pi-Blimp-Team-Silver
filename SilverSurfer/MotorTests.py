@@ -19,7 +19,7 @@ def main():
     cw_pin = 7
     ccw_pin = 9
     vert = Motor.VerticalMotor(cw_pin, ccw_pin)
-    zep_control = ZeppelinControl.ZeppelinControl(0)
+    motorcontrol = MotorControl.MotorControl(left, right , vert)
     up_test(zep_control)
     up_test(zep_control)
     up_test(zep_control)
@@ -58,13 +58,13 @@ def right_turn_test(zep_control):
     zep_control.hor_stop()
     time.sleep(1)
     
-def up_test(zep_control):
+def up_test():
     #Remember, only testing motors, nothing more (like the stabilize function)
     for level in range(0, 10, 1):
-        zep_control.vert_move(100)
+        motorcontrol.vert.level(1)
         print "Spinning vertical motor up for 3 seconds"
         time.sleep(3)
-        zep_control.shutoff
+        motorcontrol.vert_off()
         print "Stopping vertical movement"
         time.sleep(3)
 
