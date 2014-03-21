@@ -778,6 +778,8 @@ class GUI(Frame):
             if not(zeppelin in self.zeppelin_database.zeppelins):
                 self.canvas_map.delete(self.active_zeppelins[zeppelin][0])
                 self.canvas_map.delete(self.active_zeppelins[zeppelin][1])
+                
+        
         
     def take_care_of_message_string(self,string):
         code = self.parser.parse_string_type(string)
@@ -825,7 +827,7 @@ class GuiCompiler():
     
     def __init__(self):
         self.type_words = ["INFO", "STATUS","QR", "SWITCH", "SHUTDOWN"]
-        self.state_att_words = { "H":"z", "GH":"Goal","E":"Error","LM":"left-motor","RM":"right-motor","VM":"vert-motor","Y":"y","X":"x","GY":"gy","GX":"gx"}
+        self.state_att_words = { "H":"z", "GH":"Goal","E":"Error","LM":"left-motor","RM":"right-motor","VM":"vert-motor","Y":"y","X":"x","GY":"gy","GX":"gx","recognized":"recognized"}
         self.shapes = {'H' :"heart",'C':"circle",'S':"star",'R':"rectangle"}
         self.colors = {'W':"grey",'B':"blue",'G':"green",'R':"red",'Y':"yellow"}
         self.objects = {'rectangle':self.create_rectangle,'circle':self.create_circle,'star':self.create_star,'heart':self.create_hart}
@@ -949,7 +951,7 @@ class GuiCompiler():
 class zeppelinDatabase():
     
     def __init__(self):
-        self.zeppelins = {'silversurfer':{'left-motor' : 0, 'right-motor':0, 'vert-motor':0, 'Goal':'not given', 'Error':'not given', 'Status':'not given','x':10,'y':10,'z':10,'gx':10,'gy':10 }}
+        self.zeppelins = {'silversurfer':{'left-motor' : 0, 'right-motor':0, 'vert-motor':0, 'Goal':'not given', 'Error':'not given', 'Status':'not given','x':10,'y':10,'z':10,'gx':10,'gy':10 , 'recognized':[] }}
 
     def addZeppelin(self,name):
         self.zeppelins[name]={'x':0,'y':0,'z':0}

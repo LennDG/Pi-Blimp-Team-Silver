@@ -222,6 +222,29 @@ class PiConn2dot1( threading.Thread, object):
         logging.basicConfig()
         threading.Thread.__init__(self)
         self.gate = gate
+
+        
+
+        self.initialization()
+###########
+        
+
+    def run(self):
+        thrown = False
+        
+        while True:
+            try:
+                if thrown == False:
+                    print "pre testing reinitialization"
+                    thrown = True
+                    raise Exception
+                self.channel.start_consuming()
+            except Exception:
+                print "PI reinitializated"
+                self.initialization() 
+
+    def initialization(self):
+        
         adress_server = 'localhost'
         
 ###########
@@ -231,55 +254,43 @@ class PiConn2dot1( threading.Thread, object):
         self.channel.exchange_declare(exchange='server', type='topic')
 
         #Create queues
-        info_location = self.channel.queue_declare(queue="info-loc-queue")
-        queue_info_location = info_location.method.queue
-        
-        info_height = self.channel.queue_declare(queue="info-height-queue")
-        queue_info_height = info_height.method.queue
+#         info_location = self.channel.queue_declare()
+#         queue_info_location = info_location.method.queue
+#         
+#         info_height = self.channel.queue_declare()
+#         queue_info_height = info_height.method.queue
 
 
-        hcommand_move = self.channel.queue_declare(queue="hcommand-move-queue")
-        queue_hcommand_move = hcommand_move.method.queue
+        hcommand_move = self.channel.queue_declare(queue="hcommand-move-silver")
+        self.queue_hcommand_move = hcommand_move.method.queue
         
-        hcommand_elevate = self.channel.queue_declare(queue="hcommand-elevate-queue")
-        queue_hcommand_elevate = hcommand_elevate.method.queue
+        hcommand_elevate = self.channel.queue_declare(queue="hcommand-elevate-silver")
+        self.queue_hcommand_elevate = hcommand_elevate.method.queue
         
-        lcommand_motor1 = self.channel.queue_declare(queue="lcommand-motor1-queue")
-        queue_lcommand_motor1 = lcommand_motor1.method.queue
+        lcommand_motor1 = self.channel.queue_declare(queue="lcommand-motor1-silver")
+        self.queue_lcommand_motor1 = lcommand_motor1.method.queue
         
-        lcommand_motor2 = self.channel.queue_declare(queue="lcommand-motor2-queue")
-        queue_lcommand_motor2 = lcommand_motor2.method.queue
+        lcommand_motor2 = self.channel.queue_declare(queue="lcommand-motor2-silver")
+        self.queue_lcommand_motor2 = lcommand_motor2.method.queue
         
-        lcommand_motor3 = self.channel.queue_declare(queue="lcommand-motor3-queue")
-        queue_lcommand_motor3 = lcommand_motor1.method.queue
+        lcommand_motor3 = self.channel.queue_declare(queue="lcommand-motor3-silver")
+        self.queue_lcommand_motor3 = lcommand_motor1.method.queue
+         
+        private =  self.channel.queue_declare(queue="private-fromPC-silver")
+        self.queue_private = private.method.queue
+                #bind the queues to keys
+#         self.channel.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
+#         self.channel.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
+        self.channel.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="*.hcommand.elevate")
+        self.channel.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="*.hcommand.move")
+        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="*.lcommand.motor1")
+        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="*.lcommand.motor2")
+        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="*.lcommand.motor3")
+        self.channel.queue_bind(exchange='server',queue=self.queue_private,routing_key="*.private.FromPC")
         
-        private =  self.channel.queue_declare(queue="private-queue")
-        queue_private = private.method.queue
-        
-        #bind the queues to keys
-        self.channel.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
-        self.channel.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
-        self.channel.queue_bind(exchange='server',queue=queue_hcommand_elevate,routing_key="*.hcommand.elevate")
-        self.channel.queue_bind(exchange='server',queue=queue_hcommand_move,routing_key="*.hcommand.move")
-        self.channel.queue_bind(exchange='server',queue=queue_lcommand_motor1,routing_key="*.lcommand.motor1")
-        self.channel.queue_bind(exchange='server',queue=queue_lcommand_motor2,routing_key="*.lcommand.motor2")
-        self.channel.queue_bind(exchange='server',queue=queue_lcommand_motor3,routing_key="*.lcommand.motor3")
-        self.channel.queue_bind(exchange='server',queue=queue_private,routing_key="*.private.FromPC")
-        
-        self.channel.basic_consume(self.callback_hcommand_elevate, queue=queue_hcommand_elevate, no_ack=True)
-        self.channel.basic_consume(self.callback_hcommand_move, queue=queue_hcommand_move, no_ack=True)
-        self.channel.basic_consume(self.callback_private, queue=queue_private, no_ack=True)
-###########
-        
-
-    def run(self):
-
-            try:
-                self.channel.start_consuming()
-            except Exception:
-                self.connection.close()  
-
-                
+        self.channel.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
+        self.channel.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
+        self.channel.basic_consume(self.callback_private, queue=self.queue_private, no_ack=True)       
 
     def callback_private(self,ch, method, properties, body):
         reply = self.gate.reply(body)  
@@ -300,7 +311,11 @@ class PiConn2dot1( threading.Thread, object):
         self.channel.basic_publish(exchange='server', routing_key='silversurfer.info.location', body=str(x)+","+str(y))
         self.channel.basic_publish(exchange='server', routing_key='silversurfer.info.height', body=str(z))
             
-
+    def send_status(self,status):
+        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.status', body=status)
+        
+    def send_goal_coordinates(self,x,y,z):
+        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
 
             
 class Gate2dot1(threading.Thread,object):
@@ -309,14 +324,7 @@ class Gate2dot1(threading.Thread,object):
         threading.Thread.__init__(self)
         self.zep = zeppelin
         self.PIconnection = PiConn2dot1(self)
-        self.replies = {'STATUS' : self.status,#Gives the Status of the Pi (Decisions, ...)
-                        'INFO' : self.info,  #Gives the Info of the Pi (Height, ...)
-                        'SWITCH' : self.switch, #Switches between Auto and Manual mode
-                        'SHUTDOWN': self.shutdown, #Shuts the Pi down
-                        'CONNECT' : self.connect, #Will tell the PC that the connection is okay
-                        'STABILIZE': self.elevate,
- #                       'COMMAND' : self.command,
-                        'MOVETO': self.move_to} #Issues commands
+
       
         
     def open(self):
@@ -334,65 +342,10 @@ class Gate2dot1(threading.Thread,object):
         self.PIconnection.send_position_to_server(self.zep.navigator.position.xcoord,
                                                    self.zep.navigator.position.ycoord,
                                                     self.zep.navigator.height)
-#        self.PIconnection.send_message_to_gui(message)   
+        if self.zep.navigator.goal_position != 0:
+            self.PIconnection.send_goal_coordinates(self.zep.navigator.goal_position.xcoord, self.zep.navigator.goal_position.ycoord, self.zep.navigator.goal_height)
     
-    def reply(self, request):
-        #Looks for the keywords in the request, handles them in the correct way.
 
-        
-
-        if any(word in request for word in self.replies):
-            req_word = request.split(":")
-            reply= self.replies[req_word[0]](request)
-            return reply
-        else:
-             
-            return self.replies['COMMAND'](request)
-
-    def status(self, request):
-        reply = 'STATUS > ' + self.zep.STATUS
-        return reply
-    
-    def info(self, request):
-
-        height = int(self.zep.navigator.height)
-        goal_height = int(self.zep.navigator.goal_height)
-        error = goal_height - height
-        
-        left_motor = 0 #self.zep.control.motor_control.left_motor.direction
-        right_motor = 0 # self.zep.control.motor_control.right_motor.direction
-        vert_motor = 0 #self.zep.control.motor_control.vert_motor.level
-        if(self.zep.navigator.goal_position == 0):
-            reply = ('INFO > GH:' 
-                     + str(goal_height) 
-                     + '; E:' + str(error) 
-                     + '; LM:' + str(left_motor) 
-                     + '; RM:' + str(right_motor) 
-                     + '; VM:' + str(vert_motor) 
-                     + '; GX:' + str(int(self.zep.navigator.goal_position))
-                     +'; GY:' +str(-1*int(self.zep.navigator.goal_position)))
-            
-        else:
-           reply = ('INFO > GH:' 
-                     + str(goal_height) 
-                     + '; E:' + str(error) 
-                     + '; LM:' + str(left_motor) 
-                     + '; RM:' + str(right_motor) 
-                     + '; VM:' + str(vert_motor) 
-                     + '; GX:' + str(int(self.zep.navigator.goal_position.xcoord))
-                     +'; GY:' +str(-1*int(self.zep.navigator.goal_position.ycoord))) 
-            
-        return reply
-    
-    def switch(self, request):
-        if self.zep.AUTO_MODE:
-            self.zep.AUTO_MODE = False
-            reply = 'SWITCH > MANUAL MODE' #If wanted, this reply can change
-            return reply
-        else:
-            self.zep.AUTO_MODE = True
-            reply = 'SWITCH > AUTOMATIC MODE'
-            return reply
         
     def shutdown(self, request):
         reply = 'SHUTDOWN > SHUTTING DOWN IN 3 SECONDS'
@@ -422,4 +375,7 @@ class Gate2dot1(threading.Thread,object):
     def move_to_horizontal(self,pos):
         coord = pos.split(",")
         self.zep.moveto(int(coord[0]),int(coord[1]),self.zep.navigator.goal_height)
+        
+    
+        
         
