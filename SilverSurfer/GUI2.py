@@ -20,6 +20,7 @@ import time
 import string
 import math
 
+
 class Plotter(Frame) : 
     
     
@@ -205,19 +206,19 @@ class GUI(Frame):
        
         btn_stop = Button(self.Frame_control, text="STOP" , command= self.stop, background = "red",foreground = "white")
         btn_stop.config( height = 5, width = 10) 
-        btn_stop.grid(row = 0, column = 1, padx = 5, pady = 3, sticky='W') 
+        btn_stop.grid(row = 0, column = 0, padx = 5, pady = 3, sticky='W') 
         
-#Grote Switch knop
-        
-        btn_switch = Button(self.Frame_control, text="SWITCH" , command= self.switch, background = "red",foreground = "white")
-        btn_switch.config( height = 5, width = 10) 
-        btn_switch.grid(row = 0, column = 2, padx = 5, pady = 3, sticky='W') 
+# #Grote Switch knop
+#         
+#         btn_switch = Button(self.Frame_control, text="SWITCH" , command= self.switch, background = "red",foreground = "white")
+#         btn_switch.config( height = 5, width = 10) 
+#         btn_switch.grid(row = 0, column = 2, padx = 5, pady = 3, sticky='W') 
         
        
 #pijltjes, A en D
        
         self.Frame_btn_control = Frame(self.Frame_control,background="gray55")
-        self.Frame_btn_control.grid(row = 0, column = 3) 
+        self.Frame_btn_control.grid(row = 0, column = 1) 
         
         rc_btn_height = 32 
         rc_btn_width = 34 
@@ -225,59 +226,63 @@ class GUI(Frame):
         self.img_left = Image.open('pijlUPM1.png')
         imgr_left = self.img_left.resize((35, 50),Image.ANTIALIAS)
         self.img_left1 = ImageTk.PhotoImage(imgr_left)
-        self.btn_left = Button(self.Frame_btn_control, image=self.img_left1,background ="gray11",foreground = "white") #pijltje omhoog afbeelding #TODO:
-        self.btn_left.config( height = rc_btn_height, width = rc_btn_width ) 
-        self.btn_left.grid(row = 1, column = 0,padx = 5, pady = 3)
+        self.btn_M1 = Button(self.Frame_btn_control, image=self.img_left1,command= self.invoke_set_motors(),background ="gray11",foreground = "white") #pijltje omhoog afbeelding #TODO:
+        self.btn_M1.config( height = rc_btn_height, width = rc_btn_width ) 
+        self.btn_M1.grid(row = 1, column = 4)
 
-        self.img_down = Image.open('pijlUPM2.png')
-        imgr_down = self.img_down.resize((35, 50),Image.ANTIALIAS)
-        self.img_down1 = ImageTk.PhotoImage(imgr_down)
-        self.btn_down = Button(self.Frame_btn_control, image=self.img_down1,background ="gray11",foreground = "white") #pijltje beneden afbeelding 
-        self.btn_down.config( height = rc_btn_height, width = rc_btn_width ) 
-        self.btn_down.grid(row = 1, column = 1,padx = 5, pady = 3) 
+#         self.img_down = Image.open('pijlUPM2.png')
+#         imgr_down = self.img_down.resize((35, 50),Image.ANTIALIAS)
+#         self.img_down1 = ImageTk.PhotoImage(imgr_down)
+#         self.btn_M2 = Button(self.Frame_btn_control, image=self.img_down1,background ="gray11",foreground = "white") #pijltje beneden afbeelding 
+#         self.btn_M2.config( height = rc_btn_height, width = rc_btn_width ) 
+#         self.btn_M2.grid(row = 2, column = 4) 
+#         
+#         self.img_up = Image.open('pijlDOWNM2.png')
+#         imgr_up = self.img_up.resize((35, 50),Image.ANTIALIAS)
+#         self.img_up1 = ImageTk.PhotoImage(imgr_up)
+#         self.btn_up = Button(self.Frame_btn_control, image=self.img_up1,background ="gray11",foreground = "white") #pijltje omhoog afbeelding 
+#         self.btn_up.config( height = rc_btn_height, width = rc_btn_width ) 
+#         self.btn_up.grid(row = 2, column = 1 ,padx = 5, pady = 3)
         
-        self.img_up = Image.open('pijlDOWNM2.png')
-        imgr_up = self.img_up.resize((35, 50),Image.ANTIALIAS)
-        self.img_up1 = ImageTk.PhotoImage(imgr_up)
-        self.btn_up = Button(self.Frame_btn_control, image=self.img_up1,background ="gray11",foreground = "white") #pijltje omhoog afbeelding 
-        self.btn_up.config( height = rc_btn_height, width = rc_btn_width ) 
-        self.btn_up.grid(row = 2, column = 1 ,padx = 5, pady = 3)
+#         
+#         self.img_right = Image.open('pijlUPM3.png')
+#         imgr_right = self.img_right.resize((35, 50),Image.ANTIALIAS)
+#         self.img_right1 = ImageTk.PhotoImage(imgr_right)
+#         self.btn_M3 = Button(self.Frame_btn_control, image=self.img_right1,background ="gray11",foreground = "white") #pijltje rechts afbeelding 
+#         self.btn_M3.config( height = rc_btn_height, width = rc_btn_width ) 
+#         self.btn_M3.grid(row = 3, column = 4 ) 
         
+#         self.img_a = Image.open('pijlDOWNM1.png')
+#         imgr_a = self.img_a.resize((35, 50),Image.ANTIALIAS)
+#         self.img_a1 = ImageTk.PhotoImage(imgr_a)
+#         self.btn_ascend = Button(self.Frame_btn_control, image=self.img_a1,background ="gray11",foreground = "white") #stijgen
+#         self.btn_ascend.config( height = rc_btn_height, width = rc_btn_width ) 
+#         self.btn_ascend.grid(row = 2, column = 0,padx = 5, pady = 3)
+#         
+#         self.img_d = Image.open('pijlDOWNM3.png')
+#         imgr_d = self.img_d.resize((35, 50),Image.ANTIALIAS)
+#         self.img_d1 = ImageTk.PhotoImage(imgr_d)
+#         self.btn_descend = Button(self.Frame_btn_control, image=self.img_d1,background ="gray11",foreground = "white") #dalen
+#         self.btn_descend.config( height = rc_btn_height, width = rc_btn_width ) 
+#         self.btn_descend.grid(row = 2, column = 2 ,padx = 5, pady = 3)
         
-        self.img_right = Image.open('pijlUPM3.png')
-        imgr_right = self.img_right.resize((35, 50),Image.ANTIALIAS)
-        self.img_right1 = ImageTk.PhotoImage(imgr_right)
-        self.btn_right = Button(self.Frame_btn_control, image=self.img_right1,background ="gray11",foreground = "white") #pijltje rechts afbeelding 
-        self.btn_right.config( height = rc_btn_height, width = rc_btn_width ) 
-        self.btn_right.grid(row = 1, column = 2 ,padx = 5, pady = 3) 
+        self.motors_input = Entry(self.Frame_btn_control) 
+        self.motors_input.grid(row = 1, column = 0,columnspan=2, sticky="WE")
         
-        self.img_a = Image.open('pijlDOWNM1.png')
-        imgr_a = self.img_a.resize((35, 50),Image.ANTIALIAS)
-        self.img_a1 = ImageTk.PhotoImage(imgr_a)
-        self.btn_ascend = Button(self.Frame_btn_control, image=self.img_a1,background ="gray11",foreground = "white") #stijgen
-        self.btn_ascend.config( height = rc_btn_height, width = rc_btn_width ) 
-        self.btn_ascend.grid(row = 2, column = 0,padx = 5, pady = 3)
-        
-        self.img_d = Image.open('pijlDOWNM3.png')
-        imgr_d = self.img_d.resize((35, 50),Image.ANTIALIAS)
-        self.img_d1 = ImageTk.PhotoImage(imgr_d)
-        self.btn_descend = Button(self.Frame_btn_control, image=self.img_d1,background ="gray11",foreground = "white") #dalen
-        self.btn_descend.config( height = rc_btn_height, width = rc_btn_width ) 
-        self.btn_descend.grid(row = 2, column = 2 ,padx = 5, pady = 3)
         
         
         
         
         self.entry_input = Entry(self.Frame_control) 
         self.entry_input.config( width = 1 )
-        self.entry_input.grid(row = 1, column = 0,columnspan=3, padx = 3, pady = 3,sticky="WE") 
+        self.entry_input.grid(row = 1, column = 0,columnspan=2, padx = 3, pady = 3,sticky="WE") 
         self.btn_input_enter = Button(self.Frame_control, text="STABILIZE",command= self.invoke_stabilize,background ="gray11",foreground = "white") 
         self.btn_input_enter.grid(row = 1, column = 3, padx = 2, pady = 3,sticky="WE")
         
         
         self.entry_input_move_to = Entry(self.Frame_control) 
         self.entry_input_move_to.config( width = 1 )
-        self.entry_input_move_to.grid(row = 2, column = 0,columnspan=3, padx = 3, pady = 3,sticky="WE") 
+        self.entry_input_move_to.grid(row = 2, column = 0,columnspan=2, padx = 3, pady = 3,sticky="WE") 
         self.btn_input_enter_move_to = Button(self.Frame_control, text="MOVE TO",command= self.invoke_move_to,background ="gray11",foreground = "white") 
         self.btn_input_enter_move_to.grid(row = 2, column = 3, padx = 2, pady = 3,sticky="WE")
         
@@ -288,45 +293,45 @@ class GUI(Frame):
         
         
         
-        #binden GUI-stuurknoppen
-        
-        self.btn_up.bind("<Button-1>", self.move_forward)
-        self.btn_up.bind("<ButtonRelease-1>", self.h_release)
-        
-        self.btn_down.bind("<Button-1>", self.move_backward)
-        self.btn_down.bind("<ButtonRelease-1>", self.h_release)
-        
-        self.btn_left.bind("<Button-1>", self.turn_left)
-        self.btn_left.bind("<ButtonRelease-1>", self.h_release)
-        
-        self.btn_right.bind("<Button-1>", self.turn_right)
-        self.btn_right.bind("<ButtonRelease-1>", self.h_release)
-        
-        self.btn_ascend.bind("<Button-1>", self.ascend)
-        self.btn_ascend.bind("<ButtonRelease-1>", self.v_release)
-        
-        self.btn_descend.bind("<Button-1>", self.descend)
-        self.btn_descend.bind("<ButtonRelease-1>", self.v_release)
+#         #binden GUI-stuurknoppen
+#         
+#         self.btn_up.bind("<Button-1>", self.move_forward)
+#         self.btn_up.bind("<ButtonRelease-1>", self.h_release)
+#         
+#         self.btn_M2.bind("<Button-1>", self.move_backward)
+#         self.btn_M2.bind("<ButtonRelease-1>", self.h_release)
+#         
+#         self.btn_M1.bind("<Button-1>", self.turn_left)
+#         self.btn_M1.bind("<ButtonRelease-1>", self.h_release)
+#         
+#         self.btn_M3.bind("<Button-1>", self.turn_right)
+#         self.btn_M3.bind("<ButtonRelease-1>", self.h_release)
+#         
+#         self.btn_ascend.bind("<Button-1>", self.ascend)
+#         self.btn_ascend.bind("<ButtonRelease-1>", self.v_release)
+#         
+#         self.btn_descend.bind("<Button-1>", self.descend)
+#         self.btn_descend.bind("<ButtonRelease-1>", self.v_release)
         
         
         self.Frame_AI = Frame(self,background="gray55")
         self.Frame_AI.grid(row=0,column=1)
-        
-        self.Frame_decisions = Frame(self.Frame_AI,bd = 5,pady=10)
-        self.output = ScrolledText(self.Frame_AI, undo=True)
-        self.output['font'] = ('consolas', '12')
-        self.output.config(width = 25, height = 25)  
-        self.output.grid()
-        self.Frame_decisions.grid(row=0)
-        
         #Frame info andere zeppelins
-        self.Frame_info_zeppelins = Frame(self.Frame_AI,bg = "grey55",borderwidth=5,pady=10)
-        self.positions_zeppelins_string = StringVar()
-        self.positions_zeppelins_string.set(" \n \n \n \n   ---Info others---")
+        self.Frame_info_competition = Frame(self.Frame_AI,bg = "grey55",bd = 5,pady=10)
+        self.positions_zeppelin_string_competition = StringVar()
+        self.positions_zeppelin_string_competition.set(" \n \n \n \n   ---Info others---")
+        self.lbl_title_frame_comp= Label(self.Frame_info_competition, bg = "grey55",fg="white", textvariable=self.positions_zeppelin_string_competition)
+        self.lbl_title_frame_comp.grid(sticky='N')
+        self.Frame_info_competition.grid(row=0)
         
-        self.lbl_title_frame_zeps= Label(self.Frame_info_zeppelins, bg = "grey55",fg="white", textvariable=self.positions_zeppelins_string)
-        self.lbl_title_frame_zeps.grid(sticky='N')
-        self.Frame_info_zeppelins.grid(row = 1)
+        #Frame info silversurfer
+        self.Frame_info_silversurfer = Frame(self.Frame_AI,bg = "grey55",borderwidth=5,pady=10)
+        self.positions_zeppelin_string_silversurfer = StringVar()
+        self.positions_zeppelin_string_silversurfer.set(" \n \n \n \n   ---Info silversurfer---")
+        
+        self.lbl_title_frame_zeps= Label(self.Frame_info_silversurfer, bg = "grey55",fg="white", textvariable=self.positions_zeppelin_string_silversurfer)
+        self.lbl_title_frame_zeps.grid(sticky='S')
+        self.Frame_info_silversurfer.grid(row = 1)
         
         
         
@@ -438,11 +443,15 @@ class GUI(Frame):
         self.height_graph.plotter()
         self.Frame_motors.grid(row=1,column = 1)
 
-        self.Frame_angle_vector = Frame(self.Frame_output,padx=25, bg = "grey55")
-        lbl_vector=Label(self.Frame_angle_vector,text = "VECTOR", bg = "grey55",fg="white")
-        lbl_vector.grid()
+        self.Frame_angle_vector = Frame(self.Frame_output, bg = "grey55")
+        #vector map
+        self.canvas_vector_height = 100
+        self.canvas_vector_width = 100
+        self.canvas_vector = Canvas(self.Frame_angle_vector,height =self.canvas_vector_height, width =self.canvas_vector_width, bg = "white")
+        self.canvas_vector.grid(row = 0, column = 0, padx = 5, pady = 5)
         self.Frame_angle_vector.grid(row=1,column=2)
         
+        self.vector = Vector(self.canvas_vector,self.canvas_vector_width,self.canvas_vector_height)
         
         
         
@@ -460,9 +469,12 @@ class GUI(Frame):
         self.tb_AI_beta.config(width = 40, height =20 )  
         self.tb_AI_beta.grid() 
         
+        #recognized points
+        self.recognized = {}
+        
 
-#TODO aanpassen
     def connect_silver_surfer(self):
+        self.invoke_change_view()
         self.establish_connection()
         textfile = 'niks'
         self.load_map(self.canvas_map,textfile)
@@ -488,17 +500,17 @@ class GUI(Frame):
  
         
     def invoke_change_view_to_AI(self):    
-        self.Frame_control.grid_remove()
+#         self.Frame_control.grid_remove()
         self.Frame_picture.grid_remove()
-        self.Frame_game_alfa.grid(row=3)
+#         self.Frame_game_alfa.grid(row=3)
         self.Frame_game_beta.grid(row=0)
 
         self.view_state = 'AI'  
         
     def invoke_change_view_to_test(self):
-        self.Frame_game_alfa.grid_remove()
+#         self.Frame_game_alfa.grid_remove()
         self.Frame_game_beta.grid_remove()
-        self.Frame_control.grid(row=3)
+#         self.Frame_control.grid(row=3)
         self.Frame_picture.grid(row=0,column=0)
         
         self.view_state = 'test'   
@@ -628,31 +640,19 @@ class GUI(Frame):
         
         
 #EXTRA METHODES VOOR ZEPPELIN 2.0
-    def motor_1_plus(self,*args):
-        self.send_string_command('MOTOR1:10')
+    def invoke_set_motors(self,*args):
+        ms= self.motors_input.get()
+        ms_spl = coords.split(" ")
+        self.GUIconnection.set_motors(ms_spl[0],ms_spl[1],ms_spl[2])
         
-    def motor_2_plus(self,*args):
-        self.send_string_command('MOTOR2:10')
-    
-    def motor_3_plus(self,*args):
-        self.send_string_command('MOTOR3:10')
-        
-    def motor_1_min(self,*args):
-        self.send_string_command('MOTOR1:-10')
-        
-    def motor_2_min(self,*args):
-        self.send_string_command('MOTOR2:-10')
-    
-    def motor_3_min(self,*args):
-        self.send_string_command('MOTOR3:-10')
         
     def invoke_move_to(self):
         coords= self.entry_input_move_to.get()
         coords_spl = coords.split(" ")
-        self.move_to(coords_spl[0],coords_spl[1],coords_spl[2])
-        
-    def move_to(self,x,y,z):
         self.GUIconnection.move_to(x,y,z)
+        
+
+
     
 
         
@@ -683,16 +683,19 @@ class GUI(Frame):
             
     def create_zeppelin(self,cmap,x,y):      
         return cmap.create_oval(GUI.zep_map_X_SCALE*(x-8),GUI.zep_map_Y_SCALE*y,GUI.zep_map_X_SCALE*x,GUI.zep_map_Y_SCALE*(y-8),fill='white')
+    
+    def create_dot(self,cmap,x,y):      
+        return cmap.create_oval(GUI.zep_map_X_SCALE*(x-3),GUI.zep_map_Y_SCALE*y,GUI.zep_map_X_SCALE*x,GUI.zep_map_Y_SCALE*(y-3),fill='black')
         
     
     def move_zeppelin_to(self,zeppelin,cmap,x,y):
-        cmap.coords(zeppelin,GUI.zep_map_X_SCALE*(x-8),GUI.zep_map_Y_SCALE*y,GUI.zep_map_X_SCALE*x,GUI.zep_map_Y_SCALE*(y-8))    
+        cmap.coords(zeppelin,GUI.zep_map_X_SCALE*(x-8),GUI.zep_map_Y_SCALE*y,GUI.zep_map_X_SCALE*x,GUI.zep_map_Y_SCALE*(y-8)) 
+        
+    def move_dot_to(self,dot,cmap,x,y):
+        cmap.coords(dot,GUI.zep_map_X_SCALE*(x-3),GUI.zep_map_Y_SCALE*y,GUI.zep_map_X_SCALE*x,GUI.zep_map_Y_SCALE*(y-3))     
         
     def move_text_to(self,text,cmap,x,y):  
         cmap.coords(text,GUI.zep_map_X_SCALE*x,GUI.zep_map_Y_SCALE*y) 
-        
-        
-  
         
         
     def exit_protocol(self,*args):
@@ -732,6 +735,9 @@ class GUI(Frame):
         self.update_info_positions()
         
         self.update_map()
+        ###TESTING PURPOSES
+        self.vector.setVector(random.uniform(-1, 1), random.uniform(-1, 1))
+        ###
         
         self.parent.after(500, self.update_gui)
         
@@ -753,11 +759,33 @@ class GUI(Frame):
             info =(info + "------------ \n" + zep + "\n"+ 
                    'x: ' + str(self.zeppelin_database.zeppelins[zep]['x']) + '  '+ 
                    'y: ' + str(self.zeppelin_database.zeppelins[zep]['y']) + '  '+ 
-                   'z: ' + str(self.zeppelin_database.zeppelins[zep]['z']) + ' \n'+
-                   'goal_x: ' + str(self.zeppelin_database.zeppelins[zep]['gx']) + '  '+ 
-                   'goal_y: ' + str(self.zeppelin_database.zeppelins[zep]['gy']) + '  '+ 
-                   'goal_z: ' + str(self.zeppelin_database.zeppelins[zep]['Goal']))                                                                                                  
-        self.positions_zeppelins_string.set(info)
+                   'z: ' + str(self.zeppelin_database.zeppelins[zep]['z']) )                                                                                                  
+        self.positions_zeppelin_string_competition.set(info)
+        
+        info =('*----Info SilverSurfer----* \n' + "------------ \n" + 
+                   'goal_x: ' + str(self.zeppelin_database.zeppelins['silversurfer']['gx']) + '  '+ 
+                   'goal_y: ' + str(self.zeppelin_database.zeppelins['silversurfer']['gy']) + '  '+ 
+                   'goal_z: ' + str(self.zeppelin_database.zeppelins['silversurfer']['Goal'])) 
+        self.positions_zeppelin_string_silversurfer.set(info) 
+        
+    def update_recognized(self,new_recognized):
+        for point in new_recognized:
+            if not(point in self.recognized):
+                fig_point=self.create_dot(self.canvas_map,point[0],point[1])
+                self.recognized[point] = fig_point
+
+            else:
+                self.move_dot_to(self.recognized[point], self.canvas_map,point[0],point[1]) 
+       
+         
+        deleted_points=[]
+        for point in self.recognized:
+            if not(point in new_recognized):
+                self.canvas_map.delete(self.recognized[point])
+                deleted_points.append(point)
+         
+        for point in deleted_points:
+            del self.recognized[point]   
     
             
     def update_map(self):
@@ -788,11 +816,11 @@ class GUI(Frame):
 
         elif code[0] == self.compiler.type_words[1] and code[1] != "":
             if code[1] != self.zeppelin_database.zeppelins['silversurfer']['Status']: 
-                self.print_in_textbox(string)
+                self.print_in_textbox_decisions(string)
                 self.zeppelin_database.zeppelins['silversurfer']['Status'] = code[1]
         
         elif code[0]== self.compiler.type_words[2] or code[0]== self.compiler.type_words[3]:
-            self.print_in_textbox(string) 
+            self.print_in_textbox_decisions(string) 
         else:
             print "Reply: " + string
             
@@ -807,8 +835,9 @@ class GUI(Frame):
         
             
         
-    def print_in_textbox(self,string):
-        self.output.insert(INSERT, str(string) + '\n')  
+    def print_in_textbox_decisions(self,string):
+        self.tb_AI_beta.insert(INSERT, str(string) + '\n')  
+        self.tb_AI_beta.yview_pickplace("end")
         
     
         
@@ -822,6 +851,28 @@ class GuiParser():
         string = string.replace(' ','')
         temp = string.split('>')
         return temp
+    
+class Vector():
+    def __init__(self,canvas,width,height):
+        self.vector_canvas = canvas
+        self.width = width
+        self.height = height
+        self.anchor=(width/2,height/2)
+        self.b = width/10
+        
+        
+        self.figure = self.vector_canvas.create_line(self.anchor[0],self.anchor[1],
+                              self.anchor[0], 0,
+                              width = self.b,
+                              fill="red",
+                              arrow=LAST)
+        
+    def setVector(self,x,y):
+        top = (self.anchor[0]+x*self.anchor[0],self.anchor[1]-y*self.anchor[1])
+        self.vector_canvas.coords(self.figure,self.anchor[0],self.anchor[1],top[0],top[1])
+        
+        
+        
 
 class GuiCompiler():
     
@@ -907,7 +958,7 @@ class GuiCompiler():
         
         f.close()
         
-        self.length_x =  (length_edge/2) + (len(file_dict[0])-1)*length_edge
+        self.length_x = (length_edge/2) +  (len(file_dict[0])-1)*length_edge
         self.length_height = math.sqrt(length_edge**2 - (length_edge/2)**2)
         self.length_y = self.length_height*(len(file_dict)-1)
         print len(file_dict)
@@ -929,23 +980,10 @@ class GuiCompiler():
                     extra = 0
                     if(i%2!=0):
                         extra = length_edge/2
-                   
+      #TODO: Hier misschien werken met globaal anker (alles 10p naar onder en naar rechts: ANKER DAN OVERAL GEBRUIKEN!)             
                     result[file_dict[i][j][1]].append([extra+j*length_edge,i*self.length_height,file_dict[i][j][0]])
         
         return result
-           
-                
-        
-        
-        
-        
-            
-            
-            
-            
-        
-        
-
 
 
 class zeppelinDatabase():

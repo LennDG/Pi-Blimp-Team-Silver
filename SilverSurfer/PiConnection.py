@@ -1,7 +1,7 @@
 #This is the server file, it is housed on the Pi
 
 import socket, threading, re, Commands,time
-import pika, logging
+import pika, logging,random
 
 class PiConn(threading.Thread, object):
     
@@ -253,13 +253,6 @@ class PiConn2dot1( threading.Thread, object):
         self.channel = self.connection.channel(channel_number=1)
         self.channel.exchange_declare(exchange='server', type='topic')
 
-        #Create queues
-#         info_location = self.channel.queue_declare()
-#         queue_info_location = info_location.method.queue
-#         
-#         info_height = self.channel.queue_declare()
-#         queue_info_height = info_height.method.queue
-
 
         hcommand_move = self.channel.queue_declare(queue="hcommand-move-silver")
         self.queue_hcommand_move = hcommand_move.method.queue
@@ -281,12 +274,12 @@ class PiConn2dot1( threading.Thread, object):
                 #bind the queues to keys
 #         self.channel.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
 #         self.channel.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
-        self.channel.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="*.hcommand.elevate")
-        self.channel.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="*.hcommand.move")
-        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="*.lcommand.motor1")
-        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="*.lcommand.motor2")
-        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="*.lcommand.motor3")
-        self.channel.queue_bind(exchange='server',queue=self.queue_private,routing_key="*.private.FromPC")
+        self.channel.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="silversurfer.hcommand.elevate")
+        self.channel.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="silversurfer.hcommand.move")
+        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="silversurfer.lcommand.motor1")
+        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="silversurfer.lcommand.motor2")
+        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="silversurfer.lcommand.motor3")
+        self.channel.queue_bind(exchange='server',queue=self.queue_private,routing_key="silversurfer.private.FromPC")
         
         self.channel.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
@@ -294,7 +287,16 @@ class PiConn2dot1( threading.Thread, object):
 
     def callback_private(self,ch, method, properties, body):
         reply = self.gate.reply(body)  
-        self.send_message_to_gui(reply)  
+        self.send_message_to_gui(reply) 
+        
+    def callback_set_motor1(self,ch, method, properties, body):
+        self.gate.set_motor1(body)
+        
+    def callback_set_motor2(self,ch, method, properties, body):
+        self.gate.set_motor2(body)
+        
+    def callback_set_motor3(self,ch, method, properties, body):
+        self.gate.set_motor3(body)
         
     def callback_hcommand_elevate(self,ch, method, properties, body):
         print "ELEVETATO " + body
@@ -316,6 +318,9 @@ class PiConn2dot1( threading.Thread, object):
         
     def send_goal_coordinates(self,x,y,z):
         self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
+        
+    def send_coords_figures(self,string):
+        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.recognized', body=string)
 
             
 class Gate2dot1(threading.Thread,object):
@@ -324,12 +329,13 @@ class Gate2dot1(threading.Thread,object):
         threading.Thread.__init__(self)
         self.zep = zeppelin
         self.PIconnection = PiConn2dot1(self)
+        
+        #coords for testing purposes
+        self.coords = ["10,10","30,30;60,60;60,70","30,30;100,100","100,100;30,30;200,200;10,10;40,40"]
 
       
         
     def open(self):
-        #niet meer nodig :)
-        #Starts the connection thread
         self.PIconnection.start()
         self.start()
         
@@ -345,7 +351,10 @@ class Gate2dot1(threading.Thread,object):
         if self.zep.navigator.goal_position != 0:
             self.PIconnection.send_goal_coordinates(self.zep.navigator.goal_position.xcoord, self.zep.navigator.goal_position.ycoord, self.zep.navigator.goal_height)
     
-
+        rand = int(random.uniform(0,len(self.coords)))
+        self.PIconnection.send_coords_figures(self.coords[rand])
+        
+        
         
     def shutdown(self, request):
         reply = 'SHUTDOWN > SHUTTING DOWN IN 3 SECONDS'
@@ -358,10 +367,8 @@ class Gate2dot1(threading.Thread,object):
     
         
     def move_to(self,request):
-       
         com_and_coords = request.split(":")
         coords = com_and_coords[1].split(" ")
-        
         self.zep.moveto(int(coords[0]),int(coords[1]),int(coords[2]))
      
         return "moving"
@@ -376,6 +383,14 @@ class Gate2dot1(threading.Thread,object):
         coord = pos.split(",")
         self.zep.moveto(int(coord[0]),int(coord[1]),self.zep.navigator.goal_height)
         
+    def set_motor1(self,string):
+        self.zep.navigator.set_motor1(int(float(string)))
+        
+    def set_motor2(self,string):
+        self.zep.navigator.set_motor2(int(float(string)))
+        
+    def set_motor3(self,string):
+        self.zep.navigator.set_motor3(int(float(string)))
     
         
         

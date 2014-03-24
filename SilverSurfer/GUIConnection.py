@@ -116,22 +116,6 @@ class GUIConn2dot1(threading.Thread, object):
         
         info_height = self.channel.queue_declare(queue="info-height-silver")
         self.queue_info_height = info_height.method.queue
-
-
-#         hcommand_move = self.channel.queue_declare()
-#         queue_hcommand_move = hcommand_move.method.queue
-#         
-#         hcommand_elevate = self.channel.queue_declare()
-#         queue_hcommand_elevate = hcommand_elevate.method.queue
-#         
-#         lcommand_motor1 = self.channel.queue_declare()
-#         queue_lcommand_motor1 = lcommand_motor1.method.queue
-#         
-#         lcommand_motor2 = self.channel.queue_declare()
-#         queue_lcommand_motor2 = lcommand_motor2.method.queue
-#         
-#         lcommand_motor3 = self.channel.queue_declare()
-#         queue_lcommand_motor3 = lcommand_motor1.method.queue
         
         private_goal_coords =  self.channel.queue_declare(queue="private-goal-silver")
         self.queue_private_goal_coords = private_goal_coords.method.queue
@@ -145,15 +129,9 @@ class GUIConn2dot1(threading.Thread, object):
                 #bind the queues to keys
         self.channel.queue_bind(exchange='server',queue=self.queue_info_location,routing_key="*.info.location")
         self.channel.queue_bind(exchange='server',queue=self.queue_info_height,routing_key="*.info.height")
-#         self.channel.queue_bind(exchange='server',queue=queue_hcommand_elevate,routing_key="*.hcommand.elevate")
-#         self.channel.queue_bind(exchange='server',queue=queue_hcommand_move,routing_key="*.hcommand.move")
-#         self.channel.queue_bind(exchange='server',queue=queue_lcommand_motor1,routing_key="*.lcommand.motor1")
-#         self.channel.queue_bind(exchange='server',queue=queue_lcommand_motor2,routing_key="*.lcommand.motor2")
-#         self.channel.queue_bind(exchange='server',queue=queue_lcommand_motor3,routing_key="*.lcommand.motor3")
         self.channel.queue_bind(exchange='server',queue=self.queue_private_goal_coords,routing_key="silversurfer.private.goalcoords")
         self.channel.queue_bind(exchange='server',queue=self.queue_private_status,routing_key="silversurfer.private.status")
         self.channel.queue_bind(exchange='server',queue=self.queue_private_recognized,routing_key="silversurfer.private.recognized")
-        
         
         self.channel.basic_consume(self.callback_info_location, queue=self.queue_info_location, no_ack=True)
         self.channel.basic_consume(self.callback_info_height, queue=self.queue_info_height, no_ack=True)
@@ -162,13 +140,17 @@ class GUIConn2dot1(threading.Thread, object):
         
     
     def callback_private_recognized(self,ch, method, properties, body):
+
         result = []
         points =  body.split(";")
         for point in points:
             coords = point.split(",")
-            xcoord = coords[0]
-            ycoord = coords[1]
+            xcoord = int(coords[0])
+            ycoord = int(coords[1])
             result.append((xcoord,ycoord))
+        
+        self.gui.update_recognized(result)
+        self.gui.print_in_textbox_decisions(str(result))
         
 
     def callback_private_goal_coords(self,ch, method, properties, body):
@@ -196,6 +178,10 @@ class GUIConn2dot1(threading.Thread, object):
         self.channel.basic_publish(exchange='server', routing_key='silversurfer.hcommand.move', body=x+","+y)
         self.channel.basic_publish(exchange='server', routing_key='silversurfer.hcommand.elevate', body=z)
 
+    def set_motors(self,one,two,three):
+        self.channel.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor1', body=one)
+        self.channel.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor2', body=two)
+        self.channel.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor3', body=three)
 
 
 
