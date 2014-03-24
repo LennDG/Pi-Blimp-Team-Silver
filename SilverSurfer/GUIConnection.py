@@ -125,6 +125,9 @@ class GUIConn2dot1(threading.Thread, object):
         
         private_recognized =  self.channel.queue_declare(queue="private-recognized-silver")
         self.queue_private_recognized = private_recognized.method.queue
+        
+        private_motors_info=  self.channel.queue_declare(queue="private-motors-info-silver")
+        self.queue_private_motors_info = private_motors_info.method.queue
                 
                 #bind the queues to keys
         self.channel.queue_bind(exchange='server',queue=self.queue_info_location,routing_key="*.info.location")
@@ -132,11 +135,14 @@ class GUIConn2dot1(threading.Thread, object):
         self.channel.queue_bind(exchange='server',queue=self.queue_private_goal_coords,routing_key="silversurfer.private.goalcoords")
         self.channel.queue_bind(exchange='server',queue=self.queue_private_status,routing_key="silversurfer.private.status")
         self.channel.queue_bind(exchange='server',queue=self.queue_private_recognized,routing_key="silversurfer.private.recognized")
+        self.channel.queue_bind(exchange='server',queue=self.queue_private_motors_info,routing_key="silversurfer.private.motors")
+        
         
         self.channel.basic_consume(self.callback_info_location, queue=self.queue_info_location, no_ack=True)
         self.channel.basic_consume(self.callback_info_height, queue=self.queue_info_height, no_ack=True)
         self.channel.basic_consume(self.callback_private_goal_coords, queue=self.queue_private_goal_coords, no_ack=True)
         self.channel.basic_consume(self.callback_private_recognized, queue=self.queue_private_recognized, no_ack=True)
+        self.channel.basic_consume(self.callback_private_motors_info, queue=self.queue_private_motors_info, no_ack=True)
         
     
     def callback_private_recognized(self,ch, method, properties, body):
@@ -158,6 +164,12 @@ class GUIConn2dot1(threading.Thread, object):
         self.gui.zeppelin_database.zeppelins["silversurfer"]['gx']= int(float(coords[0]))
         self.gui.zeppelin_database.zeppelins["silversurfer"]['gy']= int(float(coords[1]))
         self.gui.zeppelin_database.zeppelins["silversurfer"]['Goal']= int(float(coords[2]))
+        
+    def callback_private_motors_info(self,ch, method, properties, body):
+        coords = body.split(" ")
+        self.gui.zeppelin_database.zeppelins["silversurfer"]['left-motor']= int(float(coords[0]))
+        self.gui.zeppelin_database.zeppelins["silversurfer"]['right-motor']= int(float(coords[1]))
+        self.gui.zeppelin_database.zeppelins["silversurfer"]['vert-motor']= int(float(coords[2]))
         
         
     def callback_info_location(self,ch, method, properties, body):

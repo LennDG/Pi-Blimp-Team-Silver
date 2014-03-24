@@ -223,10 +223,13 @@ class GUI(Frame):
         rc_btn_height = 32 
         rc_btn_width = 34 
         
+        self.motors_input = Entry(self.Frame_btn_control) 
+        self.motors_input.grid(row = 1, column = 0,columnspan=2, sticky="WE")
+        
         self.img_left = Image.open('pijlUPM1.png')
         imgr_left = self.img_left.resize((35, 50),Image.ANTIALIAS)
         self.img_left1 = ImageTk.PhotoImage(imgr_left)
-        self.btn_M1 = Button(self.Frame_btn_control, image=self.img_left1,command= self.invoke_set_motors(),background ="gray11",foreground = "white") #pijltje omhoog afbeelding #TODO:
+        self.btn_M1 = Button(self.Frame_btn_control, image=self.img_left1,command= self.invoke_set_motors,background ="gray11",foreground = "white") #pijltje omhoog afbeelding #TODO:
         self.btn_M1.config( height = rc_btn_height, width = rc_btn_width ) 
         self.btn_M1.grid(row = 1, column = 4)
 
@@ -266,8 +269,7 @@ class GUI(Frame):
 #         self.btn_descend.config( height = rc_btn_height, width = rc_btn_width ) 
 #         self.btn_descend.grid(row = 2, column = 2 ,padx = 5, pady = 3)
         
-        self.motors_input = Entry(self.Frame_btn_control) 
-        self.motors_input.grid(row = 1, column = 0,columnspan=2, sticky="WE")
+
         
         
         
@@ -479,7 +481,6 @@ class GUI(Frame):
         textfile = 'niks'
         self.load_map(self.canvas_map,textfile)
         self.height_graph.plotter()
-        self.update_motors_view()
         self.update_gui()
         
     
@@ -518,14 +519,6 @@ class GUI(Frame):
     
  
         
-    def update_motors_view(self):
-        self.motor1.set( str(int(self.zeppelin_database.zeppelins['silversurfer']['left-motor'])))
-        self.motor2.set( str(int(self.zeppelin_database.zeppelins['silversurfer']['vert-motor'])))
-        self.motor3.set(str(int(self.zeppelin_database.zeppelins['silversurfer']['right-motor'])))
-        self.error.set( str(self.zeppelin_database.zeppelins['silversurfer']['Error']))
-        self.goal.set( str(self.zeppelin_database.zeppelins['silversurfer']['Goal']))
-        self.height.set(str(self.zeppelin_database.zeppelins['silversurfer']['z']))
-        self.parent.after(200, self.update_motors_view)
     
         
     
@@ -642,11 +635,11 @@ class GUI(Frame):
 #EXTRA METHODES VOOR ZEPPELIN 2.0
     def invoke_set_motors(self,*args):
         ms= self.motors_input.get()
-        ms_spl = coords.split(" ")
+        ms_spl = ms.split(" ")
         self.GUIconnection.set_motors(ms_spl[0],ms_spl[1],ms_spl[2])
         
         
-    def invoke_move_to(self):
+    def invoke_move_to(self,*args):
         coords= self.entry_input_move_to.get()
         coords_spl = coords.split(" ")
         self.GUIconnection.move_to(x,y,z)
@@ -735,11 +728,22 @@ class GUI(Frame):
         self.update_info_positions()
         
         self.update_map()
-        ###TESTING PURPOSES
-        self.vector.setVector(random.uniform(-1, 1), random.uniform(-1, 1))
-        ###
         
-        self.parent.after(500, self.update_gui)
+        self.update_motors()
+        
+        self.parent.after(1000, self.update_gui)
+        
+    def update_motors(self):
+        self.motor1.set( str(int(self.zeppelin_database.zeppelins['silversurfer']['left-motor'])))
+        self.motor3.set( str(int(self.zeppelin_database.zeppelins['silversurfer']['vert-motor'])))
+        self.motor2.set(str(int(self.zeppelin_database.zeppelins['silversurfer']['right-motor'])))
+        self.error.set( str(self.zeppelin_database.zeppelins['silversurfer']['Error']))
+        self.goal.set( str(self.zeppelin_database.zeppelins['silversurfer']['Goal']))
+        self.height.set(str(self.zeppelin_database.zeppelins['silversurfer']['z']))
+        
+        x=self.zeppelin_database.zeppelins['silversurfer']['left-motor']/100
+        y=self.zeppelin_database.zeppelins['silversurfer']['right-motor']/100
+        self.vector.setVector(x, y)
         
     def update_zeppelin_database(self):
         pass

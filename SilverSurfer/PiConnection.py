@@ -283,7 +283,10 @@ class PiConn2dot1( threading.Thread, object):
         
         self.channel.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
-        self.channel.basic_consume(self.callback_private, queue=self.queue_private, no_ack=True)       
+        self.channel.basic_consume(self.callback_private, queue=self.queue_private, no_ack=True)   
+        self.channel.basic_consume(self.callback_set_motor1, queue=self.queue_lcommand_motor1, no_ack=True)
+        self.channel.basic_consume(self.callback_set_motor2, queue=self.queue_lcommand_motor2, no_ack=True)
+        self.channel.basic_consume(self.callback_set_motor3, queue=self.queue_lcommand_motor3, no_ack=True)        
 
     def callback_private(self,ch, method, properties, body):
         reply = self.gate.reply(body)  
@@ -321,6 +324,10 @@ class PiConn2dot1( threading.Thread, object):
         
     def send_coords_figures(self,string):
         self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.recognized', body=string)
+        
+    def send_info_motors(self,string):
+        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.motors', body=string)
+        
 
             
 class Gate2dot1(threading.Thread,object):
@@ -353,17 +360,13 @@ class Gate2dot1(threading.Thread,object):
     
         rand = int(random.uniform(0,len(self.coords)))
         self.PIconnection.send_coords_figures(self.coords[rand])
+        m1 = self.zep.navigator.motor_control.left_motor.level
+        m2 = self.zep.navigator.motor_control.right_motor.level
+        m3 = self.zep.navigator.motor_control.vert_motor.level
+        self.PIconnection.send_info_motors(str(m1)+" "+str(m2)+" "+str(m3))
         
         
-        
-    def shutdown(self, request):
-        reply = 'SHUTDOWN > SHUTTING DOWN IN 3 SECONDS'
-        return reply
-        self.zep.shutdown() #This method waits 3 seconds
-        
-    def connect(self, request):
-        reply = 'CONNECT > CONNECTION ESTABLISHED'
-        return reply
+
     
         
     def move_to(self,request):
@@ -391,6 +394,8 @@ class Gate2dot1(threading.Thread,object):
         
     def set_motor3(self,string):
         self.zep.navigator.set_motor3(int(float(string)))
+        
+    
     
         
         

@@ -242,11 +242,11 @@ class Navigator(threading.Thread, object):
         if(lvl >= -100 and lvl <= 100):
             self.motor_control.left_motor.level=lvl
     
-    def set_motor1(self,lvl):
+    def set_motor2(self,lvl):
         if(lvl >= -100 and lvl <= 100):
             self.motor_control.right_motor.level=lvl
     
-    def set_motor1(self,lvl):
+    def set_motor3(self,lvl):
         if(lvl >= -100 and lvl <= 100):
             self.motor_control.vert_motor.level=lvl
         
