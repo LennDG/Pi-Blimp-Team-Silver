@@ -43,7 +43,7 @@ def start_daemon():
     call(["/home/pi/rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/start_camd.sh " + img_loc], shell=True)  
 
 def take_picture():
-    call(["sudo raspistill -w 500 -h 500  -t 10 -o " + img_loc], shell=True)
+    call(["sudo raspistill -w 500 -h 500  - n -t 10 -o " + img_loc], shell=True)
     return time.time()
 
 def cosine(point1, point2, point0):
@@ -62,6 +62,14 @@ def cosine(point1, point2, point0):
     cos = np.dot(vec1, vec2)
     return cos
 
+def length(point1, point2):
+    dx = point1.item(0) - point2.item(0)
+    dy = point1.item(1) - point2.item(1)
+    
+    length = math.sqrt(dx**2 + dy**2)
+
+    return length
+
 def analyse_approx(approx):
     
     cosines = []
@@ -69,6 +77,16 @@ def analyse_approx(approx):
     for i in range(0, len(approx) + 1):
         cos = cosine(approx[i%len(approx)], approx[(i-2)%len(approx)], approx[(i-1)%len(approx)])
         cosines.append(cos)
+    
+    #Check for stars with duplicates method
+    duplicates = 0
+    for i in range(0, len(approx)):
+        for j in range(i+1, len(approx)):
+            if length(approx[i], approx[j]) <= 2:
+                duplicates += 1
+                if duplicates >= 2:
+                    return "star"    
+    
     #Check for rectangles
     perp_count = 0.
     for cos in cosines:
@@ -126,6 +144,9 @@ def detect_targets():
         for contour in contours:
             #Approximate the contour, 0.025 is the magic value here
             approx = cv2.approxPolyDP(contour, 0.025*cv2.arcLength(contour, True), True)
+            #Calculate area of enclosing circle
+            center, radius = cv2.minEnclosingCircle(approx)
+            area = radius**2*math.pi
             shape_name = analyse_approx(approx)            
             #Center locations
             M = cv2.moments(contour)
@@ -137,10 +158,18 @@ def detect_targets():
             valid = True
             if shape_name == "undefined":
                 valid = False
+            if area <= 1000:
+                valid = False
             for figure in figures:
-                if abs(figure[2] - centroid_x) <= 100 and abs(figure[3] - centroid_y) <= 100:
-                    valid = False
+                if not valid:
                     break
+                if abs(figure[2] - centroid_x) <= 50 and abs(figure[3] - centroid_y) <= 50:
+                    if figure[4] > area:
+                        valid = False
+                        break
+                    else:
+                        figures.remove(figure)
+                        break
             
             if valid:
                 figure = (color[2], shape_name, centroid_x, centroid_y)
