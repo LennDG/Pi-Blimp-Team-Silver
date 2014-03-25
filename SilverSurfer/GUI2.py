@@ -8,7 +8,7 @@ from Tkinter import *
 from ScrolledText import ScrolledText
 import Commands
 import Queue
-import matplotlib.pyplot as pp
+#import matplotlib.pyplot as pp
 from matplotlib import pyplot
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
