@@ -642,7 +642,7 @@ class GUI(Frame):
     def invoke_move_to(self,*args):
         coords= self.entry_input_move_to.get()
         coords_spl = coords.split(" ")
-        self.GUIconnection.move_to(x,y,z)
+        self.GUIconnection.move_to(coords_spl[0],coords_spl[1],coords_spl[2])
         
 
 
@@ -692,7 +692,8 @@ class GUI(Frame):
         
         
     def exit_protocol(self,*args):
-        self.GUIconnection.connection.close()
+        self.GUIconnection.connection_sender.close()
+        self.GUIconnection.connection_consumer.close()
         self.after_idle(self.safe_exit)
         print 'Silver Surfer Terminated'
         
@@ -741,8 +742,8 @@ class GUI(Frame):
         self.goal.set( str(self.zeppelin_database.zeppelins['silversurfer']['Goal']))
         self.height.set(str(self.zeppelin_database.zeppelins['silversurfer']['z']))
         
-        x=self.zeppelin_database.zeppelins['silversurfer']['left-motor']/100
-        y=self.zeppelin_database.zeppelins['silversurfer']['right-motor']/100
+        x=self.zeppelin_database.zeppelins['silversurfer']['left-motor']/100.0
+        y=self.zeppelin_database.zeppelins['silversurfer']['right-motor']/100.0
         self.vector.setVector(x, y)
         
     def update_zeppelin_database(self):

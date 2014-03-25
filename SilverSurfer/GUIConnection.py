@@ -42,17 +42,16 @@ class GUIConn2dot0(threading.Thread, object):
         self.gui = gui
         adress_server = 'localhost'
         
-        #Make channel
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters( adress_server))
-        self.channel = self.connection.channel(channel_number=2)
+        #Make channel_consumer
+        self.connection_consumer = pika.BlockingConnection(pika.ConnectionParameters( adress_server))
+        self.channel_consumer = self.connection_consumer.channel_consumer(channel_number=3)
 
         #Create Queues
-        self.channel.queue_declare(queue='FromGUI')
-        self.channel.queue_declare(queue='FromZEP')
+        self.channel_consumer.queue_declare(queue='FromGUI')
+        self.channel_consumer.queue_declare(queue='FromZEP')
 
         #Callback handles received messages from FromZEP
-        self.channel.basic_consume(self.callback,
-                      queue='FromZEP',
+        self.channel_consumer.basic_consume(self.callback,queue='FromZEP',
                       no_ack=True)
         
         
@@ -62,16 +61,16 @@ class GUIConn2dot0(threading.Thread, object):
 
     def run(self):
             try:
-                self.channel.start_consuming()
+                self.channel_consumer.start_consuming()
             except Exception:
-                self.connection.close()           
+                self.connection_consumer.close()           
 
     def callback(self,ch, method, properties, body):
         print body
         self.gui.inputqueue.put(body)       
 
     def send_message_to_zep(self,message):
-        self.channel.basic_publish(exchange='', routing_key='FromGUI', body=message)
+        self.channel_consumer.basic_publish(exchange='', routing_key='FromGUI', body=message)
         
 
 
@@ -83,7 +82,18 @@ class GUIConn2dot1(threading.Thread, object):
         threading.Thread.__init__(self)
         logging.basicConfig()
         self.gui = gui
-        self.initialization()
+#        credentials = pika.PlainCredentials('zilver', 'zilver')
+#        self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
+        self.parameters = 'localhost'
+        
+        not_established = True
+        while(not_established):
+            try:
+                self.initialization_consumer()
+                self.initialization_sender()
+                not_established = False
+            except Exception:
+                not_established = True
         
         
 
@@ -92,57 +102,68 @@ class GUIConn2dot1(threading.Thread, object):
         while True:
             try:
                 if thrown == False:
-                    print "pre testing reinitialization"
+                    print "pre testing consuming reinitialization"
                     thrown = True
                     raise Exception
-                self.channel.start_consuming()
+                self.channel_consumer.start_consuming()
             except Exception:
-                print "GUI reinitializated"
-                self.connection.close()
-                self.initialization()
+                print "GUI consumer reinitializated"
+                self.connection_consumer.close()
+                self.initialization_consumer()
                 
-    def initialization(self):
+    def initialization_sender(self):
+        self.connection_sender = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.channel_sender = self.connection_sender.channel(channel_number=4)
+        self.channel_sender.exchange_declare(exchange='server', type='topic')
+                
+    def initialization_consumer(self):
         
-        adress_server = 'localhost' #'192.168.1.6'
         
-        #Make channel
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters( adress_server))
-        self.channel = self.connection.channel(channel_number=2)
-        self.channel.exchange_declare(exchange='server', type='topic')
+        #Make channel_consumer
+        self.connection_consumer = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.channel_consumer = self.connection_consumer.channel(channel_number=3)
+        self.channel_consumer.exchange_declare(exchange='server', type='topic')
 
         #Create queues
-        info_location = self.channel.queue_declare(queue="info-location-silver")
+        info_location = self.channel_consumer.queue_declare(queue="info-location-silver")
         self.queue_info_location = info_location.method.queue
         
-        info_height = self.channel.queue_declare(queue="info-height-silver")
+        info_height = self.channel_consumer.queue_declare(queue="info-height-silver")
         self.queue_info_height = info_height.method.queue
         
-        private_goal_coords =  self.channel.queue_declare(queue="private-goal-silver")
+        private_goal_coords =  self.channel_consumer.queue_declare(queue="private-goal-silver")
         self.queue_private_goal_coords = private_goal_coords.method.queue
         
-        private_status =  self.channel.queue_declare(queue="private-status-silver")
+        private_status =  self.channel_consumer.queue_declare(queue="private-status-silver")
         self.queue_private_status = private_status.method.queue
         
-        private_recognized =  self.channel.queue_declare(queue="private-recognized-silver")
+        private_recognized =  self.channel_consumer.queue_declare(queue="private-recognized-silver")
         self.queue_private_recognized = private_recognized.method.queue
         
-        private_motors_info=  self.channel.queue_declare(queue="private-motors-info-silver")
+        private_motors_info=  self.channel_consumer.queue_declare(queue="private-motors-info-silver")
         self.queue_private_motors_info = private_motors_info.method.queue
                 
                 #bind the queues to keys
-        self.channel.queue_bind(exchange='server',queue=self.queue_info_location,routing_key="*.info.location")
-        self.channel.queue_bind(exchange='server',queue=self.queue_info_height,routing_key="*.info.height")
-        self.channel.queue_bind(exchange='server',queue=self.queue_private_goal_coords,routing_key="silversurfer.private.goalcoords")
-        self.channel.queue_bind(exchange='server',queue=self.queue_private_status,routing_key="silversurfer.private.status")
-        self.channel.queue_bind(exchange='server',queue=self.queue_private_recognized,routing_key="silversurfer.private.recognized")
-        self.channel.queue_bind(exchange='server',queue=self.queue_private_motors_info,routing_key="silversurfer.private.motors")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_info_location,routing_key="*.info.location")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_info_height,routing_key="*.info.height")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_goal_coords,routing_key="silversurfer.private.goalcoords")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_status,routing_key="silversurfer.private.status")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_recognized,routing_key="silversurfer.private.recognized")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_motors_info,routing_key="silversurfer.private.motors")
         
+#        self.queue_info_location.purge()
+        self.channel_consumer.basic_consume(self.callback_info_location, queue=self.queue_info_location, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_info_height, queue=self.queue_info_height, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_private_goal_coords, queue=self.queue_private_goal_coords, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_private_recognized, queue=self.queue_private_recognized, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_private_motors_info, queue=self.queue_private_motors_info, no_ack=True)
         
-        self.channel.basic_consume(self.callback_info_location, queue=self.queue_info_location, no_ack=True)
-        self.channel.basic_consume(self.callback_info_height, queue=self.queue_info_height, no_ack=True)
-        self.channel.basic_consume(self.callback_private_goal_coords, queue=self.queue_private_goal_coords, no_ack=True)
-        self.channel.basic_consume(self.callback_private_recognized, queue=self.queue_private_recognized, no_ack=True)
-        self.channel.basic_consume(self.callback_private_motors_info, queue=self.queue_private_motors_info, no_ack=True)
+#         self.queue_info_location.purge()
+#         self.queue_info_height.purge()
+#         self.queue_private_goal_coords.purge()
+#         self.queue_private_recognized.purge()
+#         self.queue_private_motors_info.purge()
+        
         
     
     def callback_private_recognized(self,ch, method, properties, body):
@@ -184,17 +205,26 @@ class GUIConn2dot1(threading.Thread, object):
         self.gui.zeppelin_database.zeppelins[zeppelin]['z'] = int(float(body))
 
     def send_message_to_zep(self,message):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.fromPC', body=message)
-        
+        try:
+            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.fromPC', body=message)
+        except Exception:
+            self.initialization_sender()
+            
     def move_to(self,x,y,z):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.hcommand.move', body=x+","+y)
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.hcommand.elevate', body=z)
-
+        try:
+            print "move to sended"
+            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.hcommand.move', body=x+","+y)
+            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.hcommand.elevate', body=z)
+        except Exception:
+            self.initialization_sender()
+            
     def set_motors(self,one,two,three):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor1', body=one)
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor2', body=two)
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor3', body=three)
-
+        try:
+            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor1', body=one)
+            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor2', body=two)
+            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor3', body=three)
+        except Exception:
+            self.initialization_sender()
 
 
 
