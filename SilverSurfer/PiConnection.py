@@ -345,7 +345,8 @@ class Gate2dot1(threading.Thread,object):
     def open(self):
         self.PIconnection.start()
         self.start()
-        
+    
+    #TODO: HIER LOOPT HET SOMS FOUT
     def run(self):
         while(True):
             time.sleep(1.5)
@@ -387,13 +388,19 @@ class Gate2dot1(threading.Thread,object):
         self.zep.moveto(int(coord[0]),int(coord[1]),self.zep.navigator.goal_height)
         
     def set_motor1(self,string):
-        self.zep.navigator.set_motor1(int(float(string)))
+        a = (int(float(string)))
+        if(a >= -100 and a <= 100):
+            self.zep.navigator.motor_control.left_motor.level=a
         
     def set_motor2(self,string):
-        self.zep.navigator.set_motor2(int(float(string)))
+        lvl= (int(float(string)))
+        if(lvl >= -100 and lvl <= 100):
+            self.zep.navigator.motor_control.right_motor.level=lvl
         
     def set_motor3(self,string):
-        self.zep.navigator.set_motor3(int(float(string)))
+        lvl= (int(float(string)))
+        if(lvl >= -100 and lvl <= 100):
+            self.zep.navigator.motor_control.vert_motor.level=lvl
         
     
     
