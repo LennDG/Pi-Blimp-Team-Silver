@@ -36,8 +36,9 @@ class OpenCVSimulator(object):
         decoding_time = random.gauss(0.9, 0.05)
         time_since_last_image = time_stamp - self.last_updated
         time.sleep(decoding_time)
+        self.last_updated = time_stamp
         new_position = self.navigator.position + velocity*time_since_last_image
-        print "intended position: " + str(new_position.xcoord) + ", " + str(new_position.ycoord)
+        print "calculated position by opencv: " + str(new_position.xcoord) + ", " + str(new_position.ycoord)
         new_angle = self.simulate_new_angle(time_since_last_image)
         
         return new_position, new_angle, time_stamp

@@ -5,7 +5,7 @@ This file initialises our version of the zeppelin and starts running the program
 @version 0.0   7-3-2014
 """
 
-from Zeppelin import Zeppelin
+from TestZeppelin import Zeppelin
 from Navigator import Navigator
 from MotorControl import MotorControl
 from MotorSimulator import MotorSimulator
@@ -63,7 +63,7 @@ field = Field(parsed_format)
 error_level = 1
 # The mean deviation in the angle of the velocity vector from its supposed value
 velocity_error = 0.01
-angular_instability = 0.01
+angular_instability = 0.0000000000000001
 
 image_processor = OpenCVSimulator(error_level, velocity_error, angular_instability)
 

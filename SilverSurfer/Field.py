@@ -342,10 +342,11 @@ class Field(object):
     figures    A tuple of three figures that define a triangle, covered in clockwise
                direction
     """
-    def find_triangle(self, figures):
+    def find_triangle(self, figuresx):
         
         # Find all the nodes on the field that have the first figure on them and
         # hence could be the initial node of the triangle.
+        figures = figuresx[0]
         possible_initials = self.search_field(figures[0])
         
         for initial in possible_initials:
@@ -473,8 +474,12 @@ class Field(object):
         if final_result == 0:
             return 0
         else:
+            
             for result in final_result:
-                uber_final_result.append((figures[result[0]], figures[result[1]], figures[result[2]]))
+                temp_result = []
+                temp_result.append((figures[result[0]], figures[result[1]], figures[result[2]]))
+                temp_result.append((positions[result[0]], positions[result[1]], positions[result[2]]))
+                uber_final_result.append(temp_result)
             
             return uber_final_result
     

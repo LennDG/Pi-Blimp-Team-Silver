@@ -1,28 +1,39 @@
 #This file tests a lot of things on the motors
 
-import ZeppelinControl, Motor, time
+import time
+from DistanceCalculator import DistanceCalculator
+from CSVParser import CSVParser
+from Navigator import Navigator
+from MotorControl import MotorControl
+from MotorSimulator import MotorSimulator
+from DistanceCalculator import DistanceCalculator
+from OpenCVSimulator import OpenCVSimulator
+from CSVParser import CSVParser
+from Field import Field
+motorcontrol = 0
 
 def main():
-    frequency = 10
-
-    # Left motor
-    cw_pin = 24
-    ccw_pin = 4
-    left = Motor.Motor(cw_pin, ccw_pin, frequency)
-
-    # Right motor
-    cw_pin = 17
-    ccw_pin = 23
-    right = Motor.Motor(cw_pin, ccw_pin, frequency)
-
-    # Vertical motor
-    cw_pin = 7
-    ccw_pin = 9
-    vert = Motor.VerticalMotor(cw_pin, ccw_pin)
-    motorcontrol = MotorControl.MotorControl(left, right , vert)
-    up_test(zep_control)
-    up_test(zep_control)
-    up_test(zep_control)
+    data_amount = 10
+    error_level = 0.0
+    parser = CSVParser()
+    field_location = "field.csv"
+    parsed_format = parser.parse(field_location)
+    field = Field(parsed_format)
+    left_motor = MotorSimulator()
+    right_motor = MotorSimulator()
+    vert_motor = MotorSimulator()
+    error_levelIP = 1
+    velocity_error = 0.01
+    angular_instability = 0.01
+    image_processor = OpenCVSimulator(error_levelIP, velocity_error, angular_instability)
+    motor_control = MotorControl(left_motor, right_motor, vert_motor)
+    distance_calculator = DistanceCalculator(error_level, data_amount)
+    navigator = Navigator(field, distance_calculator, motor_control, image_processor)
+    distance_calculator.navigator = navigator
+    image_processor.navigator = navigator
+    
+    navigator.start()
+    distance_calculator.start()
     
     
 

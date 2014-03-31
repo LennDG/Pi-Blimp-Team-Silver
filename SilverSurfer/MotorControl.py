@@ -16,7 +16,7 @@ class MotorControl():
         
     
     # This method will make the zeppelin move forward or backward, depending on the direction.
-    # direction    The anglein radians, the direction in which the zeppelin should move, makes with
+    # direction    The angle in radians, the direction in which the zeppelin should move, makes with
     #              the forward direction. Directions to the left side of the zeppelin are positive.
     # acceleration The acceleration in percentage with which the zeppelin should propel itself forward.
     def move(self, angle, acceleration):

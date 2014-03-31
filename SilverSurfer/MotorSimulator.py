@@ -7,7 +7,7 @@ class MotorSimulator(object):
     
     def __init__(self):
         
-        self._level = 0.0
+        self._level = 5.0
         
     @property
     def level(self):

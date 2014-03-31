@@ -16,7 +16,7 @@ class DistanceCalculator(threading.Thread, object):
         
         self.navigator = 0
         
-        self.error_level = error_level   #between 0 and 5
+        self.error_level = error_level   # standard deviation in centimeters
         self.data_amount = data_amount   #amount of data we take the average height from
         self.interval = 0.06*self.data_amount 
         
@@ -33,12 +33,14 @@ class DistanceCalculator(threading.Thread, object):
         while True:
             self.calculate_height() #Continually calculate the height
             time.sleep(self.interval)
+            print "height: " + str(self.height)
 
     def calculate_height(self):
-        self.acceleration = (self.motor_level*DistanceCalculator.MOTOR_POWER - DistanceCalculator.SURFACE_AREA*DistanceCalculator.AIR_DENSITY*DistanceCalculator.C_W*self.speed**2/2)/DistanceCalculator.MASS - DistanceCalculator.GRAVITY
-        new_speed = self.speed + self.acceleration*self.interval
-        new_height = self.height + (new_speed + self.speed)/2*self.interval # The speed has increased linearly over the interval.
-        new_height = new_height + self.error_level*random.gauss(1, 1)
+#         self.acceleration = (self.motor_level*DistanceCalculator.MOTOR_POWER - DistanceCalculator.SURFACE_AREA*DistanceCalculator.AIR_DENSITY*DistanceCalculator.C_W*self.speed**2/10)/DistanceCalculator.MASS - DistanceCalculator.GRAVITY
+#         new_speed = self.speed + self.acceleration*self.interval
+#         new_height = self.height + (new_speed + self.speed)/2*self.interval # The speed has increased linearly over the interval.
+#         new_height = new_height + self.error_level*random.gauss(1, 1)
+        new_height = self.navigator.goal_height + random.gauss(0, self.error_level)
         if new_height < 0:
             new_height = 0
         self.height = new_height

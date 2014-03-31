@@ -53,7 +53,7 @@ class Navigator(threading.Thread, object):
         
         self.velocity = Vector(0,0)
         
-        self.last_updated = time.time()
+        self.last_updated = 0
         self.flying = False
         self.navigating = False
         
@@ -105,11 +105,11 @@ class Navigator(threading.Thread, object):
                 # Extract the triangle of figures out of the data provided
                 triangles = self.field.extract_triangles(figure_images)
                 
+                i = 0
                 if triangles == 0:
                     print "Not enough nodes visible"
                 else:
                     # match triangle in field
-                    i = 0
                     nodes = 0
                     while nodes == 0 and i < len(triangles):
                         nodes = self.field.find_triangle(triangles[i])
@@ -118,8 +118,11 @@ class Navigator(threading.Thread, object):
                     if nodes == 0:
                         print "Shape detection failed."
                     else:
+                        print nodes[0].figure.color, nodes[0].figure.shape
+                        print nodes[1].figure.color, nodes[1].figure.shape
+                        print nodes[2].figure.color, nodes[2].figure.shape
                         # update state
-                        self.update(nodes[0], figure_images[0], nodes[1], figure_images[1], zeppelin_image, time_stamp)
+                        self.update(nodes[0], nodes[1], triangles[i-1][1][0], triangles[i-1][1][1], zeppelin_image, time_stamp)
                 
         self.stabilizer.stop()
         
@@ -137,26 +140,30 @@ class Navigator(threading.Thread, object):
     """
     This method updates all the properties of the zeppelin, based on the supplied information.
     """
-    def update(self, node_1, node_image_1, node_2, node_image_2, zeppelin_image, time):
+    def update(self, node_1, node_2, node_image_1, node_image_2, zeppelin_image, time):
         
         # Update the time properties
         time_lapsed = float(time - self.last_updated)
         self.last_updated = time
         
         # Put the given tuples in vector format and calculate the required vectors
-        node_image_1 = Vector(node_image_1[2], node_image_1[3])
-        node_image_2 = Vector(node_image_2[2], node_image_2[3])
+#         node_image_1 = Vector(node_image_1[2], node_image_1[3])
+#         node_image_2 = Vector(node_image_2[2], node_image_2[3])
         zeppelin_image = Vector(zeppelin_image[0], zeppelin_image[1])
         image_difference = node_image_2 - node_image_1
+        print "image diference: " + str(image_difference.xcoord), str(image_difference.ycoord)
         node_difference = node_2.position - node_1.position
+        print "node difference: " + str(node_difference.xcoord), str(node_difference.ycoord)
         
         # Calculating the angle properties
-        new_angle = (image_difference - node_difference).angle
+        new_angle = image_difference.angle - node_difference.angle
+        print "angle: " + str(new_angle)
         self.angular_velocity = (self.angle - new_angle)/time_lapsed
         self.angle = new_angle
         
         # Calculating positional properties.
         enlargement_factor = float(node_difference.norm/image_difference.norm)
+        print "enlargement factor: " + str(enlargement_factor)
         relative_position = zeppelin_image - node_image_1
         relative_position = relative_position*enlargement_factor
         relative_position = relative_position.turn(- new_angle)
@@ -164,6 +171,7 @@ class Navigator(threading.Thread, object):
         self.velocity = (new_position - self.position)/time_lapsed
         self.position = new_position
         print "current position: " + str(self.position.xcoord) + ", " + str(self.position.ycoord)
+        print "current velocity: " + str(self.velocity.xcoord) + ", " + str(self.velocity.ycoord)
         
         self.update_motor_control()
     
@@ -176,20 +184,14 @@ class Navigator(threading.Thread, object):
         
         if self.goal_position == 0:
             return Vector(0,0)
+        
         path = self.goal_position - self.position
         goal_velocity = 0
         
         if path.norm >= Navigator.SLOW_DOWN_DISTANCE:
             goal_velocity = Vector(Navigator.MAXIMUM_SPEED,0).turn(path.angle)
         else:
-            goal_velocity = Vector(path.norm/Navigator.SLOW_DOWN_DISTANCE, 0).turn(path.angle)
-            
-        velocity = goal_velocity - self.velocity
-        if path.norm >= Navigator.SLOW_DOWN_DISTANCE:
-            velocity = Vector(Navigator.MAXIMUM_SPEED,0).turn(velocity.angle)
-        else:
-            velocity = Vector(velocity.norm/Navigator.SLOW_DOWN_DISTANCE, 0).turn(velocity.angle)
-        print "velocity to achieve: " + str(velocity.xcoord) + ", " + str(velocity.ycoord)
+            goal_velocity = Vector(path.norm/Navigator.SLOW_DOWN_DISTANCE*Navigator.MAXIMUM_SPEED, 0).turn(path.angle)
             
         return goal_velocity
             
@@ -202,14 +204,18 @@ class Navigator(threading.Thread, object):
         
         goal_velocity = self.calculate_goal_velocity()
         
+        velocity = goal_velocity - self.velocity
+        print "velocity to be set: " + str(velocity.xcoord) + ", " + str(velocity.ycoord)
         
         scaling_factor = 100/Navigator.MAXIMUM_SPEED
-        acceleration = Vector(goal_velocity.xcoord*scaling_factor, goal_velocity.ycoord*scaling_factor)
-        print str(acceleration.xcoord) + ', ' + str(acceleration.ycoord)
+        
+        acceleration = Vector(velocity.xcoord*scaling_factor, velocity.ycoord*scaling_factor)
+        
+        print "acceleration: " + str(acceleration.xcoord) + ', ' + str(acceleration.ycoord)
         
         # The angle with which the zeppelin moves is the angle the acceleration makes with the x-axis
         # added to the angle the front of the zeppelin makes with the x-axis.
-        self.motor_control.move(acceleration.angle + self.angle, acceleration.norm)
+        self.motor_control.move(acceleration.angle - self.angle, acceleration.norm)
     
   
     """
