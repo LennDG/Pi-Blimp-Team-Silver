@@ -5,7 +5,7 @@ This file initialises our version of the zeppelin and starts running the program
 @version 0.9   7-3-2014
 """
 
-from Zeppelin import Zeppelin
+from TestZeppelin import Zeppelin
 from Navigator import Navigator
 from MotorControl import MotorControl
 from MotorSimulator import MotorSimulator

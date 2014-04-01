@@ -1,5 +1,5 @@
 from __future__ import division
-from math import sqrt
+from math import sqrt, pi
 from Vector import Vector
 from Figure import Figure
 
@@ -433,7 +433,7 @@ class Field(object):
             return (index_1, index_2, index_4)
         else:
             return 0
-                
+                    
     
     @classmethod    
     def extract_triangles(cls, figure_images):
@@ -489,4 +489,67 @@ class Field(object):
                 uber_final_result.append(temp_result)
             
             return uber_final_result
+    
+    
+    @classmethod    
+    def define_structure(cls, images, positions):
+        
+        
+        figures = []
+        
+        for image in images:
+            figure = Figure(image[0], image[1])
+            figures.append(figure)
+        
+        
+        vectors = []
+        
+        for position in positions:
+            vector = Vector(position[0], position[1])
+            vectors.append(vector)
+            
+        length = cls.calculate_minimal_distance(vectors)
+        
+        
+        nodes = []
+        
+        for figure in figures:
+            node = 0
+            if len(nodes) == 0:
+                node = Node(figure, Vector(0,0))
+            else:
+                node = Node(figure)
+            nodes.append(node)
+            
+        cls.add_position(vectors[0], vectors, nodes, length, 0)
+        
+        return nodes[0]
+        
+    @classmethod
+    def add_position(cls, current_position, positions, nodes, length, own_index):
+        
+        allowable_error = length*0.3
+        
+        for x in range(own_index + 1, len(positions)):
+            position = positions[x]
+            if (position - current_position).norm  - length < allowable_error:
+                angle = (position - current_position).angle
+                
+                # Normalize angle
+                while angle < 0:
+                    angle = angle + 2*pi
+                while angle > 2*pi:
+                    angle = angle - 2*pi
+                    
+                 # transform angle into 6 integer space
+                relative_position = angle/2/pi*6 # maximum angle =  6
+                relative_position = int(relative_position)
+                relative_position = (6 - relative_position)%6
+                relative_position = (relative_position + 2)%6
+                
+                nodes[own_index].add_node(nodes[x], relative_position)
+                
+                cls.add_position(positions[x], positions, nodes, length, x)
+            
+        
     
