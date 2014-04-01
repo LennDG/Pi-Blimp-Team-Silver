@@ -224,15 +224,19 @@ class Field(object):
     """
     def next_row(self, node_in_row, hor_direction, vert_direction=-1):
         
+        key = hor_direction, vert_direction
+        
+        directions = {  (1,1)  : 0,
+                        (1,-1) : 4,
+                        (-1,1) : 1,
+                        (-1,-1): 3
+                        }
+        
         # Determines the relative position to find a node on the row above/below this row
-        # If you wonder how this came about, ask Rob.
-        relative_position = int(2 + -3*vert_direction/2.0 - hor_direction*vert_direction/2.0)
+        relative_position = directions[key]
         
         # Return the outer node of the row or 0 if there is no row above/below this one.
-        if self.row_extreme(node_in_row, hor_direction).neighbours[relative_position] == 0:
-            return 0 #There is no next row.
-        else:
-            return self.row_extreme(node_in_row.neighbours[relative_position],hor_direction)
+        return self.row_extreme(node_in_row.neighbours[relative_position], hor_direction)
     
     
     """
@@ -258,7 +262,7 @@ class Field(object):
         while current_node != 0:
             if current_node.figure == target_figure:
                 results.append(current_node)
-                previous_node = current_node
+            previous_node = current_node
             current_node = current_node.neighbours[relative_position]
             
         # Return the results and the node that has last been visited.
@@ -289,8 +293,8 @@ class Field(object):
                 results.append(result)
             
             # Move on to the next row.
-            direction = direction*-1
             current_node = self.next_row(current_node, direction)
+            direction = direction*-1
             
             
         
@@ -348,6 +352,9 @@ class Field(object):
         # hence could be the initial node of the triangle.
         figures = figuresx[0]
         possible_initials = self.search_field(figures[0])
+        
+        if len(possible_initials) == 0:
+            print "geen possible initials"
         
         for initial in possible_initials:
             # For all neighbours of this potential initial node, check whether it

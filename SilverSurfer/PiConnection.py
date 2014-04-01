@@ -38,17 +38,17 @@ class PiConn2dot0( threading.Thread, object):
         self.gate = gate
         adress_server = 'localhost'
         
-        #Make channel
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(
+        #Make channel_consumer
+        self.connection_consumer = pika.BlockingConnection(pika.ConnectionParameters(
                adress_server))
-        self.channel = self.connection.channel()
+        self.channel_consumer = self.connection_consumer.channel_consumer()
 
         #Create Queues
-        self.channel.queue_declare(queue='FromGUI')
-        self.channel.queue_declare(queue='FromZEP')
+        self.channel_consumer.queue_declare(queue='FromGUI')
+        self.channel_consumer.queue_declare(queue='FromZEP')
 
         #Callback handles received messages from FromZEP
-        self.channel.basic_consume(self.callback,
+        self.channel_consumer.basic_consume(self.callback,
                       queue='FromGUI',
                       no_ack=True)
         
@@ -56,9 +56,9 @@ class PiConn2dot0( threading.Thread, object):
     def run(self):
 
             try:
-                self.channel.start_consuming()
+                self.channel_consumer.start_consuming()
             except Exception:
-                self.connection.close()  
+                self.connection_consumer.close()  
 
                 
 
@@ -69,7 +69,7 @@ class PiConn2dot0( threading.Thread, object):
         self.send_message_to_gui(reply)    
 
     def send_message_to_gui(self,message):
-        self.channel.basic_publish(exchange='', routing_key='FromZEP', body=message)
+        self.channel_consumer.basic_publish(exchange='', routing_key='FromZEP', body=message)
             
 class Gate(threading.Thread,object):
     
@@ -81,7 +81,7 @@ class Gate(threading.Thread,object):
                         'INFO' : self.info,  #Gives the Info of the Pi (Height, ...)
                         'SWITCH' : self.switch, #Switches between Auto and Manual mode
                         'SHUTDOWN': self.shutdown, #Shuts the Pi down
-                        'CONNECT' : self.connect, #Will tell the PC that the connection is okay
+                        'CONNECT' : self.connect, #Will tell the PC that the connection_consumer is okay
                         'STABILIZE': self.stabilize,
                         'COMMAND' : self.command,
                         'MOVETO': self.move_to} #Issues commands
@@ -89,7 +89,7 @@ class Gate(threading.Thread,object):
         
     def open(self):
         #niet meer nodig :)
-        #Starts the connection thread
+        #Starts the connection_consumer thread
         self.PIconnection.start()
         self.start()
         
@@ -222,10 +222,21 @@ class PiConn2dot1( threading.Thread, object):
         logging.basicConfig()
         threading.Thread.__init__(self)
         self.gate = gate
-
+        
+#         credentials = pika.PlainCredentials('zilver', 'zilver')
+#         self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
+        self.parameters = 'localhost'
+        
+        not_established = True
+        while(not_established):
+            try:
+                self.initialization_receiver()
+                self.initialization_sender()
+                not_established = False
+            except Exception:
+                not_established = True
         
 
-        self.initialization()
 ###########
         
 
@@ -235,58 +246,63 @@ class PiConn2dot1( threading.Thread, object):
         while True:
             try:
                 if thrown == False:
-                    print "pre testing reinitialization"
+                    print "pre testing reinitialization consumer"
                     thrown = True
                     raise Exception
-                self.channel.start_consuming()
+                self.channel_consumer.start_consuming()
             except Exception:
-                print "PI reinitializated"
-                self.initialization() 
+                print "PI consumer reinitializated"
+                self.initialization_receiver() 
+                
+    def initialization_sender(self):
+        self.connection_sender = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.channel_sender = self.connection_sender.channel(channel_number=2)
+        self.channel_sender.exchange_declare(exchange='server', type='topic')
 
-    def initialization(self):
+    def initialization_receiver(self):
         
-        adress_server = 'localhost'
+
         
 ###########
-#Make channel
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters( adress_server))
-        self.channel = self.connection.channel(channel_number=1)
-        self.channel.exchange_declare(exchange='server', type='topic')
+#Make channel_consumer
+        self.connection_consumer = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.channel_consumer = self.connection_consumer.channel(channel_number=1)
+        self.channel_consumer.exchange_declare(exchange='server', type='topic')
 
 
-        hcommand_move = self.channel.queue_declare(queue="hcommand-move-silver")
+        hcommand_move = self.channel_consumer.queue_declare(queue="hcommand-move-silver")
         self.queue_hcommand_move = hcommand_move.method.queue
         
-        hcommand_elevate = self.channel.queue_declare(queue="hcommand-elevate-silver")
+        hcommand_elevate = self.channel_consumer.queue_declare(queue="hcommand-elevate-silver")
         self.queue_hcommand_elevate = hcommand_elevate.method.queue
         
-        lcommand_motor1 = self.channel.queue_declare(queue="lcommand-motor1-silver")
+        lcommand_motor1 = self.channel_consumer.queue_declare(queue="lcommand-motor1-silver")
         self.queue_lcommand_motor1 = lcommand_motor1.method.queue
         
-        lcommand_motor2 = self.channel.queue_declare(queue="lcommand-motor2-silver")
+        lcommand_motor2 = self.channel_consumer.queue_declare(queue="lcommand-motor2-silver")
         self.queue_lcommand_motor2 = lcommand_motor2.method.queue
         
-        lcommand_motor3 = self.channel.queue_declare(queue="lcommand-motor3-silver")
+        lcommand_motor3 = self.channel_consumer.queue_declare(queue="lcommand-motor3-silver")
         self.queue_lcommand_motor3 = lcommand_motor1.method.queue
          
-        private =  self.channel.queue_declare(queue="private-fromPC-silver")
+        private =  self.channel_consumer.queue_declare(queue="private-fromPC-silver")
         self.queue_private = private.method.queue
                 #bind the queues to keys
-#         self.channel.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
-#         self.channel.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
-        self.channel.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="silversurfer.hcommand.elevate")
-        self.channel.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="silversurfer.hcommand.move")
-        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="silversurfer.lcommand.motor1")
-        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="silversurfer.lcommand.motor2")
-        self.channel.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="silversurfer.lcommand.motor3")
-        self.channel.queue_bind(exchange='server',queue=self.queue_private,routing_key="silversurfer.private.FromPC")
+#         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
+#         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="silversurfer.hcommand.elevate")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="silversurfer.hcommand.move")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="silversurfer.lcommand.motor1")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="silversurfer.lcommand.motor2")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="silversurfer.lcommand.motor3")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private,routing_key="silversurfer.private.FromPC")
         
-        self.channel.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
-        self.channel.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
-        self.channel.basic_consume(self.callback_private, queue=self.queue_private, no_ack=True)   
-        self.channel.basic_consume(self.callback_set_motor1, queue=self.queue_lcommand_motor1, no_ack=True)
-        self.channel.basic_consume(self.callback_set_motor2, queue=self.queue_lcommand_motor2, no_ack=True)
-        self.channel.basic_consume(self.callback_set_motor3, queue=self.queue_lcommand_motor3, no_ack=True)        
+        self.channel_consumer.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_private, queue=self.queue_private, no_ack=True)   
+        self.channel_consumer.basic_consume(self.callback_set_motor1, queue=self.queue_lcommand_motor1, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_set_motor2, queue=self.queue_lcommand_motor2, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_set_motor3, queue=self.queue_lcommand_motor3, no_ack=True)        
 
     def callback_private(self,ch, method, properties, body):
         reply = self.gate.reply(body)  
@@ -310,23 +326,23 @@ class PiConn2dot1( threading.Thread, object):
         self.gate.move_to_horizontal(body)   
 
     def send_message_to_gui(self,message):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.fromPI', body=message)
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.fromPI', body=message)
     
     def send_position_to_server(self,x,y,z):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.info.location', body=str(x)+","+str(y))
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.info.height', body=str(z))
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.info.location', body=str(x)+","+str(y))
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.info.height', body=str(z))
             
     def send_status(self,status):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.status', body=status)
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.status', body=status)
         
     def send_goal_coordinates(self,x,y,z):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
         
     def send_coords_figures(self,string):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.recognized', body=string)
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.recognized', body=string)
         
     def send_info_motors(self,string):
-        self.channel.basic_publish(exchange='server', routing_key='silversurfer.private.motors', body=string)
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.motors', body=string)
         
 
             
@@ -348,9 +364,18 @@ class Gate2dot1(threading.Thread,object):
     
     #TODO: HIER LOOPT HET SOMS FOUT
     def run(self):
-        while(True):
-            time.sleep(1.5)
-            self.update_server()
+        thrown = False
+        while True:
+            try:
+                if thrown == False:
+                    print "pre testing reinitialization sender"
+                    thrown = True
+                    raise Exception
+                time.sleep(1.5)
+                self.update_server()
+            except Exception:
+                print "PI sender reinitializated"
+                self.PIconnection.initialization_sender() 
     
     def update_server(self):
         self.PIconnection.send_position_to_server(self.zep.navigator.position.xcoord,

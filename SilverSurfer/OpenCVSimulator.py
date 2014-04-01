@@ -27,7 +27,7 @@ class OpenCVSimulator(object):
     
       
     def scaling_factor(self):
-        return OpenCVSimulator.IMAGE_PIXEL_WIDTH/(OpenCVSimulator.IMAGE_WIDTH*(self.height+0.01))
+        return OpenCVSimulator.IMAGE_PIXEL_WIDTH/(OpenCVSimulator.IMAGE_WIDTH*((self.height+0.01)/100))
     
     def calculate_next_state(self):
         

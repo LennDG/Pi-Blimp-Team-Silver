@@ -2,7 +2,7 @@
 This file initialises our version of the zeppelin and starts running the program.
 
 @author Rob Coekaerts
-@version 0.0   7-3-2014
+@version 0.9   7-3-2014
 """
 
 from TestZeppelin import Zeppelin

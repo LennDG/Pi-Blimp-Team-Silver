@@ -142,6 +142,8 @@ class Navigator(threading.Thread, object):
     """
     def update(self, node_1, node_2, node_image_1, node_image_2, zeppelin_image, time):
         
+        print node_1.figure.color, node_1.figure.shape, node_2.figure.color, node_2.figure.shape
+        
         # Update the time properties
         time_lapsed = float(time - self.last_updated)
         self.last_updated = time
@@ -151,9 +153,7 @@ class Navigator(threading.Thread, object):
 #         node_image_2 = Vector(node_image_2[2], node_image_2[3])
         zeppelin_image = Vector(zeppelin_image[0], zeppelin_image[1])
         image_difference = node_image_2 - node_image_1
-        print "image diference: " + str(image_difference.xcoord), str(image_difference.ycoord)
         node_difference = node_2.position - node_1.position
-        print "node difference: " + str(node_difference.xcoord), str(node_difference.ycoord)
         
         # Calculating the angle properties
         new_angle = image_difference.angle - node_difference.angle
@@ -162,7 +162,7 @@ class Navigator(threading.Thread, object):
         self.angle = new_angle
         
         # Calculating positional properties.
-        enlargement_factor = float(node_difference.norm/image_difference.norm)
+        enlargement_factor = node_difference.norm/float(image_difference.norm)
         print "enlargement factor: " + str(enlargement_factor)
         relative_position = zeppelin_image - node_image_1
         relative_position = relative_position*enlargement_factor
