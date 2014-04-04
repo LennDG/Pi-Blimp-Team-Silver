@@ -31,10 +31,10 @@ class Motor(threading.Thread, object):
     
     @level.setter
     def level(self, value): #This sets the level of the motor
-        if value > 0.9:
-            value = 0.9
-        elif value < -0.9:
-            value = -0.9
+        if value > 100:
+            value = 100
+        elif value < -100:
+            value = -100
         self._level = value
         
     def run(self):
@@ -53,7 +53,7 @@ class Motor(threading.Thread, object):
                 GPIO.output(self.ccw_pin, 0)
                 time.sleep(1./self.frequency - on_time)
                 continue
-            elif self._level == 0.0:
+            elif int(self._level) == 0:
                 GPIO.output(self.cw_pin, 0)
                 GPIO.output(self.ccw_pin, 0)
         pass
