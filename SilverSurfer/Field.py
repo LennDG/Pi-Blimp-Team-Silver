@@ -494,13 +494,15 @@ class Field(object):
     @classmethod    
     def define_structure(cls, images, positions):
         
-        
+        # Put the figures and images in their respective lists.
         figures = []
         
         for image in images:
             figure = Figure(image[0], image[1])
             figures.append(figure)
-        
+            
+        for figure in figures:
+            print figure.color, figure.shape
         
         vectors = []
         
@@ -515,20 +517,20 @@ class Field(object):
         
         for figure in figures:
             node = 0
-            if len(nodes) == 0:
-                node = Node(figure, Vector(0,0))
-            else:
-                node = Node(figure)
+            node = Node(figure)
             nodes.append(node)
             
-        cls.add_position(vectors[0], vectors, nodes, length, 0)
+        nodes[0].position = Vector(0,0)
+            
+        cls.add_position(vectors, nodes, length, 0)
         
         return nodes[0]
         
     @classmethod
-    def add_position(cls, current_position, positions, nodes, length, own_index):
+    def add_position(cls, positions, nodes, length, own_index):
         
         allowable_error = length*0.3
+        current_position = positions[own_index]
         
         for x in range(own_index + 1, len(positions)):
             position = positions[x]
@@ -538,18 +540,18 @@ class Field(object):
                 # Normalize angle
                 while angle < 0:
                     angle = angle + 2*pi
-                while angle > 2*pi:
+                while angle >= 2*pi:
                     angle = angle - 2*pi
                     
-                 # transform angle into 6 integer space
-                relative_position = angle/2/pi*6 # maximum angle =  6
-                relative_position = int(relative_position)
+                # transform angle into 6 integer space
+                relative_position = angle/2/pi*6 + 0.3 # Adding some marge
+                relative_position = int(relative_position) # 0,1,2,3,4,5
                 relative_position = (6 - relative_position)%6
                 relative_position = (relative_position + 2)%6
                 
                 nodes[own_index].add_node(nodes[x], relative_position)
                 
-                cls.add_position(positions[x], positions, nodes, length, x)
+                cls.add_position(positions, nodes, length, x)
             
         
     
