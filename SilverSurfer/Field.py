@@ -302,6 +302,101 @@ class Field(object):
         return results
     
     
+    
+    
+    def match_partial_field(self, nodes, estimated_position):
+        
+        threshold_score = 0.75 # For now
+        
+        result = 0
+        score = 0.0
+        relative_direction = 0
+        
+        temp = []
+        
+        for node in nodes:
+            if node.figure.color != 'Undefined':
+                temp.append(node)
+                
+        nodes = temp
+        
+        for node in nodes:
+            temp_result, temp_score, direction = self.match_node_configuration(node, estimated_position)
+            if temp_score > score:
+                result = temp_result
+                score = temp_score
+                relative_direction = direction
+            elif temp_score == score:
+                result = 0 # Equal scores are unusable
+                
+        score = score/float(len(nodes))
+        
+        if score > threshold_score and result != 0:
+            return result, relative_direction
+        else:
+            return 0, 0
+            
+            
+                
+        
+    
+    def match_node_configuration(self, node_in_partial_field, estimated_position):
+        
+        # The radius within which the results are estimated to be.
+        radius = 400 
+        
+        # First, search all nodes in the field that match the given node.
+        initials = self.search_field(node_in_partial_field.figure)
+        
+        # Secondly, reject all the nodes that are way out of distance
+        confirmed_initials = []
+        for initial in initials:
+            if (initial.position - estimated_position).norm < radius:
+                confirmed_initials.append(initial)
+                
+        result = 0
+        score = 0.0
+        relative_direction = 0
+                
+        # now start the matching
+        for initial in confirmed_initials:
+            
+            for x in range(0,6):
+                temp = self.match_recursively(initial, node_in_partial_field, Node(initial.figure), x, 0)
+                if temp > score:
+                    score = temp
+                    relative_direction = x
+                    result = initial
+                elif temp == score:
+                    result = 0 # equal scores are of no use.
+            
+        return result, score, relative_direction
+                
+    
+    def match_recursively(self, current_node, node_in_partial_field, check_node, direction_difference, score):
+        
+        score = score + self.assign_score(current_node, node_in_partial_field)
+        for x in range(0, 6):
+            virtual_direction = (x + direction_difference)%6
+            if current_node.neighbours[x] != 0 and check_node.neighbours[virtual_direction] == 0 and node_in_partial_field[virtual_direction] != 0:
+                next_node = current_node.neighbours[x]
+                next_node_in_partial_field = node_in_partial_field.neighbours[virtual_direction]
+                new_check_node = Node(next_node.figure)
+                check_node.add_node(new_check_node)
+                score = score + self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score)
+        
+        return score
+    
+    # to be implemented fully
+    def assign_score(self, node_1, node_2):
+        if node_1.figure == node_2.figure:
+            return 1.0
+        else:
+            return 0.0
+                
+        
+                
+    
     """
     This method finds the node on the field that is closest to the position that
     is specified by the given coordinates.
@@ -522,12 +617,13 @@ class Field(object):
             
         nodes[0].position = Vector(0,0)
             
-        cls.add_position(vectors, nodes, length, 0)
+        cls.add_position(vectors, nodes, length, 0, 0)
         
         return nodes[0]
         
+        
     @classmethod
-    def add_position(cls, positions, nodes, length, own_index):
+    def add_position(cls, positions, nodes, length, own_index, reference_angle):
         
         allowable_error = length*0.3
         current_position = positions[own_index]
@@ -537,6 +633,11 @@ class Field(object):
             if (position - current_position).norm  - length < allowable_error:
                 angle = (position - current_position).angle
                 
+                if isinstance(reference_angle, (int, long)):
+                    reference_angle = angle
+                    
+                angle = angle - reference_angle
+                
                 # Normalize angle
                 while angle < 0:
                     angle = angle + 2*pi
@@ -545,13 +646,13 @@ class Field(object):
                     
                 # transform angle into 6 integer space
                 relative_position = angle/2/pi*6 + 0.3 # Adding some marge
-                relative_position = int(relative_position) # 0,1,2,3,4,5
+                relative_position = int(relative_position)%6 # 0,1,2,3,4,5
                 relative_position = (6 - relative_position)%6
                 relative_position = (relative_position + 2)%6
                 
                 nodes[own_index].add_node(nodes[x], relative_position)
                 
-                cls.add_position(positions, nodes, length, x)
+                cls.add_position(positions, nodes, length, x, reference_angle)
             
         
     
