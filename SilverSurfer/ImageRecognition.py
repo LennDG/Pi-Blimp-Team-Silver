@@ -3,6 +3,8 @@ import time
 import cv2
 import math
 from subprocess import call
+import zbar
+from PIL import Image
 
 #Define location of the image, will probably change to memory instead of disk
 img_loc = "/run/shm/image.jpg"
@@ -184,6 +186,31 @@ def generate_image():
     targets = detect_targets()
     zeppelin_image = (250,250) # We'll have to program this a bit more flexible not hardcoded.
     return targets, zeppelin_image, time_stamp
+
+def decode_qrcode(img_file):
+    
+    #scanner object mss in constructor aanmaken
+    scanner = zbar.ImageScanner()
+    scanner.parse_config("enable")
+    
+    #afbeelding laden
+    pil = Image.open(img_file).convert('L')
+    width, height = pil.size
+    raw = pil.tostring()
+    
+    #omzetten naar zbar image en scannen
+    image = zbar.Image(width, height, 'Y800', raw)
+    scanner.scan(image)
+    
+    #resultaat teruggeven als een lijst
+    symbols = []
+    
+    for symbol in image:
+        symbols.append(symbol.data)
+            
+    return symbols
+    
+    
 
 
     
