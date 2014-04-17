@@ -661,8 +661,28 @@ class GUI(Frame):
         map_compiler = GuiCompiler()
         #obj_coord is dictionaire
         #obj_coord[a]=[[x,y,color]]
-        obj_coord = map_compiler.compile_map("field.csv", 40, self.canvas_map_width,self.canvas_map_height)
+        compiled = map_compiler.compile_map("field.csv", 40, self.canvas_map_width,self.canvas_map_height)
+        obj_coord = compiled[0]
+        lines= compiled[1]
         
+        i_max = len(lines)
+        for i in range(i_max):
+            j_max = len(lines[i])
+            for j in range(j_max):
+                    if (j!=j_max-1):
+                        if(lines[i][j][0]!="Nothing" and lines[i][j+1][0]!="Nothing"):
+                            self.create_line(cmap,lines[i][j][0],lines[i][j][1], lines[i][j+1][0],lines[i][j+1][1])
+                    if(i<i_max-1):
+                        if(i%2!=0 and lines[i][j][0]!="Nothing" ):
+                            if(lines[i+1][j][0]!="Nothing"):
+                                self.create_line(cmap,lines[i][j][0],lines[i][j][1], lines[i+1][j][0],lines[i+1][j][1])
+                            if(j<j_max-1 and lines[i+1][j+1][0]!="Nothing"):
+                                    self.create_line(cmap,lines[i][j][0],lines[i][j][1], lines[i+1][j+1][0],lines[i+1][j+1][1])
+                        if(i%2==0 and lines[i][j][0]!="Nothing" ):
+                            if( lines[i+1][j][0]!="Nothing"):
+                                self.create_line(cmap,lines[i][j][0],lines[i][j][1], lines[i+1][j][0],lines[i+1][j][1])
+                            if(j>0 and lines[i+1][j-1][0]!="Nothing"):
+                                self.create_line(cmap,lines[i][j][0],lines[i][j][1], lines[i+1][j-1][0],lines[i+1][j-1][1])
         for word in obj_coord:
             for coordinates_and_color in obj_coord[word]:
                 map_compiler.objects[word](
@@ -679,6 +699,9 @@ class GUI(Frame):
     
     def create_dot(self,cmap,x,y):      
         return cmap.create_oval(GUI.zep_map_X_SCALE*(x-3),GUI.zep_map_Y_SCALE*y,GUI.zep_map_X_SCALE*x,GUI.zep_map_Y_SCALE*(y-3),fill='black')
+    
+    def create_line(self,cmap,x1,y1,x2,y2): 
+        cmap.create_line(GUI.zep_map_X_SCALE*x1,GUI.zep_map_Y_SCALE*y1,GUI.zep_map_X_SCALE*x2,GUI.zep_map_Y_SCALE*y2) 
         
     
     def move_zeppelin_to(self,zeppelin,cmap,x,y):
@@ -889,18 +912,18 @@ class GuiCompiler():
         self.objects = {'rectangle':self.create_rectangle,'circle':self.create_circle,'star':self.create_star,'heart':self.create_hart}
         
     def create_rectangle(self,x_co,y_co,color,canvas):
-        anchor_x = GUI.canvas_map_X_SCALE*x_co
-        anchor_y = GUI.canvas_map_Y_SCALE*y_co
+        anchor_x = GUI.canvas_map_X_SCALE*x_co-GUI.fig_map_SCALE*2
+        anchor_y = GUI.canvas_map_Y_SCALE*y_co-GUI.fig_map_SCALE*2
         canvas.create_rectangle(anchor_x,anchor_y,anchor_x+GUI.fig_map_SCALE*5,anchor_y+GUI.fig_map_SCALE *5,fill=color)
         
     def create_circle(self,x_co,y_co,color,canvas):
-        anchor_x = GUI.canvas_map_X_SCALE*x_co
-        anchor_y = GUI.canvas_map_Y_SCALE*y_co
+        anchor_x = GUI.canvas_map_X_SCALE*x_co-GUI.fig_map_SCALE*2
+        anchor_y = GUI.canvas_map_Y_SCALE*y_co-GUI.fig_map_SCALE*2
         canvas.create_oval(anchor_x ,anchor_y,anchor_x+GUI.fig_map_SCALE*5,anchor_y+GUI.fig_map_SCALE*5,fill=color)
     
     def create_star(self,x_co,y_co,color,canvas):
         anchor_x = GUI.canvas_map_X_SCALE*x_co
-        anchor_y = GUI.canvas_map_Y_SCALE*y_co
+        anchor_y = GUI.canvas_map_Y_SCALE*y_co-GUI.fig_map_SCALE*3
         canvas.create_polygon(anchor_x,anchor_y,
                               anchor_x+GUI.fig_map_SCALE*1, anchor_y+GUI.fig_map_SCALE*3,
                               anchor_x+GUI.fig_map_SCALE*3, anchor_y+GUI.fig_map_SCALE*3,
@@ -977,25 +1000,48 @@ class GuiCompiler():
         
         #create datastructure map
         result = {}
+        coords_pairs={}
         for shape in self.objects:
             result[shape]=[]
+            
         for i in range(0,len(file_dict)):
+            coords_pairs[i] = {}
             for j in range(0,len(file_dict[i])):
+                coords_pairs[i][j]=("Nothing","Nothing")
                 if (file_dict[i][j][1] != "Nothing"):
                     extra = 0
                     if(i%2!=0):
                         extra = length_edge/2
+                        
       #TODO: Hier misschien werken met globaal anker (alles 10p naar onder en naar rechts: ANKER DAN OVERAL GEBRUIKEN!)             
                     result[file_dict[i][j][1]].append([extra+j*length_edge,i*self.length_height,file_dict[i][j][0]])
-        
-        return result
+                    coords_pairs[i][j]=(extra+j*length_edge,i*self.length_height)
+        return result,coords_pairs
 
 
 class zeppelinDatabase():
     
     def __init__(self):
-        self.zeppelins = {'silversurfer':{'left-motor' : 0, 'right-motor':0, 'vert-motor':0, 'Goal':'not given', 'Error':'not given', 'Status':'not given','x':10,'y':10,'z':10,'gx':10,'gy':10 , 'recognized':[] }}
-
+        self.zeppelins = {'silversurfer':{'left-motor' : 0, 
+                                          'right-motor':0, 
+                                          'vert-motor':0, 
+                                          'Goal':'not given', 
+                                          'Error':'not given', 
+                                          'Status':'not given',
+                                          'x':10,
+                                          'y':10,
+                                          'z':10,
+                                          'gx':10,
+                                          'gy':10 , 
+                                          'recognized':[],
+                                          'Ci':'not given',
+                                          'Cd':'not given' ,
+                                          'Kp':'not given' ,
+                                          'Kd':'not given' ,
+                                          'Ki':'not given' ,
+                                          'BIAS':'not given' ,
+                                          'MAX_PID_OUTPUT':'not given' ,
+                                          'MAX_Ci':'not given'}}
     def addZeppelin(self,name):
         self.zeppelins[name]={'x':0,'y':0,'z':0}
         

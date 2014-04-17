@@ -1,81 +1,6 @@
-#This is the client conneciton side, housed on PC
 
 import socket, threading, time
 import pika, logging
-
-class GUIConn(threading.Thread, object):
-    
-    def __init__(self, inqueue, outqueue):
-        threading.Thread.__init__(self)
-
-        HOST = '192.168.1.6'
-        PORT = 8888
-        
-        self.inqueue= inqueue
-        self.outqueue = outqueue
-        
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((HOST, PORT))
-        self.s.setblocking(True)
-        
-    def run(self):
-        while True:
-            try:
-                time.sleep(0.5)
-                data = self.outqueue.get(True) #BLOCKING CALL
-
-                self.s.sendall(data)
-                
-                reply = self.s.recv(1024) #BLOCKING CALL
-                print 'lol'
-                print reply
-                self.inqueue.put(reply)
-            except Exception:
-                self.s.close()
-                
-class GUIConn2dot0(threading.Thread, object):
-    
-    def __init__(self,gui):
-        
-        threading.Thread.__init__(self)
-        logging.basicConfig()
-        self.gui = gui
-        adress_server = 'localhost'
-        
-        #Make channel_consumer
-        self.connection_consumer = pika.BlockingConnection(pika.ConnectionParameters( adress_server))
-        self.channel_consumer = self.connection_consumer.channel_consumer(channel_number=3)
-
-        #Create Queues
-        self.channel_consumer.queue_declare(queue='FromGUI')
-        self.channel_consumer.queue_declare(queue='FromZEP')
-
-        #Callback handles received messages from FromZEP
-        self.channel_consumer.basic_consume(self.callback,queue='FromZEP',
-                      no_ack=True)
-        
-        
-        
-        
-        
-
-    def run(self):
-            try:
-                self.channel_consumer.start_consuming()
-            except Exception:
-                self.connection_consumer.close()           
-
-    def callback(self,ch, method, properties, body):
-        print body
-        self.gui.inputqueue.put(body)       
-
-    def send_message_to_zep(self,message):
-        self.channel_consumer.basic_publish(exchange='', routing_key='FromGUI', body=message)
-        
-
-
-
-
 class GUIConn2dot1(threading.Thread, object):
     
     def __init__(self,gui):
@@ -142,6 +67,9 @@ class GUIConn2dot1(threading.Thread, object):
         
         private_motors_info=  self.channel_consumer.queue_declare(queue="private-motors-info-silver")
         self.queue_private_motors_info = private_motors_info.method.queue
+        
+        private_pid_info=  self.channel_consumer.queue_declare(queue="private-pid-info-silver")
+        self.queue_private_pid_info = private_pid_info.method.queue
                 
                 #bind the queues to keys
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_info_location,routing_key="*.info.location")
@@ -150,13 +78,16 @@ class GUIConn2dot1(threading.Thread, object):
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_status,routing_key="silversurfer.private.status")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_recognized,routing_key="silversurfer.private.recognized")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_motors_info,routing_key="silversurfer.private.motors")
-        
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_pid_info,routing_key="silversurfer.private.pid.infofromzep")
+
 #        self.queue_info_location.purge()
         self.channel_consumer.basic_consume(self.callback_info_location, queue=self.queue_info_location, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_info_height, queue=self.queue_info_height, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_private_goal_coords, queue=self.queue_private_goal_coords, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_private_recognized, queue=self.queue_private_recognized, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_private_motors_info, queue=self.queue_private_motors_info, no_ack=True)
+        self.channel_consumer.basic_consume(self.callback_private_pid_info, queue=self.queue_private_pid_info, no_ack=True)
+        
         
 #         self.queue_info_location.purge()
 #         self.queue_info_height.purge()
@@ -164,7 +95,12 @@ class GUIConn2dot1(threading.Thread, object):
 #         self.queue_private_recognized.purge()
 #         self.queue_private_motors_info.purge()
         
-        
+    def callback_private_pid_info(self,ch, method, properties, body):
+        params = body.split(" ")
+        for parameter in params:
+            p = parameter.split("=")
+            self.gui.zeppelin_database.zeppelins["silversurfer"][p[0]]=p[1]
+            
     
     def callback_private_recognized(self,ch, method, properties, body):
 
@@ -223,6 +159,13 @@ class GUIConn2dot1(threading.Thread, object):
             self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor1', body=one)
             self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor2', body=two)
             self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor3', body=three)
+        except Exception:
+            self.initialization_sender()
+            
+    def set_parameters(self,message):
+        try:
+            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.pid.setpid', body=message)
+            
         except Exception:
             self.initialization_sender()
 

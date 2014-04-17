@@ -8,12 +8,7 @@ the goal height.
 """    
 class PID(threading.Thread, object):
     
-    Kp = 0.8
-    Kd = 2.5
-    Ki = 0.0
-    BIAS = 0.0
-    MAX_PID_OUTPUT = 40.0
-    MAX_Ci = 50.0
+    
     
     def __init__(self, navigator):
         
@@ -35,6 +30,13 @@ class PID(threading.Thread, object):
         # Initialize the result variables
         self.Ci = 0
         self.Cd = 0
+        
+        self.Kp = 0.8
+        self.Kd = 2.5
+        self.Ki = 0.0
+        self.BIAS = 0.0
+        self.MAX_PID_OUTPUT = 40.0
+        self.MAX_Ci = 50.0
     
     
     """
@@ -87,10 +89,10 @@ class PID(threading.Thread, object):
         self.Ci += error*dt
         
         # Check to see whether the accumulated error Ci isn't above or below the allowed boundaries
-        if self.Ci > PID.MAX_Ci:
-            self.Ci = PID.MAX_Ci
-        elif self.Ci < -1*PID.MAX_Ci:
-            self.Ci = -1*PID.MAX_Ci
+        if self.Ci > self.MAX_Ci:
+            self.Ci = self.MAX_Ci
+        elif self.Ci < -1*self.MAX_Ci:
+            self.Ci = -1*self.MAX_Ci
         
         # Calculate the differential term, being careful not to divide by 0
         self.Cd = 0
@@ -109,15 +111,15 @@ class PID(threading.Thread, object):
             self.Kp = 0
             self.Cd = 0
             self.navigator.flying = False
-        PID_value = PID.Kp*error + PID.Ki*self.Ci + PID.Kd*self.Cd
+        PID_value = self.Kp*error + self.Ki*self.Ci + self.Kd*self.Cd
         
         # Restrict the PID output so that the zeppelin will not move to fast.
-        if PID_value > PID.MAX_PID_OUTPUT:
-            PID_value = PID.MAX_PID_OUTPUT
-        elif PID_value < -1*PID.MAX_PID_OUTPUT:
-            PID_value = -1*PID.MAX_PID_OUTPUT
+        if PID_value > self.MAX_PID_OUTPUT:
+            PID_value = self.MAX_PID_OUTPUT
+        elif PID_value < -1*self.MAX_PID_OUTPUT:
+            PID_value = -1*self.MAX_PID_OUTPUT
         
         # Add the BIAS to the result    
-        output_value = PID.BIAS + PID_value
+        output_value = self.BIAS + PID_value
         
         return output_value

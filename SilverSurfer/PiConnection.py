@@ -285,8 +285,8 @@ class PiConn2dot1( threading.Thread, object):
         lcommand_motor3 = self.channel_consumer.queue_declare(queue="lcommand-motor3-silver")
         self.queue_lcommand_motor3 = lcommand_motor1.method.queue
          
-        private =  self.channel_consumer.queue_declare(queue="private-fromPC-silver")
-        self.queue_private = private.method.queue
+        private_setpid =  self.channel_consumer.queue_declare(queue="private-setpid-silver")
+        self.queue_private_setpid = private_setpid.method.queue
                 #bind the queues to keys
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
@@ -295,18 +295,41 @@ class PiConn2dot1( threading.Thread, object):
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="silversurfer.lcommand.motor1")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="silversurfer.lcommand.motor2")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="silversurfer.lcommand.motor3")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private,routing_key="silversurfer.private.FromPC")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private,routing_key="silversurfer.private.pid.setpid")
         
         self.channel_consumer.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
-        self.channel_consumer.basic_consume(self.callback_private, queue=self.queue_private, no_ack=True)   
+        self.channel_consumer.basic_consume(self.callback_private_setpid, queue=self.queue_private, no_ack=True)   
         self.channel_consumer.basic_consume(self.callback_set_motor1, queue=self.queue_lcommand_motor1, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_set_motor2, queue=self.queue_lcommand_motor2, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_set_motor3, queue=self.queue_lcommand_motor3, no_ack=True)        
 
-    def callback_private(self,ch, method, properties, body):
-        reply = self.gate.reply(body)  
-        self.send_message_to_gui(reply) 
+    def callback_private_setpid(self,ch, method, properties, body):
+        params = body.split(" ")
+        for param in params:
+            p = param.split("=")
+            self.gate.set_PID_parameter(p[0],p[1])
+            
+    def send_PID_param(self):
+        self.Ci = 0
+        self.Cd = 0
+        
+        self.Kp = 0.8
+        self.Kd = 2.5
+        self.Ki = 0.0
+        self.BIAS = 0.0
+        self.MAX_PID_OUTPUT = 40.0
+        self.MAX_Ci = 50.0
+        message = ("Ci="+string(self.gate.zep.navigator.stabilizer.Ci)
+                   +" Cd=" +string(self.gate.zep.navigator.stabilizer.Cd)
+                   +" Kp=" +string(self.gate.zep.navigator.stabilizer.Kp)
+                   +" Kd=" +string(self.gate.zep.navigator.stabilizer.Kd)
+                   +" Ki=" +string(self.gate.zep.navigator.stabilizer.Ki)
+                   +" BIAS="+string(self.gate.zep.navigator.stabilizer.BIAS)
+                   +"MAX_PID_OUTPUT="+string(self.gate.zep.navigator.stabilizer.MAX_PID_OUTPUT)
+                   +"MAX_Ci="+string(self.gate.zep.navigator.stabilizer.MAX_Ci))
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.pid.infofromzep', body=message)
+            
         
     def callback_set_motor1(self,ch, method, properties, body):
         self.gate.set_motor1(body)
@@ -352,9 +375,23 @@ class Gate2dot1(threading.Thread,object):
         threading.Thread.__init__(self)
         self.zep = zeppelin
         self.PIconnection = PiConn2dot1(self)
+        self.PID_dict = {"Kp":self.set_Kp,
+                         "Kd":self.set_Kd,
+                         "Ki":self.set_Ki,
+                         "Ci":self.set_Ci,
+                         "Cd":self.set_Cd,
+                         "BIAS": self.set_BIAS,
+                         "MAX_PID_OUTPUT":self.set_MAX_PID_OUTPUT,
+                         "MAX_Ci":self.set_MAX_Ci}
         
         #coords for testing purposes
         self.coords = ["10,10","30,30;60,60;60,70","30,30;100,100","100,100;30,30;200,200;10,10;40,40"]
+        
+    def set_PID_parameter(self,param,val):
+        try:
+            self.PID_dict[param](float(val))
+        except Exception:
+            pass
 
       
         
@@ -426,6 +463,7 @@ class Gate2dot1(threading.Thread,object):
         lvl= (int(float(string)))
         if(lvl >= -100 and lvl <= 100):
             self.zep.navigator.motor_control.vert_motor.level=lvl
+            
         
     
     
