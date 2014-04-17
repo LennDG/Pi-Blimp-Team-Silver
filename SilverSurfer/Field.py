@@ -357,7 +357,7 @@ class Field(object):
         return side_length
     
    
-   
+    # getest
     @classmethod    
     def define_structure(cls, figures, vectors):
         
@@ -377,7 +377,8 @@ class Field(object):
         
         return nodes
         
-        
+    
+    # getest    
     @classmethod
     def add_to_structure(cls, positions, nodes, length, own_index, reference_angle):
         
@@ -410,40 +411,56 @@ class Field(object):
                 
                 cls.add_to_structure(positions, nodes, length, x, reference_angle)
                 
+    @classmethod
+    def amount_of_useful_nodes(cls, nodes):
+        
+        result = 0
+        
+        for node in nodes:
+            if node.figure.color != "undefined":
+                result += 1
+                
+        return float(result)
+                
     
-    def match_partial_field(self, nodes, estimated_position):
+    # Zou ook moeten werken.
+    def match_partial_field(self, virtual_nodes, estimated_position):
         
         threshold_score = 0.75 # For now
         
-        result = 0
+        real_node = 0
+        corresponding_virtual_node= 0
         score = 0.0
         relative_direction = 0
         
-        for node in nodes:
+        for node in virtual_nodes:
             temp_result, temp_score, direction = self.match_node_configuration(node, estimated_position)
             if temp_score > score:
-                result = temp_result
+                real_node = temp_result
+                corresponding_virtual_node = node
                 score = temp_score
                 relative_direction = direction
-            elif temp_score == score:
-                result = 0 # Equal scores are unusable
-                
-        score = score/float(len(nodes))
+#             elif temp_score == score:
+#                 result = 0 # Equal scores are unusable
+#                kan voorlopig niet gedaan worden omdat een equivalente configuratie meer dan eens kan terugkomen
+
         
-        if score > threshold_score and result != 0:
-            return result, relative_direction
+        score = score/float(self.amount_of_useful_nodes(virtual_nodes))
+        
+        if score > threshold_score and real_node != 0:
+            return real_node, corresponding_virtual_node, relative_direction
         else:
-            return 0, 0
+            return 0
             
             
                 
-    def match_node_configuration(self, node_in_partial_field, estimated_position):
+    def match_node_configuration(self, node_in_structure, estimated_position):
         
         # The radius within which the results are estimated to be.
         radius = 10000 # to be refined 
         
         # First, search all nodes in the field that match the given node.
-        initials = self.search_field(node_in_partial_field.figure)
+        initials = self.search_field(node_in_structure.figure)
         
         # Secondly, reject all the nodes that are way out of distance
         confirmed_initials = []
@@ -459,62 +476,93 @@ class Field(object):
         for initial in confirmed_initials:
             
             for x in range(0,6):
-                temp = self.match_recursively(initial, node_in_partial_field, Node(initial.figure), x, 0)
+                temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0)
                 if temp > score:
                     score = temp
                     relative_direction = x
                     result = initial
-                elif temp == score:
-                    result = 0 # equal scores are of no use.
             
         return result, score, relative_direction
                 
     
-    def match_recursively(self, current_node, node_in_partial_field, check_node, direction_difference, score):
+    def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score):
         
-        score = score + self.assign_score(current_node, node_in_partial_field)
+        score = score + self.assign_score(current_node, node_in_structure)
         for x in range(0, 6):
             virtual_direction = (x + direction_difference)%6
-            if current_node.neighbours[x] != 0 and check_node.neighbours[virtual_direction] == 0 and node_in_partial_field[virtual_direction] != 0:
+            
+            if  check_node.neighbours[virtual_direction] == 0 and node_in_structure.neighbours[virtual_direction] != 0:
                 next_node = current_node.neighbours[x]
-                next_node_in_partial_field = node_in_partial_field.neighbours[virtual_direction]
-                new_check_node = Node(next_node.figure)
-                check_node.add_node(new_check_node)
-                score = score + self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score)
+                next_node_in_partial_field = node_in_structure.neighbours[virtual_direction]
+                new_check_node = Node(next_node_in_partial_field.figure)
+                check_node.add_node(new_check_node, virtual_direction)
+                if next_node == 0 or next_node.figure.color == 'x': # Als er in het echte veld geen node ligt, is deze configuratie onmogelijk.
+                    return -1000.0
+                score = self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score)
         
         return score
     
+    
     # to be implemented fully
-    def assign_score(self, node_1, node_2):
-        if node_1.figure == node_2.figure:
+    def assign_score(self, real_node, virtual_node):
+        if real_node.figure == virtual_node.figure:
             return 1.0
+        elif real_node.figure.color == virtual_node.figure.color:
+            if virtual_node.figure.shape == "undefined":
+                return 0.5
+            else:
+                return 0.4
         else:
             return 0.0
         
     
-    def locate_nodes(self, images, positions):
+    
+    # lijkt op het eerst zicht geen fouten in te zitten
+    def locate_nodes(self, figure_images):
         
         # Put the figures and images in their respective lists.
+        
+        positions = []
         figures = []
         
-        for image in images:
+        for image in figure_images:
             figure = Figure(image[0], image[1])
             figures.append(figure)
+            vector = Vector(image[2], image[3])
+            positions.append(vector)
             
-        for figure in figures:
-            print figure.color, figure.shape
-        
-        vectors = []
-        
-        for position in positions:
-            vector = Vector(position[0], position[1])
-            vectors.append(vector)
-            
-        nodes = self.define_structure(figures, vectors)
+        virtual_nodes = self.define_structure(figures, positions)
         
         estimated_position = Vector(0,0) # for now, radius in method above allows this.
         
-        self.match_partial_field(nodes, estimated_position)
+        try:
+            real_node, corresponding_virtual_node, relative_direction = self.match_partial_field(virtual_nodes, estimated_position)
+        except TypeError:
+            return 0
+        
+        virtual_neighbour = 0
+        index = 0 
+        
+        while virtual_neighbour == 0 and index < 6:
+            virtual_neighbour = corresponding_virtual_node.neighbours[index]
+            index += 1
+            
+        assert virtual_neighbour != 0
+        
+        real_neighbour = real_node.neighbours[- relative_direction + index - 1]
+        
+        assert real_neighbour != 0
+        
+        index_1 = virtual_nodes.index(corresponding_virtual_node)
+        index_2 = virtual_nodes.index(virtual_neighbour)
+        position_1 = positions[index_1]
+        position_2 = positions[index_2]
+        
+        return real_node, real_neighbour, position_1, position_2
+
+        
+        
+        
         
         
                 

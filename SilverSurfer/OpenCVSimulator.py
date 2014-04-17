@@ -47,6 +47,16 @@ class OpenCVSimulator(object):
         
         first_node = self.navigator.field.find_node(x,y)
         
+        # Ensure no nodes xx are selected.
+        direction = 1
+        while first_node.figure.color == "x":
+            next_node = first_node.neighbours[int(3.5 + direction*1.5)]
+            if next_node == 0:
+                direction = direction*-1
+            else:
+                first_node = next_node
+                
+                        
         zeppelin_vector = Vector(x,y) - first_node.position
         
         # Normalize angle
@@ -65,11 +75,12 @@ class OpenCVSimulator(object):
         second_node = 0
         third_node = 0
         
+        # again, ensure no nodes xx or 0 nodes are selected.
         while True:
             second_node = first_node.neighbours[angle]
             third_node = first_node.neighbours[(angle - 1)%6]
             angle = (angle + 1)%6
-            if second_node != 0 and third_node != 0:
+            if second_node != 0 and third_node != 0 and second_node.figure.color != 'x' and third_node.figure.color != 'x':
                 break
         
         return first_node, second_node, third_node
