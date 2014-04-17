@@ -101,28 +101,16 @@ class Navigator(threading.Thread, object):
                 zeppelin_image = image_information[1]
                 time_stamp = image_information[2]
                
+                result = self.field.locate_nodes(figure_images)
                 
-                # Extract the triangle of figures out of the data provided
-                triangles = self.field.extract_triangles(figure_images)
-                
-                i = 0
-                if triangles == 0:
-                    print "Not enough nodes visible"
-                else:
-                    # match triangle in field
-                    nodes = 0
-                    while nodes == 0 and i < len(triangles):
-                        nodes = self.field.find_triangle(triangles[i])
-                        i += 1
+                if result == 0:
+                    print "position detection failed"
+                    # Turn the motors off
+                    self.motor_control.left_motor.level = 0
+                    self.motor_control.right_motor.level = 0
                     
-                    if nodes == 0:
-                        print "Shape detection failed."
-                    else:
-                        print nodes[0].figure.color, nodes[0].figure.shape
-                        print nodes[1].figure.color, nodes[1].figure.shape
-                        print nodes[2].figure.color, nodes[2].figure.shape
-                        # update state
-                        self.update(nodes[0], nodes[1], triangles[i-1][1][0], triangles[i-1][1][1], zeppelin_image, time_stamp)
+                else:
+                    self.update(result[0], result[1], result[2], result[3], zeppelin_image, time_stamp)
                 
         self.stabilizer.stop()
         
@@ -257,5 +245,4 @@ class Navigator(threading.Thread, object):
             self.motor_control.vert_motor.level=lvl
         
     
-        
         

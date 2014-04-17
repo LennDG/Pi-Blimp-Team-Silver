@@ -302,6 +302,12 @@ class Field(object):
         return results
     
     
+    
+    
+    
+        
+                
+    
     """
     This method finds the node on the field that is closest to the position that
     is specified by the given coordinates.
@@ -338,63 +344,7 @@ class Field(object):
         return current_node
     
     
-    """
-    This method returns the trio of nodes that form the same triangle of figures as
-    the given figures in clockwise direction or 0 if no such triangle is found on the
-    field.
-    
-    figures    A tuple of three figures that define a triangle, covered in clockwise
-               direction
-    """
-    def find_triangle(self, figuresx):
-        
-        # Find all the nodes on the field that have the first figure on them and
-        # hence could be the initial node of the triangle.
-        figures = figuresx[0]
-        possible_initials = self.search_field(figures[0])
-        
-        if len(possible_initials) == 0:
-            print "geen possible initials"
-        
-        for initial in possible_initials:
-            # For all neighbours of this potential initial node, check whether it
-            # has the second figure on it.
-            for x in range(0,6):
-                first_neighbour = initial.neighbours[x]
-                if first_neighbour != 0 and first_neighbour.figure == figures[1]:
-                    # If the neighbour of the first neighbour in position x+2(check for yourself)
-                    # has the third figure on it, we have found the triangle
-                    second_neighbour = first_neighbour.neighbours[(x+2)%6]
-                    if second_neighbour != 0 and second_neighbour.figure == figures[2]:
-                        return initial, first_neighbour, second_neighbour
-                    
-        # If no results are found, return 0
-        return 0
-    
-    
-    """
-    This method finds all the pairs of nodes whose figures form the given pair
-    of figures, and returns them as a list of tuples.
-    """    
-    def find_pairs(self, figure_1, figure_2):
-        
-        # Initialize the list of results.
-        results = []
-        
-        # Find all the nodes on the field that have the first figure on it, and hence
-        # could be half of the pair to be found.
-        possible_initials = self.search_field(figure_1)
-        
-        # For each of these possible initial nodes, check whether one of the neighbours
-        # contains the second figure. If so, append this pair to the list of results.
-        for initial in possible_initials:
-            for x in range(0,6):
-                neighbour = initial.neighbours[x]
-                if neighbour != 0 and neighbour.figure == figure_2:
-                    results.append((initial, neighbour))
-        
-        # Return the list
-        return results   
+   
     
     @classmethod
     def calculate_minimal_distance(cls, positions):
@@ -407,149 +357,209 @@ class Field(object):
         return side_length
     
    
-    @classmethod
-    def extract_pairs(cls, positions):
-        allowable_error = 40
-        results = []
-        side_length = cls.calculate_minimal_distance(positions)
-        for x in range(0, len(positions)):
-            for y in range(x+1, len(positions)):
-                distance = (positions[x] - positions[y]).norm
-                if abs(distance - side_length) < allowable_error:
-                    result = (x,y)
-                    results.append(result)
-                    
-        return results
-   
-    
-    
-    """
-    This method checks whether the 3 given duos form a triangle. The duos are defined by the positions
-    of its endpoints.
-    """   
-    @classmethod
-    def check_for_triangle(cls, positions, index_1, index_2, index_3, index_4, index_5, index_6):
-        if positions[index_1] == positions[index_6] and positions[index_2] == positions[index_3] and positions[index_4] == positions[index_5]:
-            return (index_1, index_2, index_4)
-        else:
-            return 0
-                    
-    
+    # getest
     @classmethod    
-    def extract_triangles(cls, figure_images):
+    def define_structure(cls, figures, vectors):
         
         
-        # Initialise results
-        final_result = []
-        positions = []
-        figures = []
-        
-        # Make a list of figures and a list of positions where the indices link them together?
-        for image in figure_images:
-            print image[0],image[1]
-            figure = Figure(image[0], image[1])
-            position = Vector(image[2], image[3])
-            figures.append(figure)
-            positions.append(position)
-            
-        # Get all the pairs of nodes which are neighbours from this collection.    
-        
-        pairs = cls.extract_pairs(positions)
-        
-        if len(pairs) == 0:
-            return 0
-        else:
-            index_1, index_2 = pairs[0]
-            for y in range(1, len(pairs)):
-                index_3, index_4 = pairs[y]
-                for z in range(y+1, len(pairs)):
-                    results = []
-                    index_5, index_6 = pairs[z]
-                    results.append(cls.check_for_triangle(positions, index_1, index_2, index_3, index_4, index_5, index_6))
-                    results.append(cls.check_for_triangle(positions, index_1, index_2, index_3, index_4, index_6, index_5))
-                    results.append(cls.check_for_triangle(positions, index_1, index_2, index_4, index_3, index_5, index_6))
-                    results.append(cls.check_for_triangle(positions, index_1, index_2, index_4, index_3, index_6, index_5))
-                    results.append(cls.check_for_triangle(positions, index_2, index_1, index_3, index_4, index_5, index_6))
-                    results.append(cls.check_for_triangle(positions, index_2, index_1, index_3, index_4, index_6, index_5))
-                    results.append(cls.check_for_triangle(positions, index_2, index_1, index_4, index_3, index_5, index_6))
-                    results.append(cls.check_for_triangle(positions, index_2, index_1, index_4, index_3, index_6, index_5))
-                    for result in results:
-                        if result != 0:
-                            final_result.append(result)
-        uber_final_result = []
-                            
-        if final_result == 0:
-            return 0
-        else:
-            
-            for result in final_result:
-                temp_result = []
-                temp_result.append((figures[result[0]], figures[result[1]], figures[result[2]]))
-                temp_result.append((positions[result[0]], positions[result[1]], positions[result[2]]))
-                uber_final_result.append(temp_result)
-            
-            return uber_final_result
-    
-    
-    @classmethod    
-    def define_structure(cls, images, positions):
-        
-        
-        figures = []
-        
-        for image in images:
-            figure = Figure(image[0], image[1])
-            figures.append(figure)
-        
-        
-        vectors = []
-        
-        for position in positions:
-            vector = Vector(position[0], position[1])
-            vectors.append(vector)
-            
         length = cls.calculate_minimal_distance(vectors)
-        
         
         nodes = []
         
         for figure in figures:
             node = 0
-            if len(nodes) == 0:
-                node = Node(figure, Vector(0,0))
-            else:
-                node = Node(figure)
+            node = Node(figure)
             nodes.append(node)
             
-        cls.add_position(vectors[0], vectors, nodes, length, 0)
+        nodes[0].position = Vector(0,0)
+            
+        cls.add_to_structure(vectors, nodes, length, 0, 0)
         
-        return nodes[0]
+        return nodes
         
+    
+    # getest    
     @classmethod
-    def add_position(cls, current_position, positions, nodes, length, own_index):
+    def add_to_structure(cls, positions, nodes, length, own_index, reference_angle):
         
         allowable_error = length*0.3
+        current_position = positions[own_index]
         
         for x in range(own_index + 1, len(positions)):
             position = positions[x]
             if (position - current_position).norm  - length < allowable_error:
                 angle = (position - current_position).angle
                 
+                if isinstance(reference_angle, (int, long)):
+                    reference_angle = angle
+                    
+                angle = angle - reference_angle
+                
                 # Normalize angle
                 while angle < 0:
                     angle = angle + 2*pi
-                while angle > 2*pi:
+                while angle >= 2*pi:
                     angle = angle - 2*pi
                     
-                 # transform angle into 6 integer space
-                relative_position = angle/2/pi*6 # maximum angle =  6
-                relative_position = int(relative_position)
+                # transform angle into 6 integer space
+                relative_position = angle/2/pi*6 + 0.3 # Adding some marge
+                relative_position = int(relative_position)%6 # 0,1,2,3,4,5
                 relative_position = (6 - relative_position)%6
                 relative_position = (relative_position + 2)%6
                 
                 nodes[own_index].add_node(nodes[x], relative_position)
                 
-                cls.add_position(positions[x], positions, nodes, length, x)
+                cls.add_to_structure(positions, nodes, length, x, reference_angle)
+                
+    @classmethod
+    def amount_of_useful_nodes(cls, nodes):
+        
+        result = 0
+        
+        for node in nodes:
+            if node.figure.color != "undefined":
+                result += 1
+                
+        return float(result)
+                
+    
+    # Zou ook moeten werken.
+    def match_partial_field(self, virtual_nodes, estimated_position):
+        
+        threshold_score = 0.75 # For now
+        
+        real_node = 0
+        corresponding_virtual_node= 0
+        score = 0.0
+        relative_direction = 0
+        
+        for node in virtual_nodes:
+            temp_result, temp_score, direction = self.match_node_configuration(node, estimated_position)
+            if temp_score > score:
+                real_node = temp_result
+                corresponding_virtual_node = node
+                score = temp_score
+                relative_direction = direction
+#             elif temp_score == score:
+#                 result = 0 # Equal scores are unusable
+#                kan voorlopig niet gedaan worden omdat een equivalente configuratie meer dan eens kan terugkomen
+
+        
+        score = score/float(self.amount_of_useful_nodes(virtual_nodes))
+        
+        if score > threshold_score and real_node != 0:
+            return real_node, corresponding_virtual_node, relative_direction
+        else:
+            return 0
             
+            
+                
+    def match_node_configuration(self, node_in_structure, estimated_position):
+        
+        # The radius within which the results are estimated to be.
+        radius = 10000 # to be refined 
+        
+        # First, search all nodes in the field that match the given node.
+        initials = self.search_field(node_in_structure.figure)
+        
+        # Secondly, reject all the nodes that are way out of distance
+        confirmed_initials = []
+        for initial in initials:
+            if (initial.position - estimated_position).norm < radius:
+                confirmed_initials.append(initial)
+                
+        result = 0
+        score = 0.0
+        relative_direction = 0
+                
+        # now start the matching
+        for initial in confirmed_initials:
+            
+            for x in range(0,6):
+                temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0)
+                if temp > score:
+                    score = temp
+                    relative_direction = x
+                    result = initial
+            
+        return result, score, relative_direction
+                
+    
+    def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score):
+        
+        score = score + self.assign_score(current_node, node_in_structure)
+        for x in range(0, 6):
+            virtual_direction = (x + direction_difference)%6
+            
+            if  check_node.neighbours[virtual_direction] == 0 and node_in_structure.neighbours[virtual_direction] != 0:
+                next_node = current_node.neighbours[x]
+                next_node_in_partial_field = node_in_structure.neighbours[virtual_direction]
+                new_check_node = Node(next_node_in_partial_field.figure)
+                check_node.add_node(new_check_node, virtual_direction)
+                if next_node == 0 or next_node.figure.color == 'x': # Als er in het echte veld geen node ligt, is deze configuratie onmogelijk.
+                    return -1000.0
+                score = self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score)
+        
+        return score
+    
+    
+    # to be implemented fully
+    def assign_score(self, real_node, virtual_node):
+        if real_node.figure == virtual_node.figure:
+            return 1.0
+        elif real_node.figure.color == virtual_node.figure.color:
+            if virtual_node.figure.shape == "undefined":
+                return 0.5
+            else:
+                return 0.4
+        else:
+            return 0.0
+        
+    
+    
+    # lijkt op het eerst zicht geen fouten in te zitten
+    def locate_nodes(self, figure_images):
+        
+        # Put the figures and images in their respective lists.
+        
+        positions = []
+        figures = []
+        
+        for image in figure_images:
+            figure = Figure(image[0], image[1])
+            figures.append(figure)
+            vector = Vector(image[2], image[3])
+            positions.append(vector)
+            
+        virtual_nodes = self.define_structure(figures, positions)
+        
+        estimated_position = Vector(0,0) # for now, radius in method above allows this.
+        
+        try:
+            real_node, corresponding_virtual_node, relative_direction = self.match_partial_field(virtual_nodes, estimated_position)
+        except TypeError:
+            return 0
+        
+        virtual_neighbour = 0
+        index = 0 
+        
+        while virtual_neighbour == 0 and index < 6:
+            virtual_neighbour = corresponding_virtual_node.neighbours[index]
+            index += 1
+            
+        assert virtual_neighbour != 0
+        
+        real_neighbour = real_node.neighbours[- relative_direction + index - 1]
+        
+        assert real_neighbour != 0
+        
+        index_1 = virtual_nodes.index(corresponding_virtual_node)
+        index_2 = virtual_nodes.index(virtual_neighbour)
+        position_1 = positions[index_1]
+        position_2 = positions[index_2]
+        
+        return real_node, real_neighbour, position_1, position_2
+
+        
         
     
