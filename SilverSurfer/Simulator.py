@@ -60,7 +60,7 @@ field = Field(parsed_format)
 # OpenCV, For now, the simulated version is used as the real one is not available yet.
 
 # The mean deviation from the images of nodes are from their supposed position in pixels.
-error_level = 1
+error_level = 20
 # The mean deviation in the angle of the velocity vector from its supposed value
 velocity_error = 0.01
 angular_instability = 0.0000000000000001
