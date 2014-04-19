@@ -77,6 +77,7 @@ navigator.start()
 
 """ Zeppelin """
 
+print"Construct Zeppelin"
 zeppelin = Zeppelin(navigator)
 zeppelin.start()
 

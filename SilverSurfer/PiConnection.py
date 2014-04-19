@@ -229,12 +229,12 @@ class PiConn2dot1( threading.Thread, object):
         
         not_established = True
         while(not_established):
-            try:
-                self.initialization_receiver()
-                self.initialization_sender()
-                not_established = False
-            except Exception:
-                not_established = True
+             try:
+                 self.initialization_receiver()
+                 self.initialization_sender()
+                 not_established = False
+             except Exception:
+                 not_established = True
         
 
 ###########
@@ -295,11 +295,11 @@ class PiConn2dot1( threading.Thread, object):
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="silversurfer.lcommand.motor1")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="silversurfer.lcommand.motor2")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="silversurfer.lcommand.motor3")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private,routing_key="silversurfer.private.pid.setpid")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key="silversurfer.private.pid.setpid")
         
         self.channel_consumer.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
-        self.channel_consumer.basic_consume(self.callback_private_setpid, queue=self.queue_private, no_ack=True)   
+        self.channel_consumer.basic_consume(self.callback_private_setpid, queue=self.queue_private_setpid, no_ack=True)   
         self.channel_consumer.basic_consume(self.callback_set_motor1, queue=self.queue_lcommand_motor1, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_set_motor2, queue=self.queue_lcommand_motor2, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_set_motor3, queue=self.queue_lcommand_motor3, no_ack=True)        
@@ -372,6 +372,7 @@ class PiConn2dot1( threading.Thread, object):
 class Gate2dot1(threading.Thread,object):
     
     def __init__(self, zeppelin):
+        print "initiate gate"
         threading.Thread.__init__(self)
         self.zep = zeppelin
         self.PIconnection = PiConn2dot1(self)
@@ -396,6 +397,7 @@ class Gate2dot1(threading.Thread,object):
       
         
     def open(self):
+        print "Open connection Pi-side"
         self.PIconnection.start()
         self.start()
     
@@ -463,8 +465,23 @@ class Gate2dot1(threading.Thread,object):
         lvl= (int(float(string)))
         if(lvl >= -100 and lvl <= 100):
             self.zep.navigator.motor_control.vert_motor.level=lvl
-            
-        
+
+    def set_Kp(self,kp):
+        pass
+    def set_Kd(self,kd):
+        pass
+    def set_Ki(self,ki):
+        pass
+    def set_Ci(self,ci):
+        pass
+    def set_Cd(self,cd):
+        pass
+    def set_BIAS(self,bias):
+        pass
+    def set_MAX_PID_OUTPUT(self,max_pid):
+        pass
+    def set_MAX_Ci(self,max_ci):
+        pass
     
     
         

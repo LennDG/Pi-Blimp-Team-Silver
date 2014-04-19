@@ -1,13 +1,11 @@
+#!/usr/bin/env python
 import pika
 import logging
 
 logging.basicConfig()
-credentials = pika.PlainCredentials('zilver', 'zilver')
-parameters = pika.ConnectionParameters('localhost',
-                                       5673,
-                                       '/',
-                                       credentials)
-connection = pika.BlockingConnection(parameters)
+
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+        host='localhost'))
 channel = connection.channel()
 
 channel.queue_declare(queue='hello')

@@ -20,6 +20,7 @@ class Zeppelin(threading.Thread, object):
 #         self.positions.append(Vector(200,200))
 #         self.positions.append(Vector(40,-200))
         
+
         self.gate = PiConnection.Gate2dot1(self)
         self.gate.open()
         
@@ -36,7 +37,6 @@ class Zeppelin(threading.Thread, object):
         self.navigator.distance_sensor.height = 150
         
         while True:
-            
             if self.navigator.goal_height == 0 and self.navigator.height < 20:
                 self.navigator.goal_position = 0
             
