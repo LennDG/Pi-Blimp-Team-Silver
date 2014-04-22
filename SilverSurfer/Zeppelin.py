@@ -2,6 +2,7 @@ import threading
 import time
 from Vector import Vector
 import PiConnection
+import ImageRecognition as IR
      
 class Zeppelin(threading.Thread, object):
        
@@ -45,13 +46,33 @@ class Zeppelin(threading.Thread, object):
 #                 i = (i + 1)%4
 #                 print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
 #                 
-            elif self.navigator.goal_reached == True:
-                self.navigator.goal_height = 0
-#                 self.navigator.goal_position = self.positions[i]
-#                 i = (i + 1)%4
-#                 print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
-#            
-            
-            
+                    
+            #Logic for QR codes right here
+            elif self.navigator.goal_reached :
+                #Send Public Key to tablet
+                
+                #wait half a second
+                time.sleep(0.5)
+                
+                #Start a timer
+                tic = time.time()
+                
+                #Take picture
+                IR.take_picture("/run/shm/QR.jpg")
+                
+                #Read text
+                text = IR.decode_qrcode("/run/shm/QR.jpg")
+                
+                #Keep trying to take picture for 5 seconds if it is not found
+                while text is None:
+                    IR.take_picture("/run/shm/QR.jpg")
+                    text = IR.decode_qrcode("/run/shm/QR.jpg")
+                    if time.time() - tic > 5:
+                        #Can't read QR code, stop trying
+                        break
+                
+                #Decrypt text
+                
+                #Use moveto function to update in navigator
             else:
                 time.sleep(1)
