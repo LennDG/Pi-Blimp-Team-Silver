@@ -5,6 +5,8 @@ import math
 from subprocess import call
 import zbar
 from PIL import Image
+from Crypto.PublicKey import RSA
+from Crypto import Random
 
 #Define scanner for zbar QR
 scanner = zbar.ImageScanner()
@@ -206,6 +208,17 @@ def decode_qrcode(img_file):
         data = symbol.data
             
     return data
+
+def decrypt_text(ecrypt_data):
+    
+    #key's genereren -- waar doen we dit ?
+    random_g = Random.new().read
+    private_key = RSA.generate(1024, random_g) #arg1: lengte key: veelvoud van 256 en >= 1024
+    public_key = key.publickey()  #public key doorsturen naar server
+    
+    #enc_data = public_key.encrypt('abcdefgh', 32)  --- encrypt
+    key.decrypt(ecrypt_data)
+
     
     
 
