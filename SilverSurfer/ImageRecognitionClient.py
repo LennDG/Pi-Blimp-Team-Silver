@@ -12,4 +12,10 @@ class ImageRecognitionClient(object):
     
     def generate_image(self):
         return IR.generate_image()
+    
+    def take_picture(self, img_loc):
+        IR.take_picture(img_loc)
+        
+    def decode_qrcode(self, img_loc):
+        return IR.decode_qrcode(img_loc)
         
