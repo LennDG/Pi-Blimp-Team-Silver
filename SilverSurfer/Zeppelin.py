@@ -32,7 +32,6 @@ class Zeppelin(threading.Thread, object):
              
     def run(self):
         
-        i = 0
         self.navigator.goal_height = 150
         self.navigator.distance_sensor.height = 150
         
@@ -51,6 +50,8 @@ class Zeppelin(threading.Thread, object):
 #                 self.navigator.goal_position = self.positions[i]
 #                 i = (i + 1)%4
 #                 print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
-#                 
+#            
+            
+            
             else:
                 time.sleep(1)

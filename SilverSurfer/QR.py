@@ -1,6 +1,6 @@
 #File for scanning QR codes
 
-import zxing, threading, zbar, os, math, re
+import threading, zbar, os, math, re
 from subprocess import call
 from PIL import Image
 
@@ -8,13 +8,12 @@ class Camera(object):
     
     def take_picture(self, img_file, width = 800, height = 600):
         #TODO: Flag to increase to 1024 x 768
-        call(["raspistill -w " + str(width) + " -h " + str(height) + " -q 75 " + " -t 0 -o " + img_file], shell=True)        
+        call(["raspistill -w " + str(width) + " -h " + str(height) + " -t 10 -n -o " + img_file], shell=True)        
     
 
 class QRScanner(object):
     
     def __init__(self):
-        self.zxing_reader = zxing.BarCodeReader("/home/pi/zxing-1.6")
         
         self.zbar_reader = zbar.ImageScanner()
         self.zbar_reader.parse_config("enable")
@@ -30,11 +29,6 @@ class QRScanner(object):
         QR_strings = self.zbar_read(tmp)
         
         return QR_strings
-        
-    
-    def zxing_read(self, img_file):
-        QRcode = self.reader.decode(img_file)
-        return QRcode
         
     def zbar_read(self, img_file):
         
@@ -52,8 +46,10 @@ class QRScanner(object):
             symbols.append(symbol.data)
             
         return symbols
-        
-        
+
+
+
+
 
 class QR(threading.Thread, object):
     

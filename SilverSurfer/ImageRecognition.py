@@ -6,6 +6,10 @@ from subprocess import call
 import zbar
 from PIL import Image
 
+#Define scanner for zbar QR
+scanner = zbar.ImageScanner()
+scanner.parse_config("enable")
+
 #Define location of the image, will probably change to memory instead of disk
 img_loc = "/run/shm/image.jpg"
 
@@ -158,8 +162,6 @@ def detect_targets():
             centroid_y = int(M['m01']/M['m00'])
             
             valid = True
-            if shape_name == "undefined":
-                valid = False
             if area <= 1000:
                 valid = False
             for figure in figures:
@@ -188,11 +190,7 @@ def generate_image():
     return targets, zeppelin_image, time_stamp
 
 def decode_qrcode(img_file):
-    
-    #scanner object mss in constructor aanmaken
-    scanner = zbar.ImageScanner()
-    scanner.parse_config("enable")
-    
+ 
     #afbeelding laden
     pil = Image.open(img_file).convert('L')
     width, height = pil.size
@@ -203,12 +201,11 @@ def decode_qrcode(img_file):
     scanner.scan(image)
     
     #resultaat teruggeven als een lijst
-    symbols = []
     
     for symbol in image:
-        symbols.append(symbol.data)
+        data = symbol.data
             
-    return symbols
+    return data
     
     
 
