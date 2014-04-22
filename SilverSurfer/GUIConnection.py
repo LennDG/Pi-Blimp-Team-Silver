@@ -7,9 +7,9 @@ class GUIConn2dot1(threading.Thread, object):
         threading.Thread.__init__(self)
         logging.basicConfig()
         self.gui = gui
-#        credentials = pika.PlainCredentials('zilver', 'zilver')
-#        self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
-        self.parameters = 'localhost'
+        credentials = pika.PlainCredentials('zilver', 'zilver')
+        self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
+#         self.parameters = 'localhost'
         
         not_established = True
         while(not_established):

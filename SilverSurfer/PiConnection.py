@@ -3,9 +3,6 @@
 import socket, threading, re, Commands,time
 import pika, logging,random
 
-
-
-
 class PiConn2dot1( threading.Thread, object):
     
     def __init__(self,gate):
@@ -13,9 +10,9 @@ class PiConn2dot1( threading.Thread, object):
         threading.Thread.__init__(self)
         self.gate = gate
         
-#         credentials = pika.PlainCredentials('zilver', 'zilver')
-#         self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
-        self.parameters = 'localhost'
+        credentials = pika.PlainCredentials('zilver', 'zilver')
+        self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
+#         self.parameters = 'localhost'
         
         not_established = True
         while(not_established):
@@ -149,6 +146,8 @@ class PiConn2dot1( threading.Thread, object):
     def send_info_motors(self,string):
         self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.motors', body=string)
         
+    def send_public_key_to(self,tabletnb,key):
+        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.tablets.tablet'+str(tabletnb), body=key)
 
             
 class Gate2dot1(threading.Thread,object):
