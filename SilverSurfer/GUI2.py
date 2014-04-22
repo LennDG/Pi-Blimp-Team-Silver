@@ -166,20 +166,6 @@ class GUI(Frame):
         self.flag_btn = False
         self.stop_show_height = True
         self.stop_show_motors = True
-        #binden van buttons
-        self.parent.bind('<Up>',self.move_forward)
-        self.parent.bind('<Down>',self.move_backward)
-        self.parent.bind('<Left>',self.turn_left)
-        self.parent.bind('<Right>',self.turn_right)
-        self.parent.bind('<a>',self.ascend)
-        self.parent.bind('<d>',self.descend)
-        
-        self.parent.bind('<KeyRelease-Up>',self.h_release)
-        self.parent.bind('<KeyRelease-Down>',self.h_release)
-        self.parent.bind('<KeyRelease-Left>',self.h_release)
-        self.parent.bind('<KeyRelease-Right>',self.h_release)
-        self.parent.bind('<KeyRelease-a>',self.v_release)
-        self.parent.bind('<KeyRelease-d>',self.v_release)
         
         
         
@@ -206,20 +192,6 @@ class GUI(Frame):
         
         self.Frame_control= Frame(self.Frame_input,background="gray55")
        
-#Grote Stop knop
-       
-       
-#         btn_stop = Button(self.Frame_control, text="STOP" , command= self.stop, background = "red",foreground = "white")
-#         btn_stop.config( height = 5, width = 10) 
-#         btn_stop.grid(row = 0, column = 0, padx = 5, pady = 3, sticky='W') 
-        
-# #Grote Switch knop
-#         
-#         btn_switch = Button(self.Frame_control, text="SWITCH" , command= self.switch, background = "red",foreground = "white")
-#         btn_switch.config( height = 5, width = 10) 
-#         btn_switch.grid(row = 0, column = 2, padx = 5, pady = 3, sticky='W') 
-        
-       
 #pijltjes, A en D
        
         self.Frame_btn_control = Frame(self.Frame_control,background="gray55")
@@ -231,9 +203,7 @@ class GUI(Frame):
         self.motors_input = Entry(self.Frame_control) 
         self.motors_input.grid(row = 0, column = 0,columnspan=2, sticky="WE")
         
-#         self.img_left = Image.open('pijlUPM1.png')
-#         imgr_left = self.img_left.resize((rc_btn_height, rc_btn_width),Image.ANTIALIAS)
-#         self.img_left1 = ImageTk.PhotoImage(imgr_left)
+        
         self.btn_M1 = Button(self.Frame_control, text="MOTORS",command= self.invoke_set_motors,background ="gray11",foreground = "white") #pijltje omhoog afbeelding #TODO:
         self.btn_M1.grid(row = 0, column = 3)  
         
@@ -243,7 +213,7 @@ class GUI(Frame):
         self.entry_input = Entry(self.Frame_control) 
         self.entry_input.config( width = 1 )
         self.entry_input.grid(row = 1, column = 0,columnspan=2, padx = 3, pady = 3,sticky="WE") 
-        self.btn_input_enter = Button(self.Frame_control, text="STABILIZE",command= self.invoke_stabilize,background ="gray11",foreground = "white") 
+        self.btn_input_enter = Button(self.Frame_control, text="PARAMETERS",command= self.invoke_parameters,background ="gray11",foreground = "white") 
         self.btn_input_enter.grid(row = 1, column = 3, padx = 2, pady = 3,sticky="WE")
         
         
@@ -358,9 +328,8 @@ class GUI(Frame):
         
                
         self.lbl_txt_motor1 = Label(self.Frame_motors,text="Height", bg = "grey55",fg="white")
-#         self.lbl_txt_motor1.grid(row =6,column = 0 )
         self.lbl_height = Label(self.Frame_motors, textvariable=self.height,width = motor_height_text_width, bg = "grey55",fg="white")
-#        self.lbl_height.grid(row = 6, column = 1, padx = 5, pady = 1,sticky='WE') 
+
         
         
         self.Frame_graphview = Frame(self.Frame_visual_view, bg = "grey55")
@@ -457,112 +426,8 @@ class GUI(Frame):
     
       
    
-    def invoke_stabilize(self):
-        height = self.entry_input.get()
-        self.send_string_command('STABILIZE:' + str(int(height)))
+
        
-        
-
-
-   #test methodes 
-    def pushed(self,*args):
-        if self.flag_btn == False:
-            print 'pushed'
-            self.flag_btn=True
-            
-    def released(self,*args):
-        if self.flag_btn == True:
-            print 'released'
-            self.flag_btn=False
-         
-    def pushed2(self,*args):
-        if self.flag_btn == False:
-            print 'pushed2'
-            self.flag_btn=True
-            
-    def released2(self,*args):
-        if self.flag_btn == True:
-            print 'released2'
-            self.flag_btn=False
-            
-    # einde testmethodes
-    
-    def h_release(self,*args):
-        if self.flag_btn == True:
-            self.h_stop()
-            self.flag_btn=False
-    
-    def v_release(self,*args):
-        if self.flag_btn == True:
-            self.v_stop()
-            self.flag_btn=False
-
-    def move_forward(self,*args):
-        if self.flag_btn == False:
-            #command= Commands.Move(float('infinity'))
-            #self.queue.put(command)
-            self.send_string_command('V:' + 'infinity')
-            self.flag_btn=True
-          
-            
-    def turn_left(self,*args):
-        if self.flag_btn == False:
-            #command= Commands.Turn(float('-infinity'))
-            #self.queue.put(command)
-            self.send_string_command('L:' + 'infinity')
-            self.flag_btn=True
-
-    def turn_right(self,*args):
-        if self.flag_btn == False:
-            #command= Commands.Turn(float('infinity'))
-            #self.queue.put(command)
-            self.send_string_command('R:' +'infinity')
-            self.flag_btn=True
-        
-    def move_backward(self,*args):
-        if self.flag_btn == False:
-            #command= Commands.Move(float('-infinity'))
-            #self.queue.put(command)
-            self.send_string_command('A:' + 'infinity')
-            self.flag_btn=True
-        
-    def ascend(self,*args):
-        if self.flag_btn == False:
-            #command= Commands.Ascension(float('infinity')) #Commands.<Stijgen>
-            #command= Commands.VertMove(100)
-            #self.queue.put(command)
-            self.send_string_command('S:' + 'infinity')
-            self.flag_btn=True
-        
-    def descend(self,*args):
-        if self.flag_btn == False:    
-            #command= Commands.VertMove(-100)
-            #self.queue.put(command)
-            self.send_string_command('D:' + 'infinity')
-            self.flag_btn=True
-            
-
-    
-    def h_stop(self,*args):
-        #command = Commands.HorStop()
-        #self.queue.put(command)
-        self.send_string_command('STOP:0')
-        
-    def v_stop(self,*args):
-      #  command = Commands.VertStop()
-        #command= Commands.VertMove(0)
-        #self.queue.put(command)
-        self.send_string_command('STOP:0')
-    
-        
-    def stop(self,*args):
-        #command = Commands.Stop()
-        #self.queue.put(command)
-        self.send_string_command('STOP:0')
-        
-    def switch(self,*args):
-        new_modus = (self.zep_modus + 1) % 2
-        self.send_string_command('SWITCH:' + str(new_modus))   
         
         
 #EXTRA METHODES VOOR ZEPPELIN 2.0
@@ -577,7 +442,9 @@ class GUI(Frame):
         coords_spl = coords.split(" ")
         self.GUIconnection.move_to(coords_spl[0],coords_spl[1],coords_spl[2])
         
-
+    def invoke_parameters(self):
+        param = self.entry_input.get()
+        self.GUIconnection.set_parameters(param)
 
     
 
@@ -676,13 +543,7 @@ class GUI(Frame):
     
     def update_gui(self):
        
-        try:
-                string = self.inputqueue.get(False)
-                self.take_care_of_message_string(string)   
-                
-        except Queue.Empty:
-                #Do nothing
-                pass
+
         
         
         
@@ -782,20 +643,6 @@ class GUI(Frame):
                 
         
         
-    def take_care_of_message_string(self,string):
-        code = self.parser.parse_string_type(string)
-        if code[0] == self.compiler.type_words[0]:
-            self.update_SilverSurfer_dictionary(code[1])
-
-        elif code[0] == self.compiler.type_words[1] and code[1] != "":
-            if code[1] != self.zeppelin_database.zeppelins['silversurfer']['Status']: 
-                self.print_in_textbox_decisions(string)
-                self.zeppelin_database.zeppelins['silversurfer']['Status'] = code[1]
-        
-        elif code[0]== self.compiler.type_words[2] or code[0]== self.compiler.type_words[3]:
-            self.print_in_textbox_decisions(string) 
-        else:
-            print "Reply: " + string
             
     def update_SilverSurfer_dictionary(self, state_string):
 
