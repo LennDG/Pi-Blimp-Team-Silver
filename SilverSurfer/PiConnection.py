@@ -10,18 +10,19 @@ class PiConn2dot1( threading.Thread, object):
         threading.Thread.__init__(self)
         self.gate = gate
         
-        credentials = pika.PlainCredentials('zilver', 'zilver')
-        self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
-#         self.parameters = 'localhost'
+        credentials = pika.PlainCredentials('guest', 'guest')
+
+        self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
+        self.parameters = 'localhost'
         
         not_established = True
-        while(not_established):
-             try:
-                 self.initialization_receiver()
-                 self.initialization_sender()
-                 not_established = False
-             except Exception:
-                 not_established = True
+#        while(not_established):
+#             try:
+        self.initialization_receiver()
+        self.initialization_sender()
+#                  not_established = False
+#              except Exception:
+#                  not_established = True
         
 
 ###########
