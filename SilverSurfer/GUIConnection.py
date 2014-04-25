@@ -37,7 +37,7 @@ class GUIConn2dot1(threading.Thread, object):
                 self.initialization_consumer()
                 
     def initialization_sender(self):
-        self.connection_sender = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.connection_sender = pika.BlockingConnection( self.parameters)
         self.channel_sender = self.connection_sender.channel(channel_number=4)
         self.channel_sender.exchange_declare(exchange='server', type='topic')
                 
@@ -45,7 +45,7 @@ class GUIConn2dot1(threading.Thread, object):
         
         
         #Make channel_consumer
-        self.connection_consumer = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.connection_consumer = pika.BlockingConnection( self.parameters)
         self.channel_consumer = self.connection_consumer.channel(channel_number=3)
         self.channel_consumer.exchange_declare(exchange='server', type='topic')
 
@@ -96,6 +96,8 @@ class GUIConn2dot1(threading.Thread, object):
 #         self.queue_private_motors_info.purge()
         
     def callback_private_pid_info(self,ch, method, properties, body):
+        print "parameters set"
+        print body
         params = body.split(" ")
         for parameter in params:
             p = parameter.split("=")

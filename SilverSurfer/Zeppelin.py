@@ -24,7 +24,7 @@ class Zeppelin(threading.Thread, object):
 
         self.gate = PiConnection.Gate2dot1(self)
         self.gate.open()
-        self.IRC = IRC()
+#        self.IRC = IRC()
         
     def moveto(self, x, y, z):
         new_position = Vector(x, y)

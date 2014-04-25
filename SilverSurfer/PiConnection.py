@@ -10,19 +10,20 @@ class PiConn2dot1( threading.Thread, object):
         threading.Thread.__init__(self)
         self.gate = gate
         
-        credentials = pika.PlainCredentials('guest', 'guest')
-
+        
+        credentials = pika.PlainCredentials('zilver', 'zilver')
         self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
-        self.parameters = 'localhost'
+#        self.parameters = 'localhost'
         
         not_established = True
-#        while(not_established):
-#             try:
-        self.initialization_receiver()
-        self.initialization_sender()
-#                  not_established = False
-#              except Exception:
-#                  not_established = True
+        while(not_established):
+             try:
+                 self.initialization_sender()
+                 self.initialization_receiver()
+
+                 not_established = False
+             except Exception:
+                 not_established = True
         
 
 ###########
@@ -43,7 +44,7 @@ class PiConn2dot1( threading.Thread, object):
                 self.initialization_receiver() 
                 
     def initialization_sender(self):
-        self.connection_sender = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.connection_sender = pika.BlockingConnection(self.parameters)
         self.channel_sender = self.connection_sender.channel(channel_number=2)
         self.channel_sender.exchange_declare(exchange='server', type='topic')
 
@@ -53,7 +54,7 @@ class PiConn2dot1( threading.Thread, object):
         
 ###########
 #Make channel_consumer
-        self.connection_consumer = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.connection_consumer = pika.BlockingConnection( self.parameters)
         self.channel_consumer = self.connection_consumer.channel(channel_number=1)
         self.channel_consumer.exchange_declare(exchange='server', type='topic')
 
