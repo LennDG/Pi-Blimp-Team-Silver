@@ -5,15 +5,16 @@ import pika, logging,random
 
 class PiConn2dot1( threading.Thread, object):
     
-    def __init__(self,gate):
+    def __init__(self,gate,name):
         logging.basicConfig()
         threading.Thread.__init__(self)
         self.gate = gate
+        self.zep_name = name
         
         
         credentials = pika.PlainCredentials('zilver', 'zilver')
         self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
-#        self.parameters = 'localhost'
+        self.parameters = pika.ConnectionParameters(host = 'localhost')
         
         not_established = True
         while(not_established):
@@ -79,12 +80,12 @@ class PiConn2dot1( threading.Thread, object):
                 #bind the queues to keys
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="silversurfer.hcommand.elevate")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="silversurfer.hcommand.move")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="silversurfer.lcommand.motor1")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="silversurfer.lcommand.motor2")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="silversurfer.lcommand.motor3")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key="silversurfer.private.pid.setpid")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="zilver.hcommand.elevate")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="zilver.hcommand.move")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="zilver.lcommand.motor1")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="zilver.lcommand.motor2")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="zilver.lcommand.motor3")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key="zilver.private.pid.setpid")
         
         self.channel_consumer.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
@@ -99,17 +100,8 @@ class PiConn2dot1( threading.Thread, object):
             p = param.split("=")
             self.gate.set_PID_parameter(p[0],p[1])
             
-    def send_PID_param(self):
-
-        message = ("Ci="+str(self.gate.zep.navigator.stabilizer.Ci)
-                   +" Cd=" +str(self.gate.zep.navigator.stabilizer.Cd)
-                   +" Kp=" +str(self.gate.zep.navigator.stabilizer.Kp)
-                   +" Kd=" +str(self.gate.zep.navigator.stabilizer.Kd)
-                   +" Ki=" +str(self.gate.zep.navigator.stabilizer.Ki)
-                   +" BIAS="+str(self.gate.zep.navigator.stabilizer.BIAS)
-                   +"MAX_PID_OUTPUT="+str(self.gate.zep.navigator.stabilizer.MAX_PID_OUTPUT)
-                   +"MAX_Ci="+str(self.gate.zep.navigator.stabilizer.MAX_Ci))
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.pid.infofromzep', body=message)
+    def send_PID_param(self,message):
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.pid.infofromzep', body=message)
             
         
     def callback_set_motor1(self,ch, method, properties, body):
@@ -130,26 +122,26 @@ class PiConn2dot1( threading.Thread, object):
         self.gate.move_to_horizontal(body)   
 
     def send_message_to_gui(self,message):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.fromPI', body=message)
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.fromPI', body=message)
     
     def send_position_to_server(self,x,y,z):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.info.location', body=str(x)+","+str(y))
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.info.height', body=str(z))
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.info.location', body=str(x)+","+str(y))
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.info.height', body=str(z))
             
     def send_status(self,status):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.status', body=status)
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.status', body=status)
         
     def send_goal_coordinates(self,x,y,z):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
         
     def send_coords_figures(self,string):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.recognized', body=string)
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.recognized', body=string)
         
     def send_info_motors(self,string):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.motors', body=string)
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.motors', body=string)
         
     def send_public_key_to(self,tabletnb,key):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.tablets.tablet'+str(tabletnb), body=key)
+        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.tablets.tablet'+str(tabletnb), body=key)
 
             
 class Gate2dot1(threading.Thread,object):
@@ -158,7 +150,7 @@ class Gate2dot1(threading.Thread,object):
         print "initiate gate"
         threading.Thread.__init__(self)
         self.zep = zeppelin
-        self.PIconnection = PiConn2dot1(self)
+        self.PIconnection = PiConn2dot1(self,zeppelin.name)
         self.PID_dict = {"Kp":self.set_Kp,
                          "Kd":self.set_Kd,
                          "Ki":self.set_Ki,
@@ -212,7 +204,15 @@ class Gate2dot1(threading.Thread,object):
         m2 = self.zep.navigator.motor_control.right_motor.level
         m3 = self.zep.navigator.motor_control.vert_motor.level
         self.PIconnection.send_info_motors(str(m1)+" "+str(m2)+" "+str(m3))
-        self.PIconnection.send_PID_param()
+        message = ("Ci="+str(self.zep.navigator.stabilizer.Ci)
+                   +" Cd=" +str(self.zep.navigator.stabilizer.Cd)
+                   +" Kp=" +str(self.zep.navigator.stabilizer.Kp)
+                   +" Kd=" +str(self.zep.navigator.stabilizer.Kd)
+                   +" Ki=" +str(self.zep.navigator.stabilizer.Ki)
+                   +" BIAS="+str(self.zep.navigator.stabilizer.BIAS)
+                   +" MAX_PID_OUTPUT="+str(self.zep.navigator.stabilizer.MAX_PID_OUTPUT)
+                   +" MAX_Ci="+str(self.zep.navigator.stabilizer.MAX_Ci))
+        self.PIconnection.send_PID_param(message)
         
         
 
@@ -259,7 +259,9 @@ class Gate2dot1(threading.Thread,object):
     def set_Ci(self,ci):
         self.zep.navigator.stabilizer.Ci=ci
     def set_Cd(self,cd):
+        print "SET CD, It was " + str(self.zep.navigator.stabilizer.Cd)
         self.zep.navigator.stabilizer.Cd=cd
+        print str(self.zep.navigator.stabilizer.Cd)
     def set_BIAS(self,bias):
         self.zep.navigator.stabilizer.BIAS=bias
     def set_MAX_PID_OUTPUT(self,max_pid):

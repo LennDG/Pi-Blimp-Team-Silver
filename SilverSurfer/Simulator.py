@@ -77,8 +77,8 @@ navigator.start()
 
 """ Zeppelin """
 
-print"Construct Zeppelin"
-zeppelin = Zeppelin(navigator)
+name = "simulator_zilver"
+zeppelin = Zeppelin(navigator,name)
 zeppelin.start()
 
 print "Simulator is up and running, baby."

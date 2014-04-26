@@ -9,7 +9,7 @@ class GUIConn2dot1(threading.Thread, object):
         self.gui = gui
         credentials = pika.PlainCredentials('zilver', 'zilver')
         self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
-#         self.parameters = 'localhost'
+        self.parameters = pika.ConnectionParameters('localhost')
         
         not_established = True
         while(not_established):
@@ -74,11 +74,11 @@ class GUIConn2dot1(threading.Thread, object):
                 #bind the queues to keys
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_info_location,routing_key="*.info.location")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_info_height,routing_key="*.info.height")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_goal_coords,routing_key="silversurfer.private.goalcoords")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_status,routing_key="silversurfer.private.status")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_recognized,routing_key="silversurfer.private.recognized")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_motors_info,routing_key="silversurfer.private.motors")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_pid_info,routing_key="silversurfer.private.pid.infofromzep")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_goal_coords,routing_key="zilver.private.goalcoords")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_status,routing_key="zilver.private.status")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_recognized,routing_key="zilver.private.recognized")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_motors_info,routing_key="zilver.private.motors")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_pid_info,routing_key="zilver.private.pid.infofromzep")
 
 #        self.queue_info_location.purge()
         self.channel_consumer.basic_consume(self.callback_info_location, queue=self.queue_info_location, no_ack=True)
@@ -97,11 +97,11 @@ class GUIConn2dot1(threading.Thread, object):
         
     def callback_private_pid_info(self,ch, method, properties, body):
         print "parameters set"
-        print body
         params = body.split(" ")
+        print str(params)
         for parameter in params:
             p = parameter.split("=")
-            self.gui.zeppelin_database.zeppelins["silversurfer"][p[0]]=p[1]
+            self.gui.zeppelin_database.zeppelins["zilver"][p[0]]=p[1]
             
     
     def callback_private_recognized(self,ch, method, properties, body):
@@ -120,15 +120,15 @@ class GUIConn2dot1(threading.Thread, object):
 
     def callback_private_goal_coords(self,ch, method, properties, body):
         coords = body.split(",")
-        self.gui.zeppelin_database.zeppelins["silversurfer"]['gx']= int(float(coords[0]))
-        self.gui.zeppelin_database.zeppelins["silversurfer"]['gy']= int(float(coords[1]))
-        self.gui.zeppelin_database.zeppelins["silversurfer"]['Goal']= int(float(coords[2]))
+        self.gui.zeppelin_database.zeppelins["zilver"]['gx']= int(float(coords[0]))
+        self.gui.zeppelin_database.zeppelins["zilver"]['gy']= int(float(coords[1]))
+        self.gui.zeppelin_database.zeppelins["zilver"]['Goal']= int(float(coords[2]))
         
     def callback_private_motors_info(self,ch, method, properties, body):
         coords = body.split(" ")
-        self.gui.zeppelin_database.zeppelins["silversurfer"]['left-motor']= int(float(coords[0]))
-        self.gui.zeppelin_database.zeppelins["silversurfer"]['right-motor']= int(float(coords[1]))
-        self.gui.zeppelin_database.zeppelins["silversurfer"]['vert-motor']= int(float(coords[2]))
+        self.gui.zeppelin_database.zeppelins["zilver"]['left-motor']= int(float(coords[0]))
+        self.gui.zeppelin_database.zeppelins["zilver"]['right-motor']= int(float(coords[1]))
+        self.gui.zeppelin_database.zeppelins["zilver"]['vert-motor']= int(float(coords[2]))
         
         
     def callback_info_location(self,ch, method, properties, body):
@@ -144,29 +144,29 @@ class GUIConn2dot1(threading.Thread, object):
 
     def send_message_to_zep(self,message):
         try:
-            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.fromPC', body=message)
+            self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.fromPC', body=message)
         except Exception:
             self.initialization_sender()
             
     def move_to(self,x,y,z):
         try:
             print "move to sended"
-            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.hcommand.move', body=x+","+y)
-            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.hcommand.elevate', body=z)
+            self.channel_sender.basic_publish(exchange='server', routing_key='zilver.hcommand.move', body=x+","+y)
+            self.channel_sender.basic_publish(exchange='server', routing_key='zilver.hcommand.elevate', body=z)
         except Exception:
             self.initialization_sender()
             
     def set_motors(self,one,two,three):
         try:
-            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor1', body=one)
-            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor2', body=two)
-            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.lcommand.motor3', body=three)
+            self.channel_sender.basic_publish(exchange='server', routing_key='zilver.lcommand.motor1', body=one)
+            self.channel_sender.basic_publish(exchange='server', routing_key='zilver.lcommand.motor2', body=two)
+            self.channel_sender.basic_publish(exchange='server', routing_key='zilver.lcommand.motor3', body=three)
         except Exception:
             self.initialization_sender()
             
     def set_parameters(self,message):
         try:
-            self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.pid.setpid', body=message)
+            self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.pid.setpid', body=message)
             
         except Exception:
             self.initialization_sender()

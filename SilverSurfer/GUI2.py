@@ -159,8 +159,6 @@ class GUI(Frame):
         
     
     def initGUI(self): 
-        
-        
         self.parent.geometry(str(GUI.WINDOW_WIDTH)+"x"+str(GUI.WINDOW_HEIGHT)) 
         #flags initialiseren
         self.flag_btn = False
@@ -239,17 +237,11 @@ class GUI(Frame):
         #Frame info silversurfer
         self.Frame_info_silversurfer = Frame(self.Frame_AI,bg = "grey55",borderwidth=5,pady=10)
         self.positions_zeppelin_string_silversurfer = StringVar()
-        self.positions_zeppelin_string_silversurfer.set(" \n \n \n \n   ---Info silversurfer---")
+        self.positions_zeppelin_string_silversurfer.set(" \n \n \n \n   ---Info zilver---")
         
         self.lbl_title_frame_zeps= Label(self.Frame_info_silversurfer, bg = "grey55",fg="white", textvariable=self.positions_zeppelin_string_silversurfer)
         self.lbl_title_frame_zeps.grid(sticky='S')
         self.Frame_info_silversurfer.grid(row = 1)
-        
-        
-        
-       
-     
-        
         
         
         
@@ -494,8 +486,10 @@ class GUI(Frame):
                 
         
             
-    def create_zeppelin(self,cmap,x,y):      
-        return cmap.create_oval(GUI.zep_map_X_SCALE*(x-8)+GUI.ANCHOR_ROOT,GUI.zep_map_Y_SCALE*y+GUI.ANCHOR_ROOT,GUI.zep_map_X_SCALE*x+GUI.ANCHOR_ROOT,GUI.zep_map_Y_SCALE*(y-8)+GUI.ANCHOR_ROOT,fill='white')
+    def create_zeppelin(self,cmap,x,y):
+        anchor_x = GUI.canvas_map_X_SCALE*x-GUI.fig_map_SCALE*2+GUI.ANCHOR_ROOT
+        anchor_y = GUI.canvas_map_Y_SCALE*y-GUI.fig_map_SCALE*2+GUI.ANCHOR_ROOT
+        return cmap.create_oval(anchor_x ,anchor_y,anchor_x+GUI.fig_map_SCALE*5,anchor_y+GUI.fig_map_SCALE*5,fill="white")      
     
     def create_dot(self,cmap,x,y):      
         return cmap.create_oval(GUI.zep_map_X_SCALE*(x-3)+GUI.ANCHOR_ROOT,
@@ -511,10 +505,9 @@ class GUI(Frame):
         
     
     def move_zeppelin_to(self,zeppelin,cmap,x,y):
-        cmap.coords(zeppelin,GUI.zep_map_X_SCALE*(x-8)+GUI.ANCHOR_ROOT,
-                    GUI.zep_map_Y_SCALE*y+GUI.ANCHOR_ROOT,
-                    GUI.zep_map_X_SCALE*x+GUI.ANCHOR_ROOT,
-                    GUI.zep_map_Y_SCALE*(y-8)+GUI.ANCHOR_ROOT) 
+        anchor_x = GUI.canvas_map_X_SCALE*x-GUI.fig_map_SCALE*2+GUI.ANCHOR_ROOT
+        anchor_y = GUI.canvas_map_Y_SCALE*y-GUI.fig_map_SCALE*2+GUI.ANCHOR_ROOT
+        cmap.coords(zeppelin,anchor_x ,anchor_y,anchor_x+GUI.fig_map_SCALE*5,anchor_y+GUI.fig_map_SCALE*5) 
         
     def move_dot_to(self,dot,cmap,x,y):
         cmap.coords(dot,GUI.zep_map_X_SCALE*(x-3)+GUI.ANCHOR_ROOT,
@@ -564,15 +557,15 @@ class GUI(Frame):
         self.parent.after(1000, self.update_gui)
         
     def update_motors(self):
-        self.motor1.set( str(int(self.zeppelin_database.zeppelins['silversurfer']['left-motor'])))
-        self.motor3.set( str(int(self.zeppelin_database.zeppelins['silversurfer']['vert-motor'])))
-        self.motor2.set(str(int(self.zeppelin_database.zeppelins['silversurfer']['right-motor'])))
-        self.error.set( str(self.zeppelin_database.zeppelins['silversurfer']['Error']))
-        self.goal.set( str(self.zeppelin_database.zeppelins['silversurfer']['Goal']))
-        self.height.set(str(self.zeppelin_database.zeppelins['silversurfer']['z']))
+        self.motor1.set( str(int(self.zeppelin_database.zeppelins['zilver']['left-motor'])))
+        self.motor3.set( str(int(self.zeppelin_database.zeppelins['zilver']['vert-motor'])))
+        self.motor2.set(str(int(self.zeppelin_database.zeppelins['zilver']['right-motor'])))
+        self.error.set( str(self.zeppelin_database.zeppelins['zilver']['Error']))
+        self.goal.set( str(self.zeppelin_database.zeppelins['zilver']['Goal']))
+        self.height.set(str(self.zeppelin_database.zeppelins['zilver']['z']))
         
-        x=self.zeppelin_database.zeppelins['silversurfer']['left-motor']/100.0
-        y=self.zeppelin_database.zeppelins['silversurfer']['right-motor']/100.0
+        x=self.zeppelin_database.zeppelins['zilver']['left-motor']/100.0
+        y=self.zeppelin_database.zeppelins['zilver']['right-motor']/100.0
         self.vector.setVector(x, y)
         
     def update_zeppelin_database(self):
@@ -580,8 +573,8 @@ class GUI(Frame):
         
     
     def update_graph_values(self):
-        self.height_graph.y =  float(self.zeppelin_database.zeppelins['silversurfer']['z'])/100
-        goal = self.zeppelin_database.zeppelins['silversurfer']['Goal']
+        self.height_graph.y =  float(self.zeppelin_database.zeppelins['zilver']['z'])/100
+        goal = self.zeppelin_database.zeppelins['zilver']['Goal']
         if goal == 'not given':
             self.height_graph.y_2 =0
         else:
@@ -596,10 +589,19 @@ class GUI(Frame):
                    'z: ' + str(self.zeppelin_database.zeppelins[zep]['z']) )                                                                                                  
         self.positions_zeppelin_string_competition.set(info)
         
-        info =('*----Info SilverSurfer----* \n' + "------------ \n" + 
-                   'goal_x: ' + str(self.zeppelin_database.zeppelins['silversurfer']['gx']) + '  '+ 
-                   'goal_y: ' + str(self.zeppelin_database.zeppelins['silversurfer']['gy']) + '  '+ 
-                   'goal_z: ' + str(self.zeppelin_database.zeppelins['silversurfer']['Goal'])) 
+        info =('*----Info zilver----* \n' + "------------ \n" + 
+                   'goal_x: ' + str(self.zeppelin_database.zeppelins['zilver']['gx']) + '  '+ 
+                   'goal_y: ' + str(self.zeppelin_database.zeppelins['zilver']['gy']) + '  '+ 
+                   'goal_z: ' + str(self.zeppelin_database.zeppelins['zilver']['Goal'])+ '\n'+
+                   'Ci: ' + str(self.zeppelin_database.zeppelins['zilver']['Ci'])+'  '+ 
+                   'Cd: ' + str(self.zeppelin_database.zeppelins['zilver']['Cd'])+'  '+ 
+                   'Kp: ' + str(self.zeppelin_database.zeppelins['zilver']['Kp'])+'\n'+ 
+                   'Kd: ' + str(self.zeppelin_database.zeppelins['zilver']['Kd'])+'  '+ 
+                   'Ki: ' + str(self.zeppelin_database.zeppelins['zilver']['Ki'])+'  '+ 
+                   'BIAS: ' + str(self.zeppelin_database.zeppelins['zilver']['BIAS'])+'\n'+ 
+                   'MAX_PID_OUTPUT: '+ str(self.zeppelin_database.zeppelins['zilver']['MAX_PID_OUTPUT'])+'  '+ 
+                   'MAX_Ci: '+ str(self.zeppelin_database.zeppelins['zilver']['MAX_Ci'])
+                   ) 
         self.positions_zeppelin_string_silversurfer.set(info) 
         
     def update_recognized(self,new_recognized):
@@ -650,7 +652,7 @@ class GUI(Frame):
         array_att = parser.parse_string_att(state_string)
         for s in array_att:
             att_and_val = s.split(':')
-            self.zeppelin_database.zeppelins['silversurfer'][self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1])
+            self.zeppelin_database.zeppelins['zilver'][self.compiler.state_att_words[att_and_val[0]]]=float(att_and_val[1])
             
         
             
@@ -814,7 +816,7 @@ class GuiCompiler():
 class zeppelinDatabase():
     
     def __init__(self):
-        self.zeppelins = {'silversurfer':{'left-motor' : 0, 
+        self.zeppelins = {'zilver':{'left-motor' : 0, 
                                           'right-motor':0, 
                                           'vert-motor':0, 
                                           'Goal':'not given', 

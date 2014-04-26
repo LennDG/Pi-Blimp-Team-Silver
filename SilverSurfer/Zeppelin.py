@@ -7,7 +7,7 @@ import ImageRecognitionClient as IRC
 class Zeppelin(threading.Thread, object):
        
        
-    def __init__(self, navigator):
+    def __init__(self, navigator,name):
         
         threading.Thread.__init__(self)
         
@@ -21,7 +21,7 @@ class Zeppelin(threading.Thread, object):
 #         self.positions.append(Vector(200,200))
 #         self.positions.append(Vector(40,-200))
         
-
+        self.name = name
         self.gate = PiConnection.Gate2dot1(self)
         self.gate.open()
 #        self.IRC = IRC()
