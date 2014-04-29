@@ -36,6 +36,8 @@ class CSVParser(object):
         # Divide into rows
         rows = string.split("\n")
         
+        rows = [x for x in rows if x != ""]
+        
         # Divide each row into words and count the amount of rows in the field.
         number_of_rows = 0
         for x in range(0, len(rows)):

@@ -45,6 +45,7 @@ class Node(object):
         return self._position
     
     
+    
     """
     The position of a node can only be changed if its current position is still
     the standard position.
@@ -189,7 +190,7 @@ class Field(object):
         
         # Tablets
         for x in range (number_of_rows, len(parsed_csv_file)):
-            tablet = Vector(parsed_csv_file[x][0], parsed_csv_file[x][1])
+            tablet = Vector(float(parsed_csv_file[x][0])/10.0, float(parsed_csv_file[x][1])/10.0)
             self.tablets.append(tablet)
     
     
@@ -378,6 +379,9 @@ class Field(object):
             node = Node(figure)
             nodes.append(node)
             
+        if len(nodes) == 0:
+            return nodes
+            
         nodes[0].position = Vector(0,0)
             
         cls.add_to_structure(vectors, nodes, length, 0, 0)
@@ -432,6 +436,9 @@ class Field(object):
     
     # Zou ook moeten werken.
     def match_partial_field(self, virtual_nodes, estimated_position):
+        
+        if len(virtual_nodes) < 3:
+            return 0
         
         threshold_score = 0.75 # For now
         
@@ -540,6 +547,9 @@ class Field(object):
             
         virtual_nodes = self.define_structure(figures, positions)
         
+        if len(virtual_nodes) == 0:
+            return 0
+        
         estimated_position = Vector(0,0) # for now, radius in method above allows this.
         
         try:
@@ -553,7 +563,9 @@ class Field(object):
         while virtual_neighbour == 0 and index < 6:
             virtual_neighbour = corresponding_virtual_node.neighbours[index]
             index += 1
-            
+        
+        if virtual_neighbour == 0:
+            print "length virtual_nodes" + str(len(virtual_nodes)) 
         assert virtual_neighbour != 0
         
         real_neighbour = real_node.neighbours[- relative_direction + index - 1]
@@ -566,7 +578,3 @@ class Field(object):
         position_2 = positions[index_2]
         
         return real_node, real_neighbour, position_1, position_2
-
-        
-        
-    

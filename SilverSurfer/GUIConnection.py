@@ -11,45 +11,15 @@ class GUIConn2dot1(threading.Thread, object):
         self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
 #         self.parameters = pika.ConnectionParameters('localhost')
         
-#         not_established = True
-#         while(not_established):
-#             try:
-#                 self.initialization_consumer()
-#                 self.initialization_sender()
-#                 not_established = False
-#             except Exception:
-#                 not_established = True
-        
-        
-        nr = 0
-        data1=[]
-        data2=[]
-        while(nr<100):
+        not_established = True
+        while(not_established):
             try:
-                t= time.time()
                 self.initialization_consumer()
-                rest = time.time() - t
-                data1.append(rest)
-                t= time.time()
                 self.initialization_sender()
-                rest = time.time()-t
-                data2.append(rest)
-                nr = nr +1
-                print str(nr)
                 not_established = False
             except Exception:
                 not_established = True
-        
-        file = open('testdata_guicon_sen','w')
-        for d in data1:
-            file.write(str(d)+'\n')
-        file.close()
-        
-        file = open('testdata_guicon_rec','w')
-        for d in data2:
-            file.write(str(d)+'\n')
-        file.close()
-        
+
         
 
     def run(self):
@@ -221,12 +191,20 @@ class GUIConn2dot1(threading.Thread, object):
     def callback_info_location(self,ch, method, properties, body):
         zeppelin =  method.routing_key.split('.')[0]
         coor = body.split(',')
-        self.gui.zeppelin_database.zeppelins[zeppelin]['x'] = int(float(coor[0]))
-        self.gui.zeppelin_database.zeppelins[zeppelin]['y'] = int(float(coor[1]))
+        
+        if self.gui.zeppelin_database.zeppelins.has_key(zeppelin):
+            self.gui.zeppelin_database.zeppelins[zeppelin]['x'] = int(float(coor[0]))
+            self.gui.zeppelin_database.zeppelins[zeppelin]['y'] = int(float(coor[1]))
+        else:
+            self.gui.zeppelin_database.addZeppelin(zeppelin)
         
     def callback_info_height(self,ch, method, properties, body):
         zeppelin =  method.routing_key.split('.')[0]
-        self.gui.zeppelin_database.zeppelins[zeppelin]['z'] = int(float(body))
+        if self.gui.zeppelin_database.zeppelins.has_key(zeppelin):
+            self.gui.zeppelin_database.zeppelins[zeppelin]['z'] = int(float(body))
+        else:
+            self.gui.zeppelin_database.addZeppelin(zeppelin)
+        
 
     def send_message_to_zep(self,message,zep):
         try:

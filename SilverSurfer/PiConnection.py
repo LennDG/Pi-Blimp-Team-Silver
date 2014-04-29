@@ -16,48 +16,21 @@ class PiConn2dot1( threading.Thread, object):
         self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
 #         self.parameters = pika.ConnectionParameters(host = 'localhost')
         
-#         not_established = True
-#         while(not_established):
-#              try:
-#                  t= time.time()
-#                  self.initialization_sender()
-#                  self.initialization_receiver()
-#                  rest = time.time()-t
-#                  print "TIME=" + str(rest)
-#                  
-# 
-# 
-#                  not_established = False
-#              except Exception:
-#                  not_established = True
-                 
-        nr = 0
-        data1=[]
-        data2=[]
-        while(nr<100):
-            try:
-                t= time.time()
-                self.initialization_receiver()
-                rest = time.time() - t
-                data1.append(rest)
-                t= time.time()
-                self.initialization_sender()
-                rest = time.time()-t
-                data2.append(rest)
-                nr = nr +1
-                not_established = False
-            except Exception:
-                not_established = True
-        
-        file = open('testdata_picon_rec','w')
-        for d in data1:
-            file.write(str(d)+'\n')
-        file.close()
-        
-        file = open('testdata_picon_sen','w')
-        for d in data2:
-            file.write(str(d)+'\n')
-        file.close()
+        not_established = True
+        while(not_established):
+             try:
+                 t= time.time()
+                 self.initialization_sender()
+                 self.initialization_receiver()
+                 rest = time.time()-t
+                 print "TIME=" + str(rest)
+                  
+ 
+ 
+                 not_established = False
+             except Exception:
+                 not_established = True
+
         
 
 ###########
