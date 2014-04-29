@@ -217,7 +217,7 @@ def decrypt_text(ecrypt_data):
     public_key = key.publickey()  #public key doorsturen naar server
     
     #enc_data = public_key.encrypt('abcdefgh', 32)  --- encrypt
-    key.decrypt(ecrypt_data)
+    return key.decrypt(ecrypt_data)
 
     
     
