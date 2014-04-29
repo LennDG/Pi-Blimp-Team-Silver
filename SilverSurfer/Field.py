@@ -395,10 +395,19 @@ class Field(object):
         
         allowable_error = length*0.3
         current_position = positions[own_index]
+        current_node = nodes[own_index]
         
-        for x in range(own_index + 1, len(positions)):
+        for x in range(0, len(positions)):
             position = positions[x]
-            if (position - current_position).norm  - length < allowable_error:
+            node = nodes[x]
+            stop = False
+            for y in range(0,6):
+                if node.neighbours[y] != 0:
+                    stop = True
+            if node == current_node or stop == True:
+                pass
+            
+            elif (position - current_position).norm  - length < allowable_error:
                 angle = (position - current_position).angle
                 
                 if isinstance(reference_angle, (int, long)):
@@ -436,9 +445,6 @@ class Field(object):
     
     # Zou ook moeten werken.
     def match_partial_field(self, virtual_nodes, estimated_position):
-        
-        if len(virtual_nodes) < 3:
-            return 0
         
         threshold_score = 0.75 # For now
         
@@ -563,9 +569,7 @@ class Field(object):
         while virtual_neighbour == 0 and index < 6:
             virtual_neighbour = corresponding_virtual_node.neighbours[index]
             index += 1
-        
-        if virtual_neighbour == 0:
-            print "length virtual_nodes" + str(len(virtual_nodes)) 
+            
         assert virtual_neighbour != 0
         
         real_neighbour = real_node.neighbours[- relative_direction + index - 1]
