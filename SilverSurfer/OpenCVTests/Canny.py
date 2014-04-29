@@ -199,7 +199,7 @@ def canny(img_loc):
     cv2.waitKey(0)
     return figures
         
-canny("qr2.jpg")
+canny("PiPics/16m1.jpg")
 def cannytest(times):
     time_avg = []
     for i in range(0, times):
