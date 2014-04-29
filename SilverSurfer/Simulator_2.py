@@ -4,8 +4,8 @@ This file initialises our version of the zeppelin and starts running the program
 @author Rob Coekaerts
 @version 0.9   7-3-2014
 """
-#from Zeppelin import Zeppelin
-from TestZeppelin import Zeppelin
+from Zeppelin import Zeppelin
+#from TestZeppelin import Zeppelin
 from Navigator import Navigator
 from MotorControl import MotorControl
 from MotorSimulator import MotorSimulator
@@ -77,7 +77,7 @@ navigator.start()
 
 """ Zeppelin """
 
-name = "zilver_simulator"
+name = "zilver"
 zeppelin = Zeppelin(navigator,name)
 zeppelin.start()
 

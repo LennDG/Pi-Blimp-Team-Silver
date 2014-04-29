@@ -123,6 +123,9 @@ class OpenCVSimulator(object):
         images.append(image_3)
         return images, zeppelin_image, time_stamp
     
+    def generate_QR_code(self):
+        return "something" # to be implemented
+    
     def simulate_angular_velocity(self):
         return self.navigator.angular_velocity + self.ANGULAR_INSTABILITY*random.gauss(0,1)
     

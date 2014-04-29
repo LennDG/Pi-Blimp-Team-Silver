@@ -3,28 +3,61 @@
 import socket, threading, re, Commands,time
 import pika, logging,random
 
-
-
-
 class PiConn2dot1( threading.Thread, object):
     
-    def __init__(self,gate):
+    def __init__(self,gate,name):
         logging.basicConfig()
         threading.Thread.__init__(self)
         self.gate = gate
+        self.zep_name = name
         
-#         credentials = pika.PlainCredentials('zilver', 'zilver')
-#         self.parameters = pika.ConnectionParameters('localhost', 5673, '/', credentials)
-        self.parameters = 'localhost'
         
-        not_established = True
-        while(not_established):
-             try:
-                 self.initialization_receiver()
-                 self.initialization_sender()
-                 not_established = False
-             except Exception:
-                 not_established = True
+        credentials = pika.PlainCredentials('zilver', 'zilver')
+        self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
+#         self.parameters = pika.ConnectionParameters(host = 'localhost')
+        
+#         not_established = True
+#         while(not_established):
+#              try:
+#                  t= time.time()
+#                  self.initialization_sender()
+#                  self.initialization_receiver()
+#                  rest = time.time()-t
+#                  print "TIME=" + str(rest)
+#                  
+# 
+# 
+#                  not_established = False
+#              except Exception:
+#                  not_established = True
+                 
+        nr = 0
+        data1=[]
+        data2=[]
+        while(nr<100):
+            try:
+                t= time.time()
+                self.initialization_receiver()
+                rest = time.time() - t
+                data1.append(rest)
+                t= time.time()
+                self.initialization_sender()
+                rest = time.time()-t
+                data2.append(rest)
+                nr = nr +1
+                not_established = False
+            except Exception:
+                not_established = True
+        
+        file = open('testdata_picon_rec','w')
+        for d in data1:
+            file.write(str(d)+'\n')
+        file.close()
+        
+        file = open('testdata_picon_sen','w')
+        for d in data2:
+            file.write(str(d)+'\n')
+        file.close()
         
 
 ###########
@@ -45,7 +78,7 @@ class PiConn2dot1( threading.Thread, object):
                 self.initialization_receiver() 
                 
     def initialization_sender(self):
-        self.connection_sender = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.connection_sender = pika.BlockingConnection(self.parameters)
         self.channel_sender = self.connection_sender.channel(channel_number=2)
         self.channel_sender.exchange_declare(exchange='server', type='topic')
 
@@ -55,37 +88,37 @@ class PiConn2dot1( threading.Thread, object):
         
 ###########
 #Make channel_consumer
-        self.connection_consumer = pika.BlockingConnection(pika.ConnectionParameters( self.parameters))
+        self.connection_consumer = pika.BlockingConnection( self.parameters)
         self.channel_consumer = self.connection_consumer.channel(channel_number=1)
         self.channel_consumer.exchange_declare(exchange='server', type='topic')
 
 
-        hcommand_move = self.channel_consumer.queue_declare(queue="hcommand-move-silver")
+        hcommand_move = self.channel_consumer.queue_declare(queue="hcommand-move-" + self.zep_name)
         self.queue_hcommand_move = hcommand_move.method.queue
         
-        hcommand_elevate = self.channel_consumer.queue_declare(queue="hcommand-elevate-silver")
+        hcommand_elevate = self.channel_consumer.queue_declare(queue="hcommand-elevate-"+ self.zep_name)
         self.queue_hcommand_elevate = hcommand_elevate.method.queue
         
-        lcommand_motor1 = self.channel_consumer.queue_declare(queue="lcommand-motor1-silver")
+        lcommand_motor1 = self.channel_consumer.queue_declare(queue="lcommand-motor1-"+ self.zep_name)
         self.queue_lcommand_motor1 = lcommand_motor1.method.queue
         
-        lcommand_motor2 = self.channel_consumer.queue_declare(queue="lcommand-motor2-silver")
+        lcommand_motor2 = self.channel_consumer.queue_declare(queue="lcommand-motor2-"+ self.zep_name)
         self.queue_lcommand_motor2 = lcommand_motor2.method.queue
         
-        lcommand_motor3 = self.channel_consumer.queue_declare(queue="lcommand-motor3-silver")
+        lcommand_motor3 = self.channel_consumer.queue_declare(queue="lcommand-motor3-"+ self.zep_name)
         self.queue_lcommand_motor3 = lcommand_motor1.method.queue
          
-        private_setpid =  self.channel_consumer.queue_declare(queue="private-setpid-silver")
+        private_setpid =  self.channel_consumer.queue_declare(queue="private-setpid-"+ self.zep_name)
         self.queue_private_setpid = private_setpid.method.queue
                 #bind the queues to keys
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="silversurfer.hcommand.elevate")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="silversurfer.hcommand.move")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="silversurfer.lcommand.motor1")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="silversurfer.lcommand.motor2")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="silversurfer.lcommand.motor3")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key="silversurfer.private.pid.setpid")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key=self.zep_name+".hcommand.elevate")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key=self.zep_name+".hcommand.move")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key=self.zep_name+".lcommand.motor1")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key=self.zep_name+".lcommand.motor2")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key=self.zep_name+".lcommand.motor3")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key=self.zep_name+".private.pid.setpid")
         
         self.channel_consumer.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
@@ -100,17 +133,8 @@ class PiConn2dot1( threading.Thread, object):
             p = param.split("=")
             self.gate.set_PID_parameter(p[0],p[1])
             
-    def send_PID_param(self):
-
-        message = ("Ci="+str(self.gate.zep.navigator.stabilizer.Ci)
-                   +" Cd=" +str(self.gate.zep.navigator.stabilizer.Cd)
-                   +" Kp=" +str(self.gate.zep.navigator.stabilizer.Kp)
-                   +" Kd=" +str(self.gate.zep.navigator.stabilizer.Kd)
-                   +" Ki=" +str(self.gate.zep.navigator.stabilizer.Ki)
-                   +" BIAS="+str(self.gate.zep.navigator.stabilizer.BIAS)
-                   +"MAX_PID_OUTPUT="+str(self.gate.zep.navigator.stabilizer.MAX_PID_OUTPUT)
-                   +"MAX_Ci="+str(self.gate.zep.navigator.stabilizer.MAX_Ci))
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.pid.infofromzep', body=message)
+    def send_PID_param(self,message):
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+".private.pid.infofromzep", body=message)
             
         
     def callback_set_motor1(self,ch, method, properties, body):
@@ -131,24 +155,26 @@ class PiConn2dot1( threading.Thread, object):
         self.gate.move_to_horizontal(body)   
 
     def send_message_to_gui(self,message):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.fromPI', body=message)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.fromPI', body=message)
     
     def send_position_to_server(self,x,y,z):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.info.location', body=str(x)+","+str(y))
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.info.height', body=str(z))
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.info.location', body=str(x)+","+str(y))
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.info.height', body=str(z))
             
     def send_status(self,status):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.status', body=status)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.status', body=status)
         
     def send_goal_coordinates(self,x,y,z):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
         
     def send_coords_figures(self,string):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.recognized', body=string)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.recognized', body=string)
         
     def send_info_motors(self,string):
-        self.channel_sender.basic_publish(exchange='server', routing_key='silversurfer.private.motors', body=string)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.motors', body=string)
         
+    def send_public_key_to(self,tabletnb,key):
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.tablets.tablet'+str(tabletnb), body=key)
 
             
 class Gate2dot1(threading.Thread,object):
@@ -157,7 +183,7 @@ class Gate2dot1(threading.Thread,object):
         print "initiate gate"
         threading.Thread.__init__(self)
         self.zep = zeppelin
-        self.PIconnection = PiConn2dot1(self)
+        self.PIconnection = PiConn2dot1(self,zeppelin.name)
         self.PID_dict = {"Kp":self.set_Kp,
                          "Kd":self.set_Kd,
                          "Ki":self.set_Ki,
@@ -211,7 +237,15 @@ class Gate2dot1(threading.Thread,object):
         m2 = self.zep.navigator.motor_control.right_motor.level
         m3 = self.zep.navigator.motor_control.vert_motor.level
         self.PIconnection.send_info_motors(str(m1)+" "+str(m2)+" "+str(m3))
-        self.PIconnection.send_PID_param()
+        message = ("Ci="+str(self.zep.navigator.stabilizer.Ci)
+                   +" Cd=" +str(self.zep.navigator.stabilizer.Cd)
+                   +" Kp=" +str(self.zep.navigator.stabilizer.Kp)
+                   +" Kd=" +str(self.zep.navigator.stabilizer.Kd)
+                   +" Ki=" +str(self.zep.navigator.stabilizer.Ki)
+                   +" BIAS="+str(self.zep.navigator.stabilizer.BIAS)
+                   +" MAX_PID_OUTPUT="+str(self.zep.navigator.stabilizer.MAX_PID_OUTPUT)
+                   +" MAX_Ci="+str(self.zep.navigator.stabilizer.MAX_Ci))
+        self.PIconnection.send_PID_param(message)
         
         
 
@@ -258,7 +292,9 @@ class Gate2dot1(threading.Thread,object):
     def set_Ci(self,ci):
         self.zep.navigator.stabilizer.Ci=ci
     def set_Cd(self,cd):
+        print "SET CD, It was " + str(self.zep.navigator.stabilizer.Cd)
         self.zep.navigator.stabilizer.Cd=cd
+        print str(self.zep.navigator.stabilizer.Cd)
     def set_BIAS(self,bias):
         self.zep.navigator.stabilizer.BIAS=bias
     def set_MAX_PID_OUTPUT(self,max_pid):

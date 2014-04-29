@@ -2,12 +2,11 @@ import threading
 import time
 from Vector import Vector
 import PiConnection
-import ImageRecognitionClient as IRC
      
 class Zeppelin(threading.Thread, object):
        
        
-    def __init__(self, navigator):
+    def __init__(self, navigator,name):
         
         threading.Thread.__init__(self)
         
@@ -21,10 +20,9 @@ class Zeppelin(threading.Thread, object):
 #         self.positions.append(Vector(200,200))
 #         self.positions.append(Vector(40,-200))
         
-
+        self.name = name
         self.gate = PiConnection.Gate2dot1(self)
         self.gate.open()
-        self.IRC = IRC()
         
     def moveto(self, x, y, z):
         new_position = Vector(x, y)
@@ -55,22 +53,14 @@ class Zeppelin(threading.Thread, object):
                 #wait half a second
                 time.sleep(0.5)
                 
-                #Start a timer
-                tic = time.time()
                 
-                #Take picture
-                self.IRC.take_picture("/run/shm/QR.jpg")
+                text = self.navigator.image_processor.generate_QR_code()
                 
-                #Read text
-                text = self.decode_qrcode("/run/shm/QR.jpg")
-                
-                #Keep trying to take picture for 5 seconds if it is not found
-                while text is None:
-                    self.take_picture("/run/shm/QR.jpg")
-                    text = self.decode_qrcode("/run/shm/QR.jpg")
-                    if time.time() - tic > 5:
-                        #Can't read QR code, stop trying
-                        break
+                if text == 0: 
+                    print "It's not gonna work boys."
+                    
+                else:
+                    print text
                 
                 #Decrypt text
                 
