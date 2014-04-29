@@ -218,7 +218,7 @@ def decrypt_text(ecrypt_data):
     #key's genereren -- waar doen we dit ?
     random_g = Random.new().read
     private_key = RSA.generate(1024, random_g) #arg1: lengte key: veelvoud van 256 en >= 1024
-    public_key = private_key.publickey()  #public key doorsturen naar server
+    public_key = private_key.publickey().exportKey('PEM')  #public key doorsturen naar server
     
     #enc_data = public_key.encrypt('abcdefghs', 32)  --- encrypt
     return private_key.decrypt(ecrypt_data)
