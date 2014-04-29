@@ -13,9 +13,21 @@ class ImageRecognitionClient(object):
     def generate_image(self):
         return IR.generate_image()
     
-    def take_picture(self, img_loc):
-        IR.take_picture(img_loc)
+    def generate_QR_code(self):
+         #Start a timer
+        tic = time.time()
         
-    def decode_qrcode(self, img_loc):
-        return IR.decode_qrcode(img_loc)
+        #Take picture
+        IR.take_picture("/run/shm/QR.jpg")
         
+        #Read text
+        text = IR.decode_qrcode("/run/shm/QR.jpg")
+        
+        #Keep trying to take picture for 5 seconds if it is not found
+        while text is None:
+            IR.take_picture("/run/shm/QR.jpg")
+            text = IR.decode_qrcode("/run/shm/QR.jpg")
+            if time.time() - tic > 5:
+                #Can't read QR code, stop trying
+                return 0
+        return text

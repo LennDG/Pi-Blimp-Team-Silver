@@ -151,12 +151,14 @@ class Field(object):
     """
     def __init__(self, parsed_csv_file):
         
-        self.status = ""
+        self.tablets = []
+        
+        parsed_csv_file, number_of_rows = parsed_csv_file
         # convert the lists of tuples into lists of nodes
         rows = []
-        for row in parsed_csv_file:
+        for x in range(0, number_of_rows):
             line = []
-            for element in row:
+            for element in parsed_csv_file[x]:
                 node = Node(Figure(element[0], element[1]))
                 line.append(node)
             rows.append(line)
@@ -184,6 +186,11 @@ class Field(object):
         
         # Set the top left node to the correct node.    
         self.top_left_node = rows[0][0]
+        
+        # Tablets
+        for x in range (number_of_rows, len(parsed_csv_file)):
+            tablet = Vector(parsed_csv_file[x][0], parsed_csv_file[x][1])
+            self.tablets.append(tablet)
     
     
     """
