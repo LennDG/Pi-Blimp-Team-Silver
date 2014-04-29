@@ -182,6 +182,10 @@ def detect_targets():
                 figures.append(figure)
                 cv2.drawContours(img, approx, -1, (0,0,0), thickness = 3) 
     
+    
+    figures = sorted(figures, key = lambda figure:figure[4])
+    if figures[-1][4] >= 2*figures[-2][4]:
+        figures.remove(figures[-1]) 
     return figures
 
 
