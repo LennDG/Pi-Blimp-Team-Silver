@@ -51,7 +51,7 @@ def start_daemon():
     call(["/home/pi/rasperry-pi-userland/host_applications/linux/apps/raspicam/raspifastcamd_scripts/start_camd.sh " + img_loc], shell=True)  
 
 def take_picture(img_location = img_loc):
-    call(["sudo raspistill -w 500 -h 500  - n -t 10 -o " + img_location], shell=True)
+    call(["sudo raspistill -w 500 -h 500  -n -t 10 -o " + img_location], shell=True)
     return time.time()
 
 def cosine(point1, point2, point0):
