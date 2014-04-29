@@ -14,17 +14,50 @@ class PiConn2dot1( threading.Thread, object):
         
         credentials = pika.PlainCredentials('zilver', 'zilver')
         self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
-        self.parameters = pika.ConnectionParameters(host = 'localhost')
+#         self.parameters = pika.ConnectionParameters(host = 'localhost')
         
-        not_established = True
-        while(not_established):
-             try:
-                 self.initialization_sender()
-                 self.initialization_receiver()
-
-                 not_established = False
-             except Exception:
-                 not_established = True
+#         not_established = True
+#         while(not_established):
+#              try:
+#                  t= time.time()
+#                  self.initialization_sender()
+#                  self.initialization_receiver()
+#                  rest = time.time()-t
+#                  print "TIME=" + str(rest)
+#                  
+# 
+# 
+#                  not_established = False
+#              except Exception:
+#                  not_established = True
+                 
+        nr = 0
+        data1=[]
+        data2=[]
+        while(nr<100):
+            try:
+                t= time.time()
+                self.initialization_receiver()
+                rest = time.time() - t
+                data1.append(rest)
+                t= time.time()
+                self.initialization_sender()
+                rest = time.time()-t
+                data2.append(rest)
+                nr = nr +1
+                not_established = False
+            except Exception:
+                not_established = True
+        
+        file = open('testdata_picon_rec','w')
+        for d in data1:
+            file.write(str(d)+'\n')
+        file.close()
+        
+        file = open('testdata_picon_sen','w')
+        for d in data2:
+            file.write(str(d)+'\n')
+        file.close()
         
 
 ###########
@@ -60,32 +93,32 @@ class PiConn2dot1( threading.Thread, object):
         self.channel_consumer.exchange_declare(exchange='server', type='topic')
 
 
-        hcommand_move = self.channel_consumer.queue_declare(queue="hcommand-move-silver")
+        hcommand_move = self.channel_consumer.queue_declare(queue="hcommand-move-" + self.zep_name)
         self.queue_hcommand_move = hcommand_move.method.queue
         
-        hcommand_elevate = self.channel_consumer.queue_declare(queue="hcommand-elevate-silver")
+        hcommand_elevate = self.channel_consumer.queue_declare(queue="hcommand-elevate-"+ self.zep_name)
         self.queue_hcommand_elevate = hcommand_elevate.method.queue
         
-        lcommand_motor1 = self.channel_consumer.queue_declare(queue="lcommand-motor1-silver")
+        lcommand_motor1 = self.channel_consumer.queue_declare(queue="lcommand-motor1-"+ self.zep_name)
         self.queue_lcommand_motor1 = lcommand_motor1.method.queue
         
-        lcommand_motor2 = self.channel_consumer.queue_declare(queue="lcommand-motor2-silver")
+        lcommand_motor2 = self.channel_consumer.queue_declare(queue="lcommand-motor2-"+ self.zep_name)
         self.queue_lcommand_motor2 = lcommand_motor2.method.queue
         
-        lcommand_motor3 = self.channel_consumer.queue_declare(queue="lcommand-motor3-silver")
+        lcommand_motor3 = self.channel_consumer.queue_declare(queue="lcommand-motor3-"+ self.zep_name)
         self.queue_lcommand_motor3 = lcommand_motor1.method.queue
          
-        private_setpid =  self.channel_consumer.queue_declare(queue="private-setpid-silver")
+        private_setpid =  self.channel_consumer.queue_declare(queue="private-setpid-"+ self.zep_name)
         self.queue_private_setpid = private_setpid.method.queue
                 #bind the queues to keys
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key="zilver.hcommand.elevate")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key="zilver.hcommand.move")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key="zilver.lcommand.motor1")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key="zilver.lcommand.motor2")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key="zilver.lcommand.motor3")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key="zilver.private.pid.setpid")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_elevate,routing_key=self.zep_name+".hcommand.elevate")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_hcommand_move,routing_key=self.zep_name+".hcommand.move")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor1,routing_key=self.zep_name+".lcommand.motor1")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key=self.zep_name+".lcommand.motor2")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key=self.zep_name+".lcommand.motor3")
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key=self.zep_name+".private.pid.setpid")
         
         self.channel_consumer.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
@@ -101,7 +134,7 @@ class PiConn2dot1( threading.Thread, object):
             self.gate.set_PID_parameter(p[0],p[1])
             
     def send_PID_param(self,message):
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.pid.infofromzep', body=message)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+".private.pid.infofromzep", body=message)
             
         
     def callback_set_motor1(self,ch, method, properties, body):
@@ -122,26 +155,26 @@ class PiConn2dot1( threading.Thread, object):
         self.gate.move_to_horizontal(body)   
 
     def send_message_to_gui(self,message):
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.fromPI', body=message)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.fromPI', body=message)
     
     def send_position_to_server(self,x,y,z):
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.info.location', body=str(x)+","+str(y))
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.info.height', body=str(z))
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.info.location', body=str(x)+","+str(y))
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.info.height', body=str(z))
             
     def send_status(self,status):
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.status', body=status)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.status', body=status)
         
     def send_goal_coordinates(self,x,y,z):
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.goalcoords', body=str(x)+","+str(y)+","+str(z))
         
     def send_coords_figures(self,string):
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.recognized', body=string)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.recognized', body=string)
         
     def send_info_motors(self,string):
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.private.motors', body=string)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.motors', body=string)
         
     def send_public_key_to(self,tabletnb,key):
-        self.channel_sender.basic_publish(exchange='server', routing_key='zilver.tablets.tablet'+str(tabletnb), body=key)
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.tablets.tablet'+str(tabletnb), body=key)
 
             
 class Gate2dot1(threading.Thread,object):

@@ -1,4 +1,4 @@
-import pika
+import pika, time
 
 
 adress_server = 'localhost'
@@ -14,14 +14,14 @@ channel.queue_declare(queue='helloFromPI')
 
 
 
-def callback(ch, method, properties, body):
+for i in range(0,1000):
     channel.basic_publish(exchange='', routing_key='helloFromPI', body='PI sending Hello')
+
+
     
 
+    
 
-channel.basic_consume(callback,queue='helloFromPC',no_ack=True)
-
-channel.start_consuming()
 
 
 

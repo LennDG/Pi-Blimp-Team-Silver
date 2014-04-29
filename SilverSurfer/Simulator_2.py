@@ -77,7 +77,7 @@ navigator.start()
 
 """ Zeppelin """
 
-name = "zilver_simulator"
+name = "zilver"
 zeppelin = Zeppelin(navigator,name)
 zeppelin.start()
 
