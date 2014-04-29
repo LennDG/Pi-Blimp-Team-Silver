@@ -32,7 +32,7 @@ green = [lower_green, upper_green, 'green']
 
 #Define Blue
 lower_blue = np.array([90, 20, 10], dtype=np.uint8)
-upper_blue = np.array([130, 180, 255], dtype=np.uint8)
+upper_blue = np.array([145, 180, 255], dtype=np.uint8)
 blue = [lower_blue, upper_blue, 'blue']
 
 #Define Yellow
@@ -164,7 +164,7 @@ def detect_targets():
             centroid_y = int(M['m01']/M['m00'])
             
             valid = True
-            if area <= 1000:
+            if area <= 500:
                 valid = False
             for figure in figures:
                 if not valid:
@@ -217,7 +217,7 @@ def decrypt_text(ecrypt_data):
     public_key = key.publickey()  #public key doorsturen naar server
     
     #enc_data = public_key.encrypt('abcdefgh', 32)  --- encrypt
-    key.decrypt(ecrypt_data)
+    return key.decrypt(ecrypt_data)
 
     
     

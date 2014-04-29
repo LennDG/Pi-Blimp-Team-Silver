@@ -40,14 +40,14 @@ class Motor(threading.Thread, object):
     def run(self):
         while True:
             if self._level > 0.0:
-                on_time = self.level*1./self.frequency
+                on_time = self.level/(100.*self.frequency)
                 GPIO.output(self.cw_pin, 1)
                 time.sleep(on_time)
                 GPIO.output(self.cw_pin, 0)
                 time.sleep(1./self.frequency - on_time)
                 continue
             elif self._level < 0.0:
-                on_time = self.level*1./self.frequency
+                on_time = self.level*(100.*self.frequency)
                 GPIO.output(self.ccw_pin, 1)
                 time.sleep(on_time)
                 GPIO.output(self.ccw_pin, 0)
