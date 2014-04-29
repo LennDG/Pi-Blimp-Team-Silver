@@ -178,7 +178,7 @@ def detect_targets():
                         break
             
             if valid:
-                figure = (color[2], shape_name, centroid_x, centroid_y)
+                figure = (color[2], shape_name, centroid_x, centroid_y, area)
                 figures.append(figure)
                 cv2.drawContours(img, approx, -1, (0,0,0), thickness = 3) 
 
