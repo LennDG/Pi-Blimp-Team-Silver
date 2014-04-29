@@ -1,5 +1,3 @@
-
-
 class CSVParser(object):
     
     def __init__(self):
@@ -38,8 +36,13 @@ class CSVParser(object):
         # Divide into rows
         rows = string.split("\n")
         
-        # Divide each row into words
+        # Divide each row into words and count the amount of rows in the field.
+        number_of_rows = 0
         for x in range(0, len(rows)):
+            try:
+                a = int(rows[x][0])
+            except ValueError:
+                number_of_rows += 1
             rows[x] = rows[x].split(",")
                 
         # Remove all empty strings
@@ -47,11 +50,9 @@ class CSVParser(object):
             rows[x] = [y for y in rows[x] if y != ""]
             
         # Turn the codes into tuples with meaningful values
-        for x in range(0, len(rows)):
+        for x in range(0, number_of_rows):
             for y in range(0, len(rows[x])):
                 rows[x][y] = self.transform_code(rows[x][y])
                 
-        return rows
-        
-        
+        return rows, number_of_rows
         
