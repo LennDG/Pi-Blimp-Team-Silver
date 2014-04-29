@@ -21,7 +21,7 @@ green = [lower_green, upper_green, 'green']
 
 #Define Blue
 lower_blue = np.array([90, 20, 10], dtype=np.uint8)
-upper_blue = np.array([130, 180, 255], dtype=np.uint8)
+upper_blue = np.array([145, 180, 255], dtype=np.uint8)
 blue = [lower_blue, upper_blue, 'blue']
 
 #Define Yellow
@@ -88,6 +88,7 @@ def analyse_approx(approx):
     for i in range(0, len(approx) + 1):
         cos = cosine(approx[i%len(approx)], approx[(i-2)%len(approx)], approx[(i-1)%len(approx)])
         cosines.append(cos)
+            
     
     
     duplicates = 0
@@ -198,12 +199,12 @@ def canny(img_loc):
     cv2.waitKey(0)
     return figures
         
-canny("PiPics/16m5.jpg")
+canny("qr2.jpg")
 def cannytest(times):
     time_avg = []
     for i in range(0, times):
         tic = time.time()
-        canny("test2.jpg")
+        canny("test2.jpeg")
         toc = time.time()
     time_avg.append(toc-tic)      
     print np.mean(time_avg)
