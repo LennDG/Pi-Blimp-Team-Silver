@@ -129,7 +129,7 @@ def analyse_approx(approx):
         if variance < 0.01:
             return "circle"
         else:
-            return "heart"        
+            return "heart"      
         
     return "undefined"
 
@@ -219,8 +219,6 @@ def decrypt_text(ecrypt_data):
     #enc_data = public_key.encrypt('abcdefghs', 32)  --- encrypt
     return private_key.decrypt(ecrypt_data)
 
-    
-    
 
 
     
