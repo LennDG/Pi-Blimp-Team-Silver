@@ -139,14 +139,14 @@ class Navigator(threading.Thread, object):
         # Put the given tuples in vector format and calculate the required vectors
 #         node_image_1 = Vector(node_image_1[2], node_image_1[3])
 #         node_image_2 = Vector(node_image_2[2], node_image_2[3])
-        zeppelin_image = Vector(zeppelin_image[0], zeppelin_image[1])
+        zeppelin_image = Vector(zeppelin_image[0], zeppelin_image[1]*-1)
         image_difference = node_image_2 - node_image_1
         node_difference = node_2.position - node_1.position
         
         # Calculating the angle properties
-        new_angle = image_difference.angle - node_difference.angle
+        new_angle = node_difference.angle - image_difference.angle 
         print "angle: " + str(new_angle)
-        self.angular_velocity = (self.angle - new_angle)/time_lapsed
+        self.angular_velocity = (new_angle - self.angle)/time_lapsed
         self.angle = new_angle
         
         # Calculating positional properties.
@@ -154,7 +154,7 @@ class Navigator(threading.Thread, object):
         print "enlargement factor: " + str(enlargement_factor)
         relative_position = zeppelin_image - node_image_1
         relative_position = relative_position*enlargement_factor
-        relative_position = relative_position.turn(- new_angle)
+        relative_position = relative_position.turn(new_angle)
         new_position = node_1.position + relative_position
         self.velocity = (new_position - self.position)/time_lapsed
         self.position = new_position
