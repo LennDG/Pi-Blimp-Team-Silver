@@ -66,7 +66,7 @@ class Node(object):
     Return self.position == Vector(9999999999, 9999999999)
     """    
     def has_default_position(self):
-        return self.position == Vector(9999999999, 9999999999)
+        return (self.position == Vector(9999999999, 9999999999))
     
     
     """
@@ -411,7 +411,7 @@ class Field(object):
                 angle = (position - current_position).angle
                 
                 if isinstance(reference_angle, (int, long)):
-                    reference_angle = angle
+                    reference_angle = float(angle)
                     
                 angle = angle - reference_angle
                 
@@ -431,22 +431,11 @@ class Field(object):
                 
                 cls.add_to_structure(positions, nodes, length, x, reference_angle)
                 
-    @classmethod
-    def amount_of_useful_nodes(cls, nodes):
-        
-        result = 0
-        
-        for node in nodes:
-            if node.figure.color != "undefined":
-                result += 1
-                
-        return float(result)
-                
     
     # Zou ook moeten werken.
     def match_partial_field(self, virtual_nodes, estimated_position):
         
-        threshold_score = 0.75 # For now
+        threshold_score = 3 # For now
         
         real_node = 0
         corresponding_virtual_node= 0
@@ -460,12 +449,6 @@ class Field(object):
                 corresponding_virtual_node = node
                 score = temp_score
                 relative_direction = direction
-#             elif temp_score == score:
-#                 result = 0 # Equal scores are unusable
-#                kan voorlopig niet gedaan worden omdat een equivalente configuratie meer dan eens kan terugkomen
-
-        
-        score = score/float(self.amount_of_useful_nodes(virtual_nodes))
         
         if score > threshold_score and real_node != 0:
             return real_node, corresponding_virtual_node, relative_direction
@@ -476,24 +459,15 @@ class Field(object):
                 
     def match_node_configuration(self, node_in_structure, estimated_position):
         
-        # The radius within which the results are estimated to be.
-        radius = 10000 # to be refined 
-        
         # First, search all nodes in the field that match the given node.
         initials = self.search_field(node_in_structure.figure)
-        
-        # Secondly, reject all the nodes that are way out of distance
-        confirmed_initials = []
-        for initial in initials:
-            if (initial.position - estimated_position).norm < radius:
-                confirmed_initials.append(initial)
                 
         result = 0
         score = 0.0
         relative_direction = 0
                 
         # now start the matching
-        for initial in confirmed_initials:
+        for initial in initials:
             
             for x in range(0,6):
                 temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0)
@@ -525,20 +499,30 @@ class Field(object):
     
     # to be implemented fully
     def assign_score(self, real_node, virtual_node):
-        if real_node.figure == virtual_node.figure:
-            return 1.0
-        elif real_node.figure.color == virtual_node.figure.color:
-            if virtual_node.figure.shape == "undefined":
-                return 0.5
-            else:
-                return 0.4
-        else:
-            return 0.0
+        
+        score = 0.0
+        
+        # add score based on color:
+        real_color = real_node.figure.color
+        virtual_color = virtual_node.figure.color
+        if real_color == virtual_color:
+            score = score + 0.5
+        elif real_color == 'red' or real_color == 'yellow' or real_color == 'white' or real_color == 'blue' or (real_color == 'green' and virtual_color != 'blue'):
+            score = score -1.0
+            
+        # add score based on shape
+        real_shape = real_node.figure.shape
+        virtual_shape = virtual_node.figure.shape
+        if real_shape == virtual_shape:
+            score = score + 0.3
+            
+        return score
         
     
     
     # lijkt op het eerst zicht geen fouten in te zitten
     def locate_nodes(self, figure_images):
+        
         
         # Put the figures and images in their respective lists.
         
@@ -547,9 +531,18 @@ class Field(object):
         
         for image in figure_images:
             figure = Figure(image[0], image[1])
-            figures.append(figure)
-            vector = Vector(image[2], image[3])
-            positions.append(vector)
+            vector = Vector(image[2], image[3]*-1)
+            
+            # Withhold figures with y-values of 494 onwards, something wrong with the camera.
+            # Make shapes on the edges undefined, as they don't provide information.
+            if vector.ycoord < -494.0:
+                pass
+            else:
+                if vector.xcoord > 500-22 or vector.xcoord < 22 or vector.ycoord > - 22 or vector.ycoord < -500 + 22:
+                    figure.shape = 'undefined'
+                
+                figures.append(figure)
+                positions.append(vector)
             
         virtual_nodes = self.define_structure(figures, positions)
         
