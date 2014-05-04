@@ -150,11 +150,10 @@ class PiConn2dot1( threading.Thread, object):
         self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.tablets.tablet'+str(tabletnb), body=key)
 
             
-class Gate2dot1(threading.Thread,object):
+class Gate2dot1(object):
     
     def __init__(self, zeppelin):
         print "initiate gate"
-        threading.Thread.__init__(self)
         self.zep = zeppelin
         self.PIconnection = PiConn2dot1(self,zeppelin.name)
         self.PID_dict = {"Kp":self.set_Kp,
@@ -180,45 +179,33 @@ class Gate2dot1(threading.Thread,object):
     def open(self):
         print "Open connection Pi-side"
         self.PIconnection.start()
-        self.start()
-    
-    #TODO: HIER LOOPT HET SOMS FOUT
-    def run(self):
-        thrown = False
-        while True:
-            try:
-                if thrown == False:
-                    print "pre testing reinitialization sender"
-                    thrown = True
-                    raise Exception
-                time.sleep(1.5)
-                self.update_server()
-            except Exception:
-                print "PI sender reinitializated"
-                self.PIconnection.initialization_sender() 
     
     def update_server(self):
-        self.PIconnection.send_position_to_server(self.zep.navigator.position.xcoord,
-                                                   self.zep.navigator.position.ycoord,
-                                                    self.zep.navigator.height)
-        if self.zep.navigator.goal_position != 0:
-            self.PIconnection.send_goal_coordinates(self.zep.navigator.goal_position.xcoord, self.zep.navigator.goal_position.ycoord, self.zep.navigator.goal_height)
-    
-        rand = int(random.uniform(0,len(self.coords)))
-        self.PIconnection.send_coords_figures(self.coords[rand])
-        m1 = self.zep.navigator.motor_control.left_motor.level
-        m2 = self.zep.navigator.motor_control.right_motor.level
-        m3 = self.zep.navigator.motor_control.vert_motor.level
-        self.PIconnection.send_info_motors(str(m1)+" "+str(m2)+" "+str(m3))
-        message = ("Ci="+str(self.zep.navigator.stabilizer.Ci)
-                   +" Cd=" +str(self.zep.navigator.stabilizer.Cd)
-                   +" Kp=" +str(self.zep.navigator.stabilizer.Kp)
-                   +" Kd=" +str(self.zep.navigator.stabilizer.Kd)
-                   +" Ki=" +str(self.zep.navigator.stabilizer.Ki)
-                   +" BIAS="+str(self.zep.navigator.stabilizer.BIAS)
-                   +" MAX_PID_OUTPUT="+str(self.zep.navigator.stabilizer.MAX_PID_OUTPUT)
-                   +" MAX_Ci="+str(self.zep.navigator.stabilizer.MAX_Ci))
-        self.PIconnection.send_PID_param(message)
+        try:
+            self.PIconnection.send_position_to_server(self.zep.navigator.position.xcoord,
+                                                       self.zep.navigator.position.ycoord,
+                                                        self.zep.navigator.height)
+            if self.zep.navigator.goal_position != 0:
+                self.PIconnection.send_goal_coordinates(self.zep.navigator.goal_position.xcoord, self.zep.navigator.goal_position.ycoord, self.zep.navigator.goal_height)
+        
+            rand = int(random.uniform(0,len(self.coords)))
+            self.PIconnection.send_coords_figures(self.coords[rand])
+            m1 = self.zep.navigator.motor_control.left_motor.level
+            m2 = self.zep.navigator.motor_control.right_motor.level
+            m3 = self.zep.navigator.motor_control.vert_motor.level
+            self.PIconnection.send_info_motors(str(m1)+" "+str(m2)+" "+str(m3))
+            message = ("Ci="+str(self.zep.navigator.stabilizer.Ci)
+                       +" Cd=" +str(self.zep.navigator.stabilizer.Cd)
+                       +" Kp=" +str(self.zep.navigator.stabilizer.Kp)
+                       +" Kd=" +str(self.zep.navigator.stabilizer.Kd)
+                       +" Ki=" +str(self.zep.navigator.stabilizer.Ki)
+                       +" BIAS="+str(self.zep.navigator.stabilizer.BIAS)
+                       +" MAX_PID_OUTPUT="+str(self.zep.navigator.stabilizer.MAX_PID_OUTPUT)
+                       +" MAX_Ci="+str(self.zep.navigator.stabilizer.MAX_Ci))
+            self.PIconnection.send_PID_param(message)
+        except Exception:
+            print "PI sender reinitializated"
+            self.PIconnection.initialization_sender() 
         
         
 

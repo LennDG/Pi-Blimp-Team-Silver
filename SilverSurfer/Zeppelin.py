@@ -39,6 +39,7 @@ class Zeppelin(threading.Thread, object):
         
         self.navigator.goal_height = 150
         self.navigator.distance_sensor.height = 150
+        self.gate.update_server()
         
         while True:
             
