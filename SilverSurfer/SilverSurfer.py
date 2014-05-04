@@ -18,17 +18,25 @@ from Field import Field
 """ Motors """
 frequency = 10
 
+
+
 # Left motor
 cw_pin = 11
 ccw_pin = 10
-left_motor = Motor.Motor(cw_pin, ccw_pin, frequency)
-left_motor.start()
+left_motor = Motor.Motor(cw_pin, ccw_pin, 'left')
+
 
 # Right motor
 cw_pin = 23
 ccw_pin = 17
-right_motor = Motor.Motor(cw_pin, ccw_pin, frequency)
-right_motor.start()
+right_motor = Motor.Motor(cw_pin, ccw_pin, 'right')
+
+
+#MotorThread
+motor_thread = Motor.MotorThread(left_motor.cw_pin, left_motor.ccw_pin, right_motor.cw_pin, right_motor.ccw_pin, frequency)
+left_motor.motor_thread = motor_thread
+right_motor.motor_thread = motor_thread
+motor_thread.start()
 
 # Vertical motor
 cw_pin = 7

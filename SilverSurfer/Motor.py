@@ -2,7 +2,30 @@
 import RPi.GPIO as GPIO
 import threading, time
 
-class Motor(threading.Thread, object):
+class Motor(object):
+    
+    def __init__(self, cw_pin, ccw_pin, motor_place):
+        self._level = 0.0
+        self.cw_pin = cw_pin
+        self.ccw_pin = ccw_pin
+        self.motor_place = motor_place
+        
+        self.motor_thread = None
+
+    @property
+    def level(self):
+        return self._level
+    
+    @level.setter
+    def level(self, value):
+        if self.motor_place == 'left':
+            self.motor_thread.left_level = value
+        elif self.motor_place == 'right':
+            self.motor_thread.right_level = value
+        
+        
+
+class MotorThread(threading.Thread, object):
     
     def __init__(self, left_cw_pin, left_ccw_pin, right_cw_pin, right_ccw_pin, frequency):
         
