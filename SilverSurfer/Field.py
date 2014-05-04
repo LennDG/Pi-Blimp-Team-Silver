@@ -2,6 +2,7 @@ from __future__ import division
 from math import sqrt, pi
 from Vector import Vector
 from Figure import Figure
+import time
 
 """
 This file contains the field class which is constructed out of node objects, whose class this file
