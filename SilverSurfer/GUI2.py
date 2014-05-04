@@ -430,6 +430,7 @@ class GUI(Frame):
         compiled = map_compiler.compile_map(textfile, 40, self.canvas_map_width,self.canvas_map_height)
         obj_coord = compiled[0]
         lines= compiled[1]
+        tablets = compiled[2]
         
         i_max = len(lines)
         for i in range(i_max):
@@ -457,13 +458,16 @@ class GUI(Frame):
                                            coordinates_and_color[2],
                                            cmap
                                            )
-                
+        for tab in tablets:
+            map_compiler.create_rectangle(tab[0]/10, tab[1]/10, "Black", cmap)
         
             
     def create_zeppelin(self,cmap,x,y):
         anchor_x = GUI.canvas_map_X_SCALE*x-GUI.fig_map_SCALE*2+GUI.ANCHOR_ROOT
         anchor_y = GUI.canvas_map_Y_SCALE*y-GUI.fig_map_SCALE*2+GUI.ANCHOR_ROOT
         return cmap.create_oval(anchor_x ,anchor_y,anchor_x+GUI.fig_map_SCALE*5,anchor_y+GUI.fig_map_SCALE*5,fill="white")      
+    
+    
     
     def create_dot(self,cmap,x,y):      
         return cmap.create_oval(GUI.zep_map_X_SCALE*(x-3)+GUI.ANCHOR_ROOT,
@@ -666,7 +670,7 @@ class GuiCompiler():
         self.type_words = ["INFO", "STATUS","QR", "SWITCH", "SHUTDOWN"]
         self.state_att_words = { "H":"z", "GH":"Goal","E":"Error","LM":"left-motor","RM":"right-motor","VM":"vert-motor","Y":"y","X":"x","GY":"gy","GX":"gx","recognized":"recognized"}
         self.shapes = {'H' :"heart",'C':"circle",'S':"star",'R':"rectangle"}
-        self.colors = {'W':"grey",'B':"blue",'G':"green",'R':"red",'Y':"yellow"}
+        self.colors = {'W':"grey",'B':"blue",'G':"green",'R':"red",'Y':"yellow",'X':"nothing"}
         self.objects = {'rectangle':self.create_rectangle,'circle':self.create_circle,'star':self.create_star,'heart':self.create_hart}
         
     def create_rectangle(self,x_co,y_co,color,canvas):
@@ -721,25 +725,36 @@ class GuiCompiler():
         
         
         f = open(textfile, 'r')
-        count = 0
+        count = -1
         file_dict={}
+        tablets=[]
         for line in f:
             
             no_spaces = string.replace(line, " ", "")
   
             splitted_line = no_spaces.split(',')
 
-            file_dict[count]=[]
+            
+            
+            if(no_spaces[0]in self.colors):
+                count = count + 1
+                file_dict[count]=[]
+            else:
+                tablets.append((int(splitted_line[0]),int(splitted_line[1])))
+            
             for figure in splitted_line:
-                if (figure[0] != 'X' and figure[1] != 'X' ):
+                if(figure[0] in self.colors and figure[1] in self.shapes):
                     color = self.colors[figure[0]]
                     shape = self.shapes[figure[1]]
                     file_dict[count].append((color,shape))
-                else:
-                    file_dict[count].append(("Nothing","Nothing"))
+            
+
+
+            
+            
                
                   
-            count = count + 1
+            
         
         
         f.close()
@@ -774,7 +789,7 @@ class GuiCompiler():
       #TODO: Hier misschien werken met globaal anker (alles 10p naar onder en naar rechts: ANKER DAN OVERAL GEBRUIKEN!)             
                     result[file_dict[i][j][1]].append([extra+j*length_edge,i*self.length_height,file_dict[i][j][0]])
                     coords_pairs[i][j]=(extra+j*length_edge,i*self.length_height)
-        return result,coords_pairs
+        return result,coords_pairs, tablets
 
 
 class zeppelinDatabase():

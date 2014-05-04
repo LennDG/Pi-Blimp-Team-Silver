@@ -19,14 +19,8 @@ class PiConn2dot1( threading.Thread, object):
         not_established = True
         while(not_established):
              try:
-                 t= time.time()
                  self.initialization_sender()
                  self.initialization_receiver()
-                 rest = time.time()-t
-                 print "TIME=" + str(rest)
-                  
- 
- 
                  not_established = False
              except Exception:
                  not_established = True
@@ -83,6 +77,10 @@ class PiConn2dot1( threading.Thread, object):
          
         private_setpid =  self.channel_consumer.queue_declare(queue="private-setpid-"+ self.zep_name)
         self.queue_private_setpid = private_setpid.method.queue
+        
+        tablet =  self.channel_consumer.queue_declare(queue="tablets-"+ self.zep_name)
+        self.queue_tablet = tablet.method.queue
+        
                 #bind the queues to keys
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_height,routing_key="*.info.height")
@@ -92,14 +90,21 @@ class PiConn2dot1( threading.Thread, object):
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key=self.zep_name+".lcommand.motor2")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key=self.zep_name+".lcommand.motor3")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key=self.zep_name+".private.pid.setpid")
-        
+        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_tablet,routing_key=self.zep_name+".tablets.*")
+
         self.channel_consumer.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_private_setpid, queue=self.queue_private_setpid, no_ack=True)   
         self.channel_consumer.basic_consume(self.callback_set_motor1, queue=self.queue_lcommand_motor1, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_set_motor2, queue=self.queue_lcommand_motor2, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_set_motor3, queue=self.queue_lcommand_motor3, no_ack=True)        
+        self.channel_consumer.basic_consume(self.callback_tablets, queue=self.queue_tablet, no_ack=True)        
 
+    def callback_tablets(self,ch, method, properties, body): 
+        tablet =  method.routing_key.split('.')[2]
+        coor = body.split(',')   
+        
+    
     def callback_private_setpid(self,ch, method, properties, body):
         params = body.split(" ")
         for param in params:
