@@ -27,11 +27,11 @@ red_low = [lower_red, upper_red, 'red']
 
 #Define Green
 lower_green = np.array([40, 20, 0], dtype=np.uint8)
-upper_green = np.array([90, 180, 255], dtype=np.uint8)
+upper_green = np.array([100, 180, 255], dtype=np.uint8)
 green = [lower_green, upper_green, 'green']
 
 #Define Blue
-lower_blue = np.array([90, 20, 10], dtype=np.uint8)
+lower_blue = np.array([100, 20, 10], dtype=np.uint8)
 upper_blue = np.array([145, 180, 255], dtype=np.uint8)
 blue = [lower_blue, upper_blue, 'blue']
 
@@ -86,15 +86,6 @@ def analyse_approx(approx):
         cos = cosine(approx[i%len(approx)], approx[(i-2)%len(approx)], approx[(i-1)%len(approx)])
         cosines.append(cos)
     
-    #Check for stars with duplicates method
-    duplicates = 0
-    for i in range(0, len(approx)):
-        for j in range(i+1, len(approx)):
-            if length(approx[i], approx[j]) <= 2:
-                duplicates += 1
-                if duplicates >= 2:
-                    return "star"    
-    
     #Check for rectangles
     perp_count = 0.
     for cos in cosines:
@@ -103,6 +94,15 @@ def analyse_approx(approx):
     if perp_count >= 2:
         return "rectangle"
     
+    #Check for stars with duplicates method
+    duplicates = 0
+    for i in range(0, len(approx)):
+        for j in range(i+1, len(approx)):
+            if length(approx[i], approx[j]) <= 2:
+                duplicates += 1
+                if duplicates >= 2:
+                    return "star"    
+       
     #Count negatives
     negatives = 0. 
     for cos in cosines:
@@ -182,7 +182,7 @@ def detect_targets():
                 figures.append(figure)
                 cv2.drawContours(img, approx, -1, (0,0,0), thickness = 3) 
     
-    
+    #Recognize tablets
     figures = sorted(figures, key = lambda figure:figure[4])
     if figures[-1][4] >= 2*figures[-2][4]:
         figures.remove(figures[-1]) 
@@ -213,7 +213,7 @@ def decode_qrcode(img_file):
             
     return data
 
-def decrypt_text(ecrypt_data):
+def decrypt_text(encrypt_data):
     
     #key's genereren -- waar doen we dit ?
     random_g = Random.new().read
@@ -221,7 +221,7 @@ def decrypt_text(ecrypt_data):
     public_key = private_key.publickey().exportKey('PEM')  #public key doorsturen naar server
     
     #enc_data = public_key.encrypt('abcdefghs', 32)  --- encrypt
-    return private_key.decrypt(ecrypt_data)
+    return private_key.decrypt(encrypt_data)
 
 
 

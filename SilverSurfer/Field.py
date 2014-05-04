@@ -109,7 +109,8 @@ class Node(object):
             pass  #This node is already a neighbour.
             
         elif (not self.neighbours[relative_position] == 0):
-            print "This node already has a neighbour in the given position." 
+            pass
+            #print "This node already has a neighbour in the given position." 
         
         else: 
             
@@ -435,7 +436,7 @@ class Field(object):
     # Zou ook moeten werken.
     def match_partial_field(self, virtual_nodes, estimated_position):
         
-        threshold_score = 3 # For now
+        threshold_score = 2.5 # For now
         
         real_node = 0
         corresponding_virtual_node= 0
@@ -450,7 +451,8 @@ class Field(object):
                 score = temp_score
                 relative_direction = direction
         
-        if score > threshold_score and real_node != 0:
+        print score
+        if score >= threshold_score and real_node != 0:
             return real_node, corresponding_virtual_node, relative_direction
         else:
             return 0
@@ -470,12 +472,15 @@ class Field(object):
         for initial in initials:
             
             for x in range(0,6):
-                temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0)
-                if temp > score:
-                    score = temp
-                    relative_direction = x
-                    result = initial
-            
+                try:
+                    temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0)
+                    if temp > score:
+                        score = temp
+                        relative_direction = x
+                        result = initial
+                except RuntimeError:
+                    pass
+         
         return result, score, relative_direction
                 
     
@@ -506,7 +511,10 @@ class Field(object):
         real_color = real_node.figure.color
         virtual_color = virtual_node.figure.color
         if real_color == virtual_color:
-            score = score + 0.5
+            if real_color == 'blue':
+                score = score + 0.4
+            else:
+                score = score + 0.5
         elif real_color == 'red' or real_color == 'yellow' or real_color == 'white' or real_color == 'blue' or (real_color == 'green' and virtual_color != 'blue'):
             score = score -1.0
             
