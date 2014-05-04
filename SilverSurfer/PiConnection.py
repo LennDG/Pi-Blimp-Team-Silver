@@ -78,8 +78,6 @@ class PiConn2dot1( threading.Thread, object):
         private_setpid =  self.channel_consumer.queue_declare(queue="private-setpid-"+ self.zep_name)
         self.queue_private_setpid = private_setpid.method.queue
         
-        tablet =  self.channel_consumer.queue_declare(queue="tablets-"+ self.zep_name)
-        self.queue_tablet = tablet.method.queue
         
                 #bind the queues to keys
 #         self.channel_consumer.queue_bind(exchange='server',queue=queue_info_location,routing_key="*.info.location")
@@ -90,20 +88,14 @@ class PiConn2dot1( threading.Thread, object):
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor2,routing_key=self.zep_name+".lcommand.motor2")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_lcommand_motor3,routing_key=self.zep_name+".lcommand.motor3")
         self.channel_consumer.queue_bind(exchange='server',queue=self.queue_private_setpid,routing_key=self.zep_name+".private.pid.setpid")
-        self.channel_consumer.queue_bind(exchange='server',queue=self.queue_tablet,routing_key=self.zep_name+".tablets.*")
-
+       
         self.channel_consumer.basic_consume(self.callback_hcommand_elevate, queue=self.queue_hcommand_elevate, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_hcommand_move, queue=self.queue_hcommand_move, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_private_setpid, queue=self.queue_private_setpid, no_ack=True)   
         self.channel_consumer.basic_consume(self.callback_set_motor1, queue=self.queue_lcommand_motor1, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_set_motor2, queue=self.queue_lcommand_motor2, no_ack=True)
         self.channel_consumer.basic_consume(self.callback_set_motor3, queue=self.queue_lcommand_motor3, no_ack=True)        
-        self.channel_consumer.basic_consume(self.callback_tablets, queue=self.queue_tablet, no_ack=True)        
-
-    def callback_tablets(self,ch, method, properties, body): 
-        tablet =  method.routing_key.split('.')[2]
-        coor = body.split(',')   
-        
+    
     
     def callback_private_setpid(self,ch, method, properties, body):
         params = body.split(" ")
@@ -130,8 +122,11 @@ class PiConn2dot1( threading.Thread, object):
 
     def callback_hcommand_move(self,ch, method, properties, body):
         print "GOTO " + body
-        self.gate.move_to_horizontal(body)   
-
+        self.gate.move_to_horizontal(body) 
+        
+    def send_public_key(self,key,tabletnr):  
+        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.tablets.tablet'+str(tabletnr), body=key)
+        
     def send_message_to_gui(self,message):
         self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.fromPI', body=message)
     
