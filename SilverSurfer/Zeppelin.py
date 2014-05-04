@@ -41,6 +41,10 @@ class Zeppelin(threading.Thread, object):
         self.navigator.distance_sensor.height = 150
         
         while True:
+            
+            self.navigator.distance_sensor.calculate_height()
+            self.navigator.stabilizer.stabilize()
+            
             if self.navigator.goal_height == 0 and self.navigator.height < 20:
                 self.navigator.goal_position = 0
             

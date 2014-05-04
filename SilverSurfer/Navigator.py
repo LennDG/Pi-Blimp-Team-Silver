@@ -77,13 +77,9 @@ class Navigator(threading.Thread, object):
     """
     def run(self):
         
-        self.distance_sensor.start()
-        self.stabilizer.start()
-        #self.image_processor.start_daemon()
         self.navigating = True
         
         while self.navigating:
-            
             if self.goal_position == 0:
                 time.sleep(0.1)
             else:
@@ -111,8 +107,6 @@ class Navigator(threading.Thread, object):
                     
                 else:
                     self.update(result[0], result[1], result[2], result[3], zeppelin_image, time_stamp)
-                
-        self.stabilizer.stop()
         
             
         

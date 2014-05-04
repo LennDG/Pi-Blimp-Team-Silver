@@ -6,19 +6,14 @@ The class PID ensures the zeppelin remains stable at a given height by
 continually comparing the current height supplied by the distance sensor to
 the goal height.
 """    
-class PID(threading.Thread, object):
+class PID(object):
     
     
     
     def __init__(self, navigator):
         
-        threading.Thread.__init__(self)
-        
         # Initialize its parent navigator
         self.navigator = navigator
-        
-        # Set the running condition to False.
-        self.stabilizing = False
         
         # Initialize the time parameters.
         self.current_time = time.time()
@@ -40,37 +35,13 @@ class PID(threading.Thread, object):
     
     
     """
-    This methods starts the thread.
-    """
-    def run(self):
-        
-        # Set the running condition to True.
-        self.stabilizing = True
-        
-        # Start the loop of calculating errors and adjusting the motor accordingly.
-        while self.stabilizing:
-            
-            # Calculate the error.
-            error =  self.navigator.goal_height - self.navigator.height
-            
-            # Set the vertical motor accordingly.
-            self.navigator.motor_control.vert_motor.level = self.motor_output(error)
-            
-            # Wait until a new measurement is available
-            time.sleep(0.6)
-            
-    """
-    This method stops the thread in a controlled way.
-    """    
-    def stop(self):
-        self.stabilizing = False
-    
-    
-    """
     This method returns the required output of the vertical motor based on 
     the supplied error.
     """
-    def motor_output(self, error):
+    def stabilize(self):
+        
+        # Calculate the error.
+        error =  self.navigator.goal_height - self.navigator.height
         
         # Calculate dt
         self.current_time = time.time()
@@ -122,4 +93,5 @@ class PID(threading.Thread, object):
         # Add the BIAS to the result    
         output_value = self.BIAS + PID_value
         
-        return output_value
+        # Set the vertical motor accordingly.
+        self.navigator.motor_control.vert_motor.level = self.motor_output(error)

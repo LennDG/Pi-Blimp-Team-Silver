@@ -1,11 +1,9 @@
 import time, RPi.GPIO as GPIO
 import threading
 
-class DistanceSensor(threading.Thread, object):
+class DistanceSensor(object):
     
     def __init__(self, data_amount):
-        
-        threading.Thread.__init__(self)
         
         # Set the pins we use
         # -----------------------------------------------------------------
@@ -36,12 +34,8 @@ class DistanceSensor(threading.Thread, object):
         self.v_snd = 340.29            # Speed of sound in m/s
         
         self.height = 0.0
- 
-    def run(self):
-        while True:
-            self.calculate_heigth() #Continually calculate the height
 
-    def calculate_heigth(self):
+    def calculate_height(self):
         results = []
         index = 0
         while index < self.data_amount:
