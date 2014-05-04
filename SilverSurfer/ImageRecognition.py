@@ -148,7 +148,7 @@ def detect_targets():
         
         #Find outer contours and use only the larger ones
         contours, h = cv2.findContours(canny.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        contours = [contour for contour in contours if len(contour) >= 25]
+        contours = [contour for contour in contours if len(contour) >= 10]
         #Iterate over contours
         for contour in contours:
             #Approximate the contour, 0.025 is the magic value here
@@ -170,7 +170,7 @@ def detect_targets():
             for figure in figures:
                 if not valid:
                     break
-                if abs(figure[2] - centroid_x) <= 75 and abs(figure[3] - centroid_y) <= 75:
+                if abs(figure[2] - centroid_x) <= 50 and abs(figure[3] - centroid_y) <= 50:
                     if figure[4] > area:
                         valid = False
                         break
@@ -185,10 +185,12 @@ def detect_targets():
     
     #Recognize tablets
     figures = sorted(figures, key = lambda figure:figure[4])
-    if len(figures) > 1:
-        if figures[-1][4] >= 2*figures[-2][4]:
-            figures.remove(figures[-1]) 
-    return figures
+    culled_figures = []
+    median = figures[len(figures)/2][4]
+    for figure in figures:
+        if figure[4] <= 1.5*median:
+            culled_figures.append(figure) 
+    return culled_figures
 
 
 def generate_image():
