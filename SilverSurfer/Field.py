@@ -470,9 +470,10 @@ class Field(object):
         # now start the matching
         for initial in initials:
             
+            t = time.time()
             for x in range(0,6):
                 try:
-                    temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0)
+                    temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0,t)
                     if temp > score:
                         score = temp
                         relative_direction = x
@@ -483,9 +484,13 @@ class Field(object):
         return result, score, relative_direction
                 
     
-    def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score):
+    def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score, t):
+        
+        time_limit = 0.5
         
         score = score + self.assign_score(current_node, node_in_structure)
+        if time.time() - t > time_limit:
+            return score
         for x in range(0, 6):
             virtual_direction = (x + direction_difference)%6
             
@@ -496,7 +501,7 @@ class Field(object):
                 check_node.add_node(new_check_node, virtual_direction)
                 if next_node == 0 or next_node.figure.color == 'x': # Als er in het echte veld geen node ligt, is deze configuratie onmogelijk.
                     return -1000.0
-                score = self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score)
+                score = self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score, t)
         
         return score
     
