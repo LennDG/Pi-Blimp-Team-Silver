@@ -89,7 +89,7 @@ class MotorThread(threading.Thread, object):
             right_on_time = abs(self.right_level)/(100.*self.frequency)
             left_on_time = abs(self.left_level)/(100.*self.frequency)
             
-            if left_on_time > right_on_time:
+            if left_on_time >= right_on_time:
                 if self.left_level > 0.0: GPIO.output(self.left_cw_pin, 1)
                 else: GPIO.output(self.left_ccw_pin, 1)
                 if self.right_level > 0.0: GPIO.output(self.right_cw_pin, 1)
