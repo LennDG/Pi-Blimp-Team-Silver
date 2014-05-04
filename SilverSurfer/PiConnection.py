@@ -14,7 +14,7 @@ class PiConn2dot1( threading.Thread, object):
         
         credentials = pika.PlainCredentials('zilver', 'zilver')
         self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
-        self.parameters = pika.ConnectionParameters(host = 'localhost')
+#        self.parameters = pika.ConnectionParameters(host = 'localhost')
         
         not_established = True
         while(not_established):

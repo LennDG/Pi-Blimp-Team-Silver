@@ -531,6 +531,7 @@ class Field(object):
         
         
         # Put the figures and images in their respective lists.
+        t = time.time()
         
         positions = []
         figures = []
@@ -580,5 +581,7 @@ class Field(object):
         index_2 = virtual_nodes.index(virtual_neighbour)
         position_1 = positions[index_1]
         position_2 = positions[index_2]
+        
+        print "Position found in " + str(t - time.time()) + ' seconds.'
         
         return real_node, real_neighbour, position_1, position_2

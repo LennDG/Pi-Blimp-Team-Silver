@@ -194,8 +194,10 @@ def detect_targets():
 
 
 def generate_image():
+    t = time.time()
     time_stamp = take_picture()
     targets = detect_targets()
+    print "image recognition completed in " + str(t - time.time()) + ' seconds.'
     zeppelin_image = (250,250) # We'll have to program this a bit more flexible not hardcoded.
     return targets, zeppelin_image, time_stamp
 

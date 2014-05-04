@@ -47,7 +47,7 @@ class Motor(threading.Thread, object):
                 time.sleep(1./self.frequency - on_time)
                 continue
             elif self._level < 0.0:
-                on_time = self.level*(100.*self.frequency)
+                on_time = -self.level/(100.*self.frequency)
                 GPIO.output(self.ccw_pin, 1)
                 time.sleep(on_time)
                 GPIO.output(self.ccw_pin, 0)
