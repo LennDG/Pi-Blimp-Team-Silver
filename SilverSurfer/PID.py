@@ -94,4 +94,4 @@ class PID(object):
         output_value = self.BIAS + PID_value
         
         # Set the vertical motor accordingly.
-        self.navigator.motor_control.vert_motor.level = self.motor_output(error)
+        self.navigator.motor_control.vert_motor.level = output_value
