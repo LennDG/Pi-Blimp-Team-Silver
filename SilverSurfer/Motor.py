@@ -4,59 +4,104 @@ import threading, time
 
 class Motor(threading.Thread, object):
     
-    def __init__(self, cw_pin, ccw_pin, frequency):
+    def __init__(self, left_cw_pin, left_ccw_pin, right_cw_pin, right_ccw_pin, frequency):
         
         threading.Thread.__init__(self)
         
         GPIO.setmode(GPIO.BCM)
         
-        self.level = 0.0
+        self.left_level = 0.0
+        self.right_level = 0.0
         
         self.frequency = frequency
         
-        self.cw_pin = cw_pin
-        self.ccw_pin = ccw_pin
+        self.left_cw_pin = left_cw_pin
+        self.left_ccw_pin = left_ccw_pin
+
+        self.right_cw_pin =  right_cw_pin
+        self.right_ccw_pin =  right_ccw_pin
 
         
-        GPIO.setup(cw_pin, GPIO.OUT)
-        GPIO.setup(ccw_pin, GPIO.OUT)
+        GPIO.setup(left_cw_pin, GPIO.OUT)
+        GPIO.setup(left_ccw_pin, GPIO.OUT)
+        
+        GPIO.setup(right_cw_pin, GPIO.OUT)
+        GPIO.setup(right_ccw_pin, GPIO.OUT)
         
         #Reset the pins
-        GPIO.output(cw_pin, 0)
-        GPIO.output(ccw_pin, 0)
+        GPIO.output(left_cw_pin, 0)
+        GPIO.output(left_ccw_pin, 0)
+        
+        GPIO.output(right_cw_pin, 0)
+        GPIO.output(right_ccw_pin, 0)
+        
         
     @property
-    def level(self):
-        return self._level
+    def left_level(self):
+        return self._left_level
     
-    @level.setter
-    def level(self, value): #This sets the level of the motor
+    @property
+    def right_level(self):
+        return self._right_level
+    
+    @left_level.setter
+    def left_level(self, value): #This sets the level of the motor
         if value > 100:
             value = 100
         elif value < -100:
             value = -100
-        self._level = value
+        self._left_level = value
+        
+    @right_level.setter
+    def right_level(self, value): #This sets the level of the motor
+        if value > 100:
+            value = 100
+        elif value < -100:
+            value = -100
+        self._right_level = value
         
     def run(self):
         while True:
-            if self._level > 0.0:
-                on_time = self.level/(100.*self.frequency)
-                GPIO.output(self.cw_pin, 1)
+            '''
+            LEFT
+            '''          
+            if self.left_level > 0.0:
+                on_time = self.left_level/(100.*self.frequency)
+                GPIO.output(self.left_cw_pin, 1)
                 time.sleep(on_time)
-                GPIO.output(self.cw_pin, 0)
+                GPIO.output(self.left_cw_pin, 0)
                 time.sleep(1./self.frequency - on_time)
-                continue
+            elif self.left_level < 0.0:
+                on_time = -self.left_level/(100.*self.frequency)
+                GPIO.output(self.left_ccw_pin, 1)
             elif self._level < 0.0:
-                on_time = -self.level/(100.*self.frequency)
-                GPIO.output(self.ccw_pin, 1)
+                on_time = -self.left_level/(100.*self.frequency)
+                GPIO.output(self.left_ccw_pin, 1)
                 time.sleep(on_time)
-                GPIO.output(self.ccw_pin, 0)
+                GPIO.output(self.left_ccw_pin, 0)
                 time.sleep(1./self.frequency - on_time)
-                continue
-            elif int(self._level) == 0:
-                GPIO.output(self.cw_pin, 0)
-                GPIO.output(self.ccw_pin, 0)
-        pass
+            elif int(self.left_level) == 0:
+                GPIO.output(self.left_cw_pin, 0)
+                GPIO.output(self.left_ccw_pin, 0)
+                
+            '''
+            RIGHT
+            '''
+            if self.right_level > 0.0:
+                on_time = self.right_level/(100.*self.frequency)
+                GPIO.output(self.right_cw_pin, 1)
+                time.sleep(on_time)
+                GPIO.output(self.right_cw_pin, 0)
+                time.sleep(1./self.frequency - on_time)
+            elif self.right_level < 0.0:
+                on_time = -self.right_level/(100.*self.frequency)
+                GPIO.output(self.right_ccw_pin, 1)
+                time.sleep(on_time)
+                GPIO.output(self.right_ccw_pin, 0)
+                time.sleep(1./self.frequency - on_time)
+            elif int(self.right_level) == 0:
+                GPIO.output(self.right_cw_pin, 0)
+                GPIO.output(self.right_ccw_pin, 0)
         
     
 class VerticalMotor(object):
