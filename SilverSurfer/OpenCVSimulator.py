@@ -24,6 +24,7 @@ class OpenCVSimulator(object):
         self.ANGULAR_INSTABILITY = angular_instability
         self.height = 150
         self.last_updated = time.time()
+        self.eerstekeervoorbij = False
     
       
     def scaling_factor(self):
@@ -37,7 +38,10 @@ class OpenCVSimulator(object):
         time_since_last_image = time_stamp - self.last_updated
         time.sleep(decoding_time)
         self.last_updated = time_stamp
-        new_position = self.navigator.position + velocity*time_since_last_image
+        new_position = Vector(0,0)
+        if self.eerstekeervoorbij:
+            new_position = self.navigator.position + velocity*time_since_last_image
+        self.eerstekeervoorbij = True
         print "calculated position by opencv: " + str(new_position.xcoord) + ", " + str(new_position.ycoord)
         new_angle = self.simulate_new_angle(time_since_last_image)
         
@@ -69,8 +73,7 @@ class OpenCVSimulator(object):
         # transform angle into 6 integer space
         angle = angle/2/pi*6 # maximum angle =  6
         angle = int(angle)
-        angle = (6 - angle)%6
-        angle = (angle + 2)%6
+        angle = (angle - 2)%6
         
         second_node = 0
         third_node = 0

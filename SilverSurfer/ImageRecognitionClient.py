@@ -22,7 +22,7 @@ class ImageRecognitionClient(object):
         IR.take_picture("/run/shm/QR.jpg")
         
         #Read text
-        text = IR.decode_qrcode("/run/shm/QR.jpg")
+        text = IR.decode_qrcode("/run/shm/QR.jpg",private_key)
         
         #Keep trying to take picture for 5 seconds if it is not found
         while text is None:

@@ -204,7 +204,7 @@ class Gate2dot1(threading.Thread,object):
     
     def update_server(self):
         self.PIconnection.send_position_to_server(self.zep.navigator.position.xcoord,
-                                                   -self.zep.navigator.position.ycoord,
+                                                   self.zep.navigator.position.ycoord,
                                                     self.zep.navigator.height)
         if self.zep.navigator.goal_position != 0:
             self.PIconnection.send_goal_coordinates(self.zep.navigator.goal_position.xcoord, self.zep.navigator.goal_position.ycoord, self.zep.navigator.goal_height)

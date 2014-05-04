@@ -14,10 +14,10 @@ class Zeppelin(threading.Thread, object):
         
         # I am going to supply a list of goal positions for now, this is going to change later.
         self.positions = []
-        self.positions.append(Vector(200,-100))
-        self.positions.append(Vector(40,-200))
-        self.positions.append(Vector(200,-200))
-        self.positions.append(Vector(40,-200))
+        self.positions.append(Vector(200,100))
+        self.positions.append(Vector(40,200))
+        self.positions.append(Vector(200,200))
+        self.positions.append(Vector(40,200))
         
     def moveto(self, x, y, z):
         new_position = Vector(x, y)

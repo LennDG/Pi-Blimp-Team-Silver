@@ -425,8 +425,6 @@ class Field(object):
                 # transform angle into 6 integer space
                 relative_position = angle/2/pi*6 + 0.3 # Adding some marge
                 relative_position = int(relative_position)%6 # 0,1,2,3,4,5
-                relative_position = (6 - relative_position)%6
-                relative_position = (relative_position + 2)%6
                 
                 nodes[own_index].add_node(nodes[x], relative_position)
                 
@@ -436,7 +434,7 @@ class Field(object):
     # Zou ook moeten werken.
     def match_partial_field(self, virtual_nodes, estimated_position):
         
-        threshold_score = 2.5 # For now
+        threshold_score = 2.4 # For now
         
         real_node = 0
         corresponding_virtual_node= 0
@@ -512,7 +510,7 @@ class Field(object):
         virtual_color = virtual_node.figure.color
         if real_color == virtual_color:
             if real_color == 'blue':
-                score = score + 0.4
+                score = score + 0.5
             else:
                 score = score + 0.5
         elif real_color == 'red' or real_color == 'yellow' or real_color == 'white' or real_color == 'blue' or (real_color == 'green' and virtual_color != 'blue'):
@@ -543,12 +541,13 @@ class Field(object):
             
             # Withhold figures with y-values of 494 onwards, something wrong with the camera.
             # Make shapes on the edges undefined, as they don't provide information.
+                
             if vector.ycoord > 494.0:
                 pass
             else:
                 if vector.xcoord > 500-22 or vector.xcoord < 22 or vector.ycoord > 500-22 or vector.ycoord < 22:
                     figure.shape = 'undefined'
-                
+               
                 figures.append(figure)
                 positions.append(vector)
             
