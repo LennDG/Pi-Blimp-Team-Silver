@@ -170,7 +170,7 @@ def detect_targets():
             for figure in figures:
                 if not valid:
                     break
-                if abs(figure[2] - centroid_x) <= 50 and abs(figure[3] - centroid_y) <= 50:
+                if abs(figure[2] - centroid_x) <= 75 and abs(figure[3] - centroid_y) <= 75:
                     if figure[4] > area:
                         valid = False
                         break
@@ -185,8 +185,9 @@ def detect_targets():
     
     #Recognize tablets
     figures = sorted(figures, key = lambda figure:figure[4])
-    if figures[-1][4] >= 2*figures[-2][4]:
-        figures.remove(figures[-1]) 
+    if len(figures) > 1:
+        if figures[-1][4] >= 2*figures[-2][4]:
+            figures.remove(figures[-1]) 
     return figures
 
 
