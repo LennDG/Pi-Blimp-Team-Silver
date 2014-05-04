@@ -68,7 +68,7 @@ class PID(object):
         # Calculate the differential term, being careful not to divide by 0
         self.Cd = 0
         if dt > 0:
-            self.Cd = de/dt
+            self.Cd = de/dtself.motor_output(error)
             
         # Save the time and error for the next time the function runs
         self.prev_time = self.current_time
