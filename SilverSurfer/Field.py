@@ -435,7 +435,7 @@ class Field(object):
     # Zou ook moeten werken.
     def match_partial_field(self, virtual_nodes, estimated_position):
         
-        threshold_score = 2.4 # For now
+        threshold_score = 2.5 # For now
         
         real_node = 0
         corresponding_virtual_node= 0
@@ -443,7 +443,7 @@ class Field(object):
         relative_direction = 0
         
         for node in virtual_nodes:
-            temp_result, temp_score, direction = self.match_node_configuration(node, estimated_position)
+            temp_result, temp_score, direction = self.match_node_configuration(node, estimated_position, threshold_score)
             if temp_score > score:
                 real_node = temp_result
                 corresponding_virtual_node = node
@@ -458,7 +458,7 @@ class Field(object):
             
             
                 
-    def match_node_configuration(self, node_in_structure, estimated_position):
+    def match_node_configuration(self, node_in_structure, estimated_position, threshold):
         
         # First, search all nodes in the field that match the given node.
         initials = self.search_field(node_in_structure.figure)
@@ -473,7 +473,7 @@ class Field(object):
             t = time.time()
             for x in range(0,6):
                 try:
-                    temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0,t)
+                    temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0,t, threshold)
                     if temp > score:
                         score = temp
                         relative_direction = x
@@ -484,15 +484,17 @@ class Field(object):
         return result, score, relative_direction
                 
     
-    def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score, t):
+    def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score, t, threshold):
         
         time_limit = 0.5
         
         score = score + self.assign_score(current_node, node_in_structure)
-        if time.time() - t > time_limit:
+        if score > threshold:
             return score
         for x in range(0, 6):
             virtual_direction = (x + direction_difference)%6
+            if score > threshold:
+                return score
             
             if  check_node.neighbours[virtual_direction] == 0 and node_in_structure.neighbours[virtual_direction] != 0:
                 next_node = current_node.neighbours[x]
@@ -501,7 +503,7 @@ class Field(object):
                 check_node.add_node(new_check_node, virtual_direction)
                 if next_node == 0 or next_node.figure.color == 'x': # Als er in het echte veld geen node ligt, is deze configuratie onmogelijk.
                     return -1000.0
-                score = self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score, t)
+                score = self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score, t, threshold)
         
         return score
     
