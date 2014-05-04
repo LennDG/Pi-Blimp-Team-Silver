@@ -2,6 +2,7 @@ import threading
 import time
 from Vector import Vector
 import PiConnection
+from Crypto.PublicKey import RSA
      
 class Zeppelin(threading.Thread, object):
        
@@ -23,6 +24,9 @@ class Zeppelin(threading.Thread, object):
         self.name = name
         self.gate = PiConnection.Gate2dot1(self)
         self.gate.open()
+        
+        self.private_key = RSA.generate(1024, e=5)
+        self.public_key = self.private_key.publickey().exportKey('PEM')
         
     def moveto(self, x, y, z):
         new_position = Vector(x, y)
@@ -54,7 +58,7 @@ class Zeppelin(threading.Thread, object):
                 time.sleep(0.5)
                 
                 
-                text = self.navigator.image_processor.generate_QR_code()
+                text = self.navigator.image_processor.generate_QR_code(self.private_key)
                 
                 if text == 0: 
                     print "It's not gonna work boys."

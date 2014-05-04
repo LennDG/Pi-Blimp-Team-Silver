@@ -7,6 +7,7 @@ import zbar
 from PIL import Image
 from Crypto.PublicKey import RSA
 from Crypto import Random
+from base64 import b64decode
 
 #Define scanner for zbar QR
 scanner = zbar.ImageScanner()
@@ -195,7 +196,7 @@ def generate_image():
     zeppelin_image = (250,250) # We'll have to program this a bit more flexible not hardcoded.
     return targets, zeppelin_image, time_stamp
 
-def decode_qrcode(img_file):
+def decode_qrcode(img_file, private_key):
  
     #afbeelding laden
     pil = Image.open(img_file).convert('L')
@@ -211,17 +212,12 @@ def decode_qrcode(img_file):
     for symbol in image:
         data = symbol.data
             
-    return data
+    return decrypt_text(data, private_key)
 
-def decrypt_text(encrypt_data):
-    
-    #key's genereren -- waar doen we dit ?
-    random_g = Random.new().read
-    private_key = RSA.generate(1024, random_g) #arg1: lengte key: veelvoud van 256 en >= 1024
-    public_key = private_key.publickey().exportKey('PEM')  #public key doorsturen naar server
+def decrypt_text(encrypt_data, private_key):
     
     #enc_data = public_key.encrypt('abcdefghs', 32)  --- encrypt
-    return private_key.decrypt(encrypt_data)
+    return private_key.decrypt(b64decode(encrypt_data))
 
 
 
