@@ -1,7 +1,7 @@
 import time, random
 import threading
 
-class DistanceCalculator(threading.Thread, object):
+class DistanceCalculator(object):
     
     C_W = 1 # Think this is about right.
     MASS = 0.3 # Determine this 
@@ -11,8 +11,6 @@ class DistanceCalculator(threading.Thread, object):
     MOTOR_POWER = 2 # test this #verschil in gewicht
     
     def __init__(self, error_level, data_amount):
-        
-        threading.Thread.__init__(self)
         
         self.navigator = 0
         
@@ -28,12 +26,6 @@ class DistanceCalculator(threading.Thread, object):
     @property    
     def motor_level(self):
         return self.navigator.motor_control.vert_motor.level
- 
-    def run(self):
-        while True:
-            self.calculate_height() #Continually calculate the height
-            time.sleep(self.interval)
-            print "height: " + str(self.height)
 
     def calculate_height(self):
 #         self.acceleration = (self.motor_level*DistanceCalculator.MOTOR_POWER - DistanceCalculator.SURFACE_AREA*DistanceCalculator.AIR_DENSITY*DistanceCalculator.C_W*self.speed**2/10)/DistanceCalculator.MASS - DistanceCalculator.GRAVITY
