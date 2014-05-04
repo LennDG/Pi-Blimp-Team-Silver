@@ -18,8 +18,9 @@ class Motor(object):
     
     @level.setter
     def level(self, value):
+        self._level = value
         if self.motor_place == 'left':
-            self.motor_thread.left_level = value
+            self.motor_thread.left_level = value           
         elif self.motor_place == 'right':
             self.motor_thread.right_level = value
         
