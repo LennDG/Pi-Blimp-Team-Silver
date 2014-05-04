@@ -80,11 +80,11 @@ class Node(object):
         reference_ycoord = reference_node.position.ycoord
         
         # Calculate the differences that will have to be added to the reference position.
-        differences = {     0 : (-DISTANCE*1/2, DISTANCE*sqrt(3)/2),
-                            1 : (DISTANCE*1/2, DISTANCE*sqrt(3)/2),
+        differences = {     0 : (-DISTANCE*1/2, -DISTANCE*sqrt(3)/2),
+                            1 : (DISTANCE*1/2, -DISTANCE*sqrt(3)/2),
                             2 : (DISTANCE,0),
-                            3 : (DISTANCE*1/2, -DISTANCE*sqrt(3)/2),
-                            4 : (-DISTANCE*1/2, -DISTANCE*sqrt(3)/2),
+                            3 : (DISTANCE*1/2, DISTANCE*sqrt(3)/2),
+                            4 : (-DISTANCE*1/2, DISTANCE*sqrt(3)/2),
                             5 : (-DISTANCE, 0)
                          }
         
@@ -329,9 +329,9 @@ class Field(object):
             current_xcoord = current_node.position.xcoord
             current_ycoord = current_node.position.ycoord
             delta_x = xcoord - current_xcoord
-            delta_y = ycoord - current_ycoord
+            delta_y = current_ycoord - ycoord
             if abs(delta_y) > sqrt(3)/2*DISTANCE/2 and not right_height:
-                x_parameter = sign(delta_x)  # right, -1 left
+                x_parameter = sign(delta_x)  # 1 right, -1 left
                 y_parameter = sign(delta_y)  # 1 up, -1 down
                 relative_direction = int(2 + x_parameter*y_parameter/2 - 3/2*y_parameter)
                 # again calculated by use of a table with all possible combinations and their respective outcomes.
@@ -539,14 +539,14 @@ class Field(object):
         
         for image in figure_images:
             figure = Figure(image[0], image[1])
-            vector = Vector(image[2], image[3]*-1)
+            vector = Vector(image[2], image[3])
             
             # Withhold figures with y-values of 494 onwards, something wrong with the camera.
             # Make shapes on the edges undefined, as they don't provide information.
-            if vector.ycoord < -494.0:
+            if vector.ycoord > 494.0:
                 pass
             else:
-                if vector.xcoord > 500-22 or vector.xcoord < 22 or vector.ycoord > - 22 or vector.ycoord < -500 + 22:
+                if vector.xcoord > 500-22 or vector.xcoord < 22 or vector.ycoord > 500-22 or vector.ycoord < 22:
                     figure.shape = 'undefined'
                 
                 figures.append(figure)

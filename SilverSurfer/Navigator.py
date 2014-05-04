@@ -139,7 +139,7 @@ class Navigator(threading.Thread, object):
         # Put the given tuples in vector format and calculate the required vectors
 #         node_image_1 = Vector(node_image_1[2], node_image_1[3])
 #         node_image_2 = Vector(node_image_2[2], node_image_2[3])
-        zeppelin_image = Vector(zeppelin_image[0], zeppelin_image[1]*-1)
+        zeppelin_image = Vector(zeppelin_image[0], zeppelin_image[1])
         image_difference = node_image_2 - node_image_1
         node_difference = node_2.position - node_1.position
         

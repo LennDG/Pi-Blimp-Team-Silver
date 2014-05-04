@@ -93,7 +93,7 @@ class OpenCVSimulator(object):
         nodes = self.find_triangle(zeppelin_position.xcoord, zeppelin_position.ycoord)
         
         # On the image the zeppelin always lies in the middle
-        zeppelin_image = Vector(OpenCVSimulator.IMAGE_PIXEL_WIDTH/2, OpenCVSimulator.IMAGE_PIXEL_HEIGHT/2)
+        zeppelin_image = Vector(OpenCVSimulator.IMAGE_PIXEL_WIDTH/2, -1*OpenCVSimulator.IMAGE_PIXEL_HEIGHT/2)
         
         # Calculate the relative positions of the nodes to the zeppelin.
         node_1_vector = nodes[0].position - zeppelin_position
