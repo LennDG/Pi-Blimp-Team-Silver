@@ -26,10 +26,10 @@ class ImageRecognitionClient(object):
         
         #Keep trying to take picture for 5 seconds if it is not found
         while text is None:
+            time.sleep(0.8)
             IR.take_picture("/run/shm/QR.jpg")
             text = IR.decode_qrcode("/run/shm/QR.jpg", private_key)
             if time.time() - tic > 5:
                 #Can't read QR code, stop trying
-                return 0
-            time.sleep(0.8)
+                return 0            
         return text
