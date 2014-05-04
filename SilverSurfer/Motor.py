@@ -100,6 +100,8 @@ class MotorThread(threading.Thread, object):
                 GPIO.output(self.left_cw_pin, 0)
                 GPIO.output(self.left_ccw_pin, 0)
                 
+                time.sleep(abs(1./self.frequency - left_on_time))
+                
             elif right_on_time > left_on_time:
                 if self.left_level > 0.0: GPIO.output(self.left_cw_pin, 1)
                 else: GPIO.output(self.left_ccw_pin, 1)
@@ -110,7 +112,9 @@ class MotorThread(threading.Thread, object):
                 GPIO.output(self.left_ccw_pin, 0)
                 time.sleep(right_on_time - left_on_time)
                 GPIO.output(self.right_cw_pin, 0)
-                GPIO.output(self.right_ccw_pin, 0)              
+                GPIO.output(self.right_ccw_pin, 0)    
+                
+                time.sleep(abs(1./self.frequency - right_on_time))          
     
 class VerticalMotor(object):
     
