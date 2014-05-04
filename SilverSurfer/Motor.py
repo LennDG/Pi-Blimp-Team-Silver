@@ -33,8 +33,8 @@ class MotorThread(threading.Thread, object):
         
         GPIO.setmode(GPIO.BCM)
         
-        self.left_level = 0.0
-        self.right_level = 0.0
+        self._left_level = 0.0
+        self._right_level = 0.0
         
         self.frequency = frequency
         
