@@ -29,6 +29,7 @@ class Zeppelin(threading.Thread, object):
         self.public_key = self.private_key.publickey().exportKey('PEM')
         
     def moveto(self, x, y, z):
+        print "new goal position: " + str(x) + ", " + str(y) + ", " + str(z)
         new_position = Vector(x, y)
         self.navigator.goal_height = z
         self.navigator.goal_position = new_position

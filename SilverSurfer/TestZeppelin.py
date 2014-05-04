@@ -14,10 +14,10 @@ class Zeppelin(threading.Thread, object):
         
         # I am going to supply a list of goal positions for now, this is going to change later.
         self.positions = []
-#         self.positions.append(Vector(200,-100))
-#         self.positions.append(Vector(40,-200))
-#         self.positions.append(Vector(200,200))
-#         self.positions.append(Vector(40,-200))
+        self.positions.append(Vector(200,-100))
+        self.positions.append(Vector(40,-200))
+        self.positions.append(Vector(200,-200))
+        self.positions.append(Vector(40,-200))
         
     def moveto(self, x, y, z):
         new_position = Vector(x, y)
@@ -29,17 +29,17 @@ class Zeppelin(threading.Thread, object):
         
         self.navigator.goal_height = 150
         self.navigator.distance_sensor.height = 150
+        i = 0
         
         while True:
             if self.navigator.goal_height == 0 and self.navigator.height < 20:
                 self.navigator.goal_position = 0
             
             if self.navigator.goal_position == 0:
-                pass
-#                 self.navigator.goal_position = self.positions[i]
-#                 i = (i + 1)%4
-#                 print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
-#                 
+                self.navigator.goal_position = self.positions[i]
+                i = (i + 1)%4
+                print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
+                 
                     
             #Logic for QR codes right here
             elif self.navigator.goal_reached :

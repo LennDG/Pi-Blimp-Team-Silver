@@ -121,7 +121,6 @@ class GUIConn2dot1(threading.Thread, object):
         
     def callback_private_pid_info(self,ch, method, properties, body):
         params = body.split(" ")
-        print str(params)
         for parameter in params:
             p = parameter.split("=")
             self.gui.zeppelin_database.zeppelins["zilver"][p[0]]=p[1]
