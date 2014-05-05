@@ -15,11 +15,12 @@ class ImageRecognitionClient(object):
         return IR.generate_image()
     
     def generate_QR_code(self, private_key, filename = '/run/shm/QR.jpg'):
-         #Start a timer
+        #Start a timer
         tic = time.time()
         
-        #Take picture
-        IR.take_picture(filename)
+        if filename == '/run/shm/QR.jpg':
+            #Take picture
+            IR.take_picture(filename)
         
         #Read text
         text = IR.decode_qrcode(filename,private_key)
