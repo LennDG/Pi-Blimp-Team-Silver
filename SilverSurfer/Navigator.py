@@ -2,6 +2,7 @@ from Vector import Vector
 from PID import PID
 import threading
 import time
+import math
 
 '''
 This file contains the class Navigator.
@@ -138,7 +139,7 @@ class Navigator(threading.Thread, object):
         node_difference = node_2.position - node_1.position
         
         # Calculating the angle properties
-        new_angle = node_difference.angle - image_difference.angle 
+        new_angle = node_difference.angle - image_difference.angle + math.pi
         print "angle: " + str(new_angle)
         self.angular_velocity = (new_angle - self.angle)/time_lapsed
         self.angle = new_angle
