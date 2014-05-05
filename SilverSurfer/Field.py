@@ -434,8 +434,8 @@ class Field(object):
     
     # Zou ook moeten werken.
     def match_partial_field(self, virtual_nodes, estimated_position, t):
-        
-        threshold_score = 2.5 # For now
+ 
+        threshold_score = 2.4 #2.5 # For now
         
         real_node = 0
         corresponding_virtual_node= 0
@@ -443,7 +443,7 @@ class Field(object):
         relative_direction = 0
         
         for node in virtual_nodes:
-            temp_result, temp_score, direction = self.match_node_configuration(node, estimated_position, threshold_score)
+            temp_result, temp_score, direction = self.match_node_configuration(node, estimated_position, threshold_score, t)
             if temp_score > score:
                 real_node = temp_result
                 corresponding_virtual_node = node
@@ -478,7 +478,7 @@ class Field(object):
                     print "position detection timed out."
                     return result, score, relative_direction
                 try:
-                    temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0,t, threshold)
+                    temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0, threshold, t)
                     if temp > score:
                         score = temp
                         relative_direction = x
@@ -489,7 +489,7 @@ class Field(object):
         return result, score, relative_direction
                 
     
-    def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score, t, threshold):
+    def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score, threshold, t):
         
         time_limit = 4.0
         
@@ -514,7 +514,7 @@ class Field(object):
                 check_node.add_node(new_check_node, virtual_direction)
                 if next_node == 0 or next_node.figure.color == 'x': # Als er in het echte veld geen node ligt, is deze configuratie onmogelijk.
                     return -1000.0
-                score = self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score, t, threshold)
+                score = self.match_recursively(next_node, next_node_in_partial_field, new_check_node, direction_difference, score, threshold, t)
         
         return score
     
@@ -579,13 +579,13 @@ class Field(object):
                 positions.append(vector)
                 
         for x in range(0,len(figures)):
-            if figures(x).shape == 'circle':
+            if figures[x].shape == 'circle':
                 circles.append(x)
-            elif figures(x).shape == 'star':
+            elif figures[x].shape == 'star':
                 stars.append(x)
-            elif figures(x).shape == 'heart':
+            elif figures[x].shape == 'heart':
                 hearts.append(x)
-            elif figures(x).shape == 'rectangle':
+            elif figures[x].shape == 'rectangle':
                 rectangles.append(x)
             else:
                 undefineds.append(x)
@@ -594,20 +594,20 @@ class Field(object):
         new_positions = []
         
         for x in circles:
-            new_figures.append(figures(x))
-            new_positions.append(positions(x))
+            new_figures.append(figures[x])
+            new_positions.append(positions[x])
         for x in stars:
-            new_figures.append(figures(x))
-            new_positions.append(positions(x))
+            new_figures.append(figures[x])
+            new_positions.append(positions[x])
         for x in hearts:
-            new_figures.append(figures(x))
-            new_positions.append(positions(x))
+            new_figures.append(figures[x])
+            new_positions.append(positions[x])
         for x in rectangles:
-            new_figures.append(figures(x))
-            new_positions.append(positions(x))
+            new_figures.append(figures[x])
+            new_positions.append(positions[x])
         for x in undefineds:
-            new_figures.append(figures(x))
-            new_positions.append(positions(x))
+            new_figures.append(figures[x])
+            new_positions.append(positions[x])
             
         figures = new_figures
         positions = new_positions
@@ -620,7 +620,7 @@ class Field(object):
         estimated_position = Vector(0,0) # for now, radius in method above allows this.
         
         try:
-            real_node, corresponding_virtual_node, relative_direction = self.match_partial_field(virtual_nodes, estimated_position)
+            real_node, corresponding_virtual_node, relative_direction = self.match_partial_field(virtual_nodes, estimated_position,t)
         except TypeError:
             return 0
         
