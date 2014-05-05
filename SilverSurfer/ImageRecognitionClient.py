@@ -1,7 +1,7 @@
 
 import ImageRecognition as IR
 from subprocess import call
-import time
+import time, urllib
 
 class ImageRecognitionClient(object):
     
@@ -21,6 +21,8 @@ class ImageRecognitionClient(object):
         if filename == '/run/shm/QR.jpg':
             #Take picture
             IR.take_picture(filename)
+        else:
+            filename = urllib.urlretrieve(filename)[0]
         
         #Read text
         text = IR.decode_qrcode(filename,private_key)
