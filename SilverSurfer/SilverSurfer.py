@@ -21,14 +21,14 @@ frequency = 10
 
 
 # Left motor
-cw_pin = 11
-ccw_pin = 10
+cw_pin = 17
+ccw_pin = 23
 left_motor = Motor.Motor(cw_pin, ccw_pin, 'left')
 
 
 # Right motor
-cw_pin = 23
-ccw_pin = 17
+cw_pin = 10
+ccw_pin = 11
 right_motor = Motor.Motor(cw_pin, ccw_pin, 'right')
 
 

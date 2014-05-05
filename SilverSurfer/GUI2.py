@@ -408,7 +408,7 @@ class GUI(Frame):
     def invoke_move_to(self,*args):
         coords= self.entry_input_move_to.get()
         coords_spl = coords.split(" ")
-        self.GUIconnection.move_to(coords_spl[0],coords_spl[1],coords_spl[2],self.view_state)
+        self.GUIconnection.move_to(coords_spl[0]+"0",coords_spl[1]+"0",coords_spl[2]+"0",self.view_state)
         
     def invoke_parameters(self):
         param = self.entry_input.get()

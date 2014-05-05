@@ -50,6 +50,7 @@ class DistanceSensor(object):
                 countdown_high -= 1
  
             # If we've gotten a signal
+            countdown_low = 0
             if countdown_high > 0:
                 echo_start = time.time()
         
