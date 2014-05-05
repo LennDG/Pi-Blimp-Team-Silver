@@ -186,10 +186,11 @@ def detect_targets():
     #Recognize tablets
     figures = sorted(figures, key = lambda figure:figure[4])
     culled_figures = []
-    median = figures[len(figures)/2][4]
-    for figure in figures:
-        if figure[4] <= 1.5*median:
-            culled_figures.append(figure) 
+    if len(figures) > 1:
+        median = figures[len(figures)/2][4]
+        for figure in figures:
+            if figure[4] <= 1.5*median:
+                culled_figures.append(figure) 
     return culled_figures
 
 
