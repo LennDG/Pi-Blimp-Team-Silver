@@ -86,7 +86,7 @@ class Zeppelin(threading.Thread, object):
                         '''
                         VERVANG LOCALHOST DOOR JUIST IP VAN SERVER
                         '''
-                        text = self.navigator.image_processor.generate_QR_code(self.private_key, 'localhost:5000/static/zilver'+tabletnr+'.png') 
+                        text = self.navigator.image_processor.generate_QR_code(self.private_key, filename = 'localhost:5000/static/zilver'+tabletnr+'.png') 
                     else:
                         text = self.navigator.image_processor.generate_QR_code(self.private_key)
                     
