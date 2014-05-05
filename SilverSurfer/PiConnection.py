@@ -146,8 +146,7 @@ class PiConn2dot1( threading.Thread, object):
     def send_info_motors(self,string):
         self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.private.motors', body=string)
         
-    def send_public_key_to(self,tabletnb,key):
-        self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.tablets.tablet'+str(tabletnb), body=key)
+
 
             
 class Gate2dot1(object):
@@ -258,7 +257,7 @@ class Gate2dot1(object):
     def set_BIAS(self,bias):
         self.zep.navigator.stabilizer.BIAS=bias
     def set_MAX_PID_OUTPUT(self,max_pid):
-        self.zep.navigator.stabilizer.MAX_PID_OUTPUT=kp
+        self.zep.navigator.stabilizer.MAX_PID_OUTPUT=max_pid
     def set_MAX_Ci(self,max_ci):
         self.zep.navigator.stabilizer.MAX_Ci = max_ci
     

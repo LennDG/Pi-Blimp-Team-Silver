@@ -43,6 +43,11 @@ class Zeppelin(threading.Thread, object):
         self.navigator.distance_sensor.height = 150
         self.gate.update_server()
         
+        #Start of the zeppelin.
+        tablets = {1 : (self.navigator.field.tablets[0].xcoord, self.navigator.field.tablets[0].ycoord),
+                   2 : (self.navigator.field.tablets[1].xcoord, self.navigator.field.tablets[1].ycoord),
+                   3 : (self.navigator.field.tablets[2].xcoord, self.navigator.field.tablets[2].ycoord)}
+        
         while True:
             
             self.navigator.distance_sensor.calculate_height()
@@ -57,27 +62,40 @@ class Zeppelin(threading.Thread, object):
 #                 i = (i + 1)%4
 #                 print "new goal_position: " + str(self.navigator.goal_position.xcoord) + ", "+ str(self.navigator.goal_position.ycoord)
 #                 
-                    
+            
+            
             #Logic for QR codes right here
-            elif self.navigator.goal_reached :
-                #Send Public Key to tablet
+            elif self.navigator.goal_reached:
+                self.navigator.goal_height = 0
+                tabletnr = 0
+                for i in tablets:
+                    if tablets[i] == self.navigator.goal_position:
+                        tabletnr = i
                 
-                #wait half a second
-                time.sleep(0.5)
                 
-                if self.sim_mode:
-                    text = self.navigator.image_processor.generate_QR_code(self.private_key, 'localhost:5000/static/zilver'+tabletnr+'.png')
-                else:
-                    text = self.navigator.image_processor.generate_QR_code(self.private_key)
+                if tabletnr > 0 and tabletnr < 4:
+                    #Send Public Key to tablet
+                    self.gate.PIconnection.send_public_key(self.public_key, tabletnr)
                 
-                if text == 0: 
-                    print "It's not gonna work boys."
+                     #wait half a second
+                    time.sleep(0.5)
                     
+                    if self.sim_mode:
+                        text = self.navigator.image_processor.generate_QR_code(self.private_key, 'localhost:5000/static/zilver'+tabletnr+'.png')
+                    else:
+                        text = self.navigator.image_processor.generate_QR_code(self.private_key)
+                    
+                    
+                    if text == 0: 
+                        print "No QR code found"
+                    else:
+                        text = text.split(':')
+                        if text[0] == 'tablet':
+                            self.moveto(tablets[text[1]][0], tablets[text[1]][1], 150)
+                        elif text[0] == 'position':
+                            pos = text[1].split(',')
+                            self.moveto(pos[0], pos[1], 150)
                 else:
-                    print text
-                
-                #Decrypt text
-                
-                #Use moveto function to update in navigator
+                    pass
             else:
-                time.sleep(1)
+                time.sleep(0.5)
