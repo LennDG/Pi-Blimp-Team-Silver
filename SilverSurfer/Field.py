@@ -489,11 +489,11 @@ class Field(object):
         time_limit = 0.5
         
         score = score + self.assign_score(current_node, node_in_structure)
-        if score > threshold:
+        if score > threshold or score < 0:
             return score
         for x in range(0, 6):
             virtual_direction = (x + direction_difference)%6
-            if score > threshold:
+            if score > threshold or score < 0:
                 return score
             
             if  check_node.neighbours[virtual_direction] == 0 and node_in_structure.neighbours[virtual_direction] != 0:
@@ -522,7 +522,7 @@ class Field(object):
             else:
                 score = score + 0.5
         elif real_color == 'red' or real_color == 'yellow' or real_color == 'white' or real_color == 'blue' or (real_color == 'green' and virtual_color != 'blue'):
-            score = score -1.0
+            score = score -10.0
             
         # add score based on shape
         real_shape = real_node.figure.shape
@@ -544,6 +544,13 @@ class Field(object):
         positions = []
         figures = []
         
+        # lists for indices.
+        circles = []
+        stars = []
+        hearts = []
+        rectangles = []
+        undefineds = []
+        
         for image in figure_images:
             figure = Figure(image[0], image[1])
             vector = Vector(image[2], image[3])
@@ -559,6 +566,40 @@ class Field(object):
                
                 figures.append(figure)
                 positions.append(vector)
+                
+        for x in range(0,len(figures)):
+            if figures(x).shape == 'circle':
+                circles.append(x)
+            elif figures(x).shape == 'star':
+                stars.append(x)
+            elif figures(x).shape == 'heart':
+                hearts.append(x)
+            elif figures(x).shape == 'rectangle':
+                rectangles.append(x)
+            else:
+                undefineds.append(x)
+        
+        new_figures = []
+        new_positions = []
+        
+        for x in circles:
+            new_figures.append(figures(x))
+            new_positions.append(positions(x))
+        for x in stars:
+            new_figures.append(figures(x))
+            new_positions.append(positions(x))
+        for x in hearts:
+            new_figures.append(figures(x))
+            new_positions.append(positions(x))
+        for x in rectangles:
+            new_figures.append(figures(x))
+            new_positions.append(positions(x))
+        for x in undefineds:
+            new_figures.append(figures(x))
+            new_positions.append(positions(x))
+            
+        figures = new_figures
+        positions = new_positions
             
         virtual_nodes = self.define_structure(figures, positions)
         
