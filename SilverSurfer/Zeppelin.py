@@ -44,10 +44,11 @@ class Zeppelin(threading.Thread, object):
         self.gate.update_server()
         
         #Start of the zeppelin.
-        tablets = {1 : (self.navigator.field.tablets[0].xcoord, self.navigator.field.tablets[0].ycoord),
-                   2 : (self.navigator.field.tablets[1].xcoord, self.navigator.field.tablets[1].ycoord),
-                   3 : (self.navigator.field.tablets[2].xcoord, self.navigator.field.tablets[2].ycoord)}
-        
+        tablets = {}
+        i = 0
+        for tablet in self.navigator.field.tablets:
+            tablets[i] = (tablet.xcoord, tablet.ycoord)
+
         while True:
             
             self.navigator.distance_sensor.calculate_height()
@@ -77,7 +78,7 @@ class Zeppelin(threading.Thread, object):
                     #Send Public Key to tablet
                     self.gate.PIconnection.send_public_key(self.public_key, tabletnr)
                 
-                     #wait half a second
+                    #wait half a second
                     time.sleep(0.5)
                     
                     if self.sim_mode:
