@@ -12,7 +12,7 @@ from MotorSimulator import MotorSimulator
 from DistanceCalculator import DistanceCalculator
 from OpenCVSimulator import OpenCVSimulator
 from CSVParser import CSVParser
-from Field import Field
+from SimulatorField import Field
 
 
 """ Motors """
