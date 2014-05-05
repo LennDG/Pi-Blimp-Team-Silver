@@ -50,10 +50,10 @@ class Zeppelin(threading.Thread, object):
         tablets = {}
         i = 0
         for tablet in self.navigator.field.tablets:
-            tablets[i] = (tablet.xcoord, tablet.ycoord)
+            tablets[i] = (tablet.xcoord/10, tablet.ycoord/10)
 
         while True:
-            self.gate.update_server()
+
             self.navigator.distance_sensor.calculate_height()
             self.navigator.stabilizer.stabilize()
             
@@ -102,4 +102,4 @@ class Zeppelin(threading.Thread, object):
                 else:
                     pass
             else:
-                time.sleep(0.5)
+                pass

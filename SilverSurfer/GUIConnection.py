@@ -39,7 +39,7 @@ class GUIConn2dot1(threading.Thread, object):
                 
     def initialization_sender(self):
         self.connection_sender = pika.BlockingConnection( self.parameters)
-        self.channel_sender = self.connection_sender.channel(channel_number=4)
+        self.channel_sender = self.connection_sender.channel(channel_number=6)
         self.channel_sender.exchange_declare(exchange='server', type='topic')
                 
     def initialization_consumer(self):
@@ -47,7 +47,7 @@ class GUIConn2dot1(threading.Thread, object):
         
         #Make channel_consumer
         self.connection_consumer = pika.BlockingConnection( self.parameters)
-        self.channel_consumer = self.connection_consumer.channel(channel_number=3)
+        self.channel_consumer = self.connection_consumer.channel(channel_number=5)
         self.channel_consumer.exchange_declare(exchange='server', type='topic')
 
         #Create queues
