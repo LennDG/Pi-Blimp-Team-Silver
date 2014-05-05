@@ -5,7 +5,7 @@ from Vector import Vector
 class Zeppelin(threading.Thread, object):
        
        
-    def __init__(self, navigator,name):
+    def __init__(self, navigator,name,sim_mode):
         
         threading.Thread.__init__(self)
         

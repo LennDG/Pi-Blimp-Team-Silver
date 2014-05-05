@@ -78,7 +78,7 @@ navigator.start()
 """ Zeppelin """
 
 name = "zilver_simulator"
-zeppelin = Zeppelin(navigator,name, True)
+zeppelin = Zeppelin(navigator,name,True)
 zeppelin.start()
 
 print "Simulator is up and running, baby."
