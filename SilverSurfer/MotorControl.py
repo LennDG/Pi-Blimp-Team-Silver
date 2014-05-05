@@ -32,7 +32,7 @@ class MotorControl():
         # Create a vector pointing in the direction the zeppelin should move, with norm the acceleration.
         # The positive y-axis in the direction of the right motor, the positive x-axis
         # in the direction of the left motor..
-        direction = Vector(0, acceleration).turn(angle - pi/4)     
+        direction = Vector(acceleration, 0).turn(angle + pi/4)     
         
         # Correct the vector for differences in orientations. Depends on the value of the factor.
         # Always make sure the resizing results in smaller values, as values exceeding 100 can distort the
@@ -45,8 +45,8 @@ class MotorControl():
         if direction.xcoord > 0:
             direction.xcoord = direction.xcoord*MotorControl.FORWARD_SCALING
             
-        self.left_motor.level = direction.xcoord
-        self.right_motor.level = direction.ycoord
+        self.right_motor.level = direction.xcoord
+        self.left_motor.level = direction.ycoord
             
             
     def stop(self):#Maybe needs to spin engines in other directions based on speed. For now, just disable them
