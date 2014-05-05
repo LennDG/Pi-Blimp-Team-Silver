@@ -2,6 +2,7 @@
 import ImageRecognition as IR
 from subprocess import call
 import time, urllib
+from PIL import Image
 
 class ImageRecognitionClient(object):
     
@@ -25,9 +26,11 @@ class ImageRecognitionClient(object):
             time.sleep(2)
             try:
                 filename = urllib.urlretrieve(filename)[0]
+                test = Image.open(filename)
             except Exception:
+                print 'There was no QR code for the simulator, trying again!'
                 #If there is an error, try again after 1 second
-                time.sleep(1)
+                time.sleep(2)
                 filename = urllib.urlretrieve(filename)[0]
         
         #Read text
