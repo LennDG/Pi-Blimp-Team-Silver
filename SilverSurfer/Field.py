@@ -433,7 +433,7 @@ class Field(object):
                 
     
     # Zou ook moeten werken.
-    def match_partial_field(self, virtual_nodes, estimated_position):
+    def match_partial_field(self, virtual_nodes, estimated_position, t):
         
         threshold_score = 2.5 # For now
         
@@ -458,7 +458,7 @@ class Field(object):
             
             
                 
-    def match_node_configuration(self, node_in_structure, estimated_position, threshold):
+    def match_node_configuration(self, node_in_structure, estimated_position, threshold, t):
         
         # First, search all nodes in the field that match the given node.
         initials = self.search_field(node_in_structure.figure)
@@ -469,9 +469,14 @@ class Field(object):
                 
         # now start the matching
         for initial in initials:
+            if time.time() - t > 4.0:
+                print "position detection timed out."
+                return result, score, relative_direction
             
-            t = time.time()
             for x in range(0,6):
+                if time.time() - t > 4.0:
+                    print "position detection timed out."
+                    return result, score, relative_direction
                 try:
                     temp = self.match_recursively(initial, node_in_structure, Node(initial.figure), x, 0,t, threshold)
                     if temp > score:
@@ -486,13 +491,19 @@ class Field(object):
     
     def match_recursively(self, current_node, node_in_structure, check_node, direction_difference, score, t, threshold):
         
-        time_limit = 0.5
+        time_limit = 4.0
         
         score = score + self.assign_score(current_node, node_in_structure)
+        if time.time() - t > 4.0:
+            print "position detection timed out."
+            return score
         if score > threshold or score < 0:
             return score
         for x in range(0, 6):
             virtual_direction = (x + direction_difference)%6
+            if time.time() - t > 4.0:
+                print "position detection timed out."
+                return score
             if score > threshold or score < 0:
                 return score
             
