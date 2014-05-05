@@ -11,6 +11,8 @@ class Zeppelin(threading.Thread, object):
         
         threading.Thread.__init__(self)
         
+        self.host = '192.168.2.134'
+        
         # Assign the navigator object
         self.navigator = navigator
         
@@ -86,7 +88,7 @@ class Zeppelin(threading.Thread, object):
                         '''
                         VERVANG LOCALHOST DOOR JUIST IP VAN SERVER
                         '''
-                        text = self.navigator.image_processor.generate_QR_code(self.private_key, filename = 'localhost:5000/static/zilver'+tabletnr+'.png') 
+                        text = self.navigator.image_processor.generate_QR_code(self.private_key, filename = self.host+':5000/static/zilver'+tabletnr+'.png') 
                     else:
                         text = self.navigator.image_processor.generate_QR_code(self.private_key)
                     
