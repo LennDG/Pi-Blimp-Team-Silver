@@ -435,7 +435,7 @@ class Field(object):
     # Zou ook moeten werken.
     def match_partial_field(self, virtual_nodes, estimated_position, t):
  
-        threshold_score = 2.5 # For now
+        threshold_score = 2.4 #2.5 # For now
         
         real_node = 0
         corresponding_virtual_node= 0
@@ -568,15 +568,8 @@ class Field(object):
             
             # Withhold figures with y-values of 494 onwards, something wrong with the camera.
             # Make shapes on the edges undefined, as they don't provide information.
-                
-            if vector.ycoord > 494.0:
-                pass
-            else:
-                if vector.xcoord > 500-22 or vector.xcoord < 22 or vector.ycoord > 500-22 or vector.ycoord < 22:
-                    figure.shape = 'undefined'
-               
-                figures.append(figure)
-                positions.append(vector)
+            figures.append(figure)
+            positions.append(vector)
                 
         for x in range(0,len(figures)):
             if figures[x].shape == 'circle':
