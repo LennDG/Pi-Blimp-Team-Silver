@@ -42,7 +42,7 @@ class Zeppelin(threading.Thread, object):
         
         self.navigator.goal_height = 150
         self.navigator.distance_sensor.height = 150
-        self.gate.update_server()
+        
         
         #Start of the zeppelin.
         tablets = {}
@@ -51,7 +51,7 @@ class Zeppelin(threading.Thread, object):
             tablets[i] = (tablet.xcoord, tablet.ycoord)
 
         while True:
-            
+            self.gate.update_server()
             self.navigator.distance_sensor.calculate_height()
             self.navigator.stabilizer.stabilize()
             
