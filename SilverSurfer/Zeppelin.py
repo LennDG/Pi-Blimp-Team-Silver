@@ -80,14 +80,8 @@ class Zeppelin(threading.Thread, object):
                 if tabletnr > 0 and tabletnr < 4:
                     #Send Public Key to tablet
                     self.gate.PIconnection.send_public_key(self.public_key, tabletnr)
-                
-                    #wait half a second
-                    time.sleep(0.5)
-                    
                     if self.sim_mode:
-                        '''
-                        VERVANG LOCALHOST DOOR JUIST IP VAN SERVER
-                        '''
+
                         text = self.navigator.image_processor.generate_QR_code(self.private_key, filename = self.host+':5000/static/zilver'+tabletnr+'.png') 
                     else:
                         text = self.navigator.image_processor.generate_QR_code(self.private_key)
