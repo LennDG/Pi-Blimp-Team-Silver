@@ -87,6 +87,6 @@ image_processor.navigator = navigator
 """ Zeppelin """
 
 name='zilver'
-zeppelin = Zeppelin(navigator,name)
+zeppelin = Zeppelin(navigator,name, False)
 zeppelin.start()
 

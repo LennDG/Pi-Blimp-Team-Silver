@@ -7,12 +7,14 @@ from Crypto.PublicKey import RSA
 class Zeppelin(threading.Thread, object):
        
        
-    def __init__(self, navigator,name):
+    def __init__(self, navigator,name, sim_mode):
         
         threading.Thread.__init__(self)
         
         # Assign the navigator object
         self.navigator = navigator
+        
+        self.sim_mode = sim_mode
         
         # I am going to supply a list of goal positions for now, this is going to change later.
         self.positions = []
@@ -63,8 +65,10 @@ class Zeppelin(threading.Thread, object):
                 #wait half a second
                 time.sleep(0.5)
                 
-                
-                text = self.navigator.image_processor.generate_QR_code(self.private_key)
+                if self.sim_mode:
+                    text = self.navigator.image_processor.generate_QR_code(self.private_key, 'localhost:5000/static/zilver'+tabletnr+'.png')
+                else:
+                    text = self.navigator.image_processor.generate_QR_code(self.private_key)
                 
                 if text == 0: 
                     print "It's not gonna work boys."
