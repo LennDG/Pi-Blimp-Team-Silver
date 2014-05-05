@@ -66,7 +66,7 @@ class Zeppelin(threading.Thread, object):
             
             #Logic for QR codes right here
             elif self.navigator.goal_reached:
-                self.navigator.goal_height = 0
+                self.navigator.goal_height = 70
                 tabletnr = 0
                 for i in tablets:
                     if tablets[i] == self.navigator.goal_position:
@@ -86,7 +86,8 @@ class Zeppelin(threading.Thread, object):
                         text = self.navigator.image_processor.generate_QR_code(self.private_key)
                     
                     
-                    if text == 0: 
+                    if text == 0:
+                        self.navigator.goal_height = 150
                         print "No QR code found"
                     else:
                         text = text.split(':')
@@ -95,6 +96,8 @@ class Zeppelin(threading.Thread, object):
                         elif text[0] == 'position':
                             pos = text[1].split(',')
                             self.moveto(pos[0], pos[1], 150)
+                elif tabletnr == 0:
+                    self.navigator.goal_height = 0
                 else:
                     pass
             else:
