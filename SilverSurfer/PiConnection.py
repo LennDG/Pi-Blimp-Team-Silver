@@ -194,8 +194,8 @@ class Gate2dot1(object):
             m2 = self.zep.navigator.motor_control.right_motor.level
             m3 = self.zep.navigator.motor_control.vert_motor.level
             self.PIconnection.send_info_motors(str(m1)+" "+str(m2)+" "+str(m3))
-            message = ("Ci="+str(self.zep.navigator.stabilizer.Ci)
-                       +" Cd=" +str(self.zep.navigator.stabilizer.Cd)
+            message = ("Ci="+str(round(self.zep.navigator.stabilizer.Ci,2))
+                       +" Cd=" +str(round(self.zep.navigator.stabilizer.Cd,2))
                        +" Kp=" +str(self.zep.navigator.stabilizer.Kp)
                        +" Kd=" +str(self.zep.navigator.stabilizer.Kd)
                        +" Ki=" +str(self.zep.navigator.stabilizer.Ki)
@@ -214,19 +214,19 @@ class Gate2dot1(object):
     def move_to(self,request):
         com_and_coords = request.split(":")
         coords = com_and_coords[1].split(" ")
-        self.zep.moveto(int(coords[0]),int(coords[1]),int(coords[2]))
+        self.zep.moveto(int(int(coords[0])/10),int(int(coords[1])/10),int(int(coords[2])/10))
      
         return "moving"
     
     def elevate(self,z):
         if(self.zep.navigator.goal_position == 0):
-            self.zep.moveto(self.zep.navigator.position.xcoord,self.zep.navigator.position.ycoord,int(z))
+            self.zep.moveto(self.zep.navigator.position.xcoord,self.zep.navigator.position.ycoord,int(int(z)/10))
         else:
-            self.zep.moveto(self.zep.navigator.goal_position.xcoord,self.zep.navigator.goal_position.ycoord,int(z))
+            self.zep.moveto(self.zep.navigator.goal_position.xcoord,self.zep.navigator.goal_position.ycoord,int(int(z)/10))
             
     def move_to_horizontal(self,pos):
         coord = pos.split(",")
-        self.zep.moveto(int(coord[0]),int(coord[1]),self.zep.navigator.goal_height)
+        self.zep.moveto(int(int(coord[0])/10),int(int(coord[1])/10),self.zep.navigator.goal_height)
         
     def set_motor1(self,string):
         a = (int(float(string)))
