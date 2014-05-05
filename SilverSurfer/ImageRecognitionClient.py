@@ -22,14 +22,20 @@ class ImageRecognitionClient(object):
             #Take picture
             IR.take_picture(filename)
         else:
-            filename = urllib.urlretrieve(filename)[0]
+            time.sleep(2)
+            try:
+                filename = urllib.urlretrieve(filename)[0]
+            except Exception:
+                #If there is an error, try again after 1 second
+                time.sleep(1)
+                filename = urllib.urlretrieve(filename)[0]
         
         #Read text
         text = IR.decode_qrcode(filename,private_key)
         
         #Keep trying to take picture for 5 seconds if it is not found
         while text is None:
-            time.sleep(0.8)
+            time.sleep(0.3)
             IR.take_picture(filename)
             text = IR.decode_qrcode(filename, private_key)
             if time.time() - tic > 5:
