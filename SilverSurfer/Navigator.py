@@ -199,6 +199,7 @@ class Navigator(threading.Thread, object):
         # The angle with which the zeppelin moves is the angle the acceleration makes with the x-axis
         # added to the angle the front of the zeppelin makes with the x-axis.
         self.motor_control.move(acceleration.angle - self.angle, acceleration.norm)
+        print 'zeppelin angle: ' + str(self.angle)
     
   
     """

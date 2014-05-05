@@ -44,7 +44,9 @@ class MotorControl():
             direction.ycoord = direction.ycoord*MotorControl.FORWARD_SCALING
         if direction.xcoord > 0:
             direction.xcoord = direction.xcoord*MotorControl.FORWARD_SCALING
-            
+        
+        print 'right motor: ' + str(direction.xcoord)
+        print 'left motor: ' + str(direction.ycoord)   
         self.right_motor.level = direction.xcoord
         self.left_motor.level = direction.ycoord
             

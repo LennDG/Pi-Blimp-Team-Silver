@@ -15,6 +15,7 @@ class MotorSimulator(object):
     
     @level.setter
     def level(self, value): #This sets the level of the motor
+        
         if value > 100.0:
             value = 100.0
         elif value < -100.0:

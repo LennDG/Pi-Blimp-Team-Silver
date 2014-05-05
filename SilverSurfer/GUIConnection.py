@@ -14,6 +14,7 @@ class GUIConn2dot1(threading.Thread, object):
         not_established = True
         while(not_established):
             try:
+                print "make connection"
                 self.initialization_consumer()
                 self.initialization_sender()
                 not_established = False
@@ -192,8 +193,8 @@ class GUIConn2dot1(threading.Thread, object):
         coor = body.split(',')
         
         if self.gui.zeppelin_database.zeppelins.has_key(zeppelin):
-            self.gui.zeppelin_database.zeppelins[zeppelin]['x'] = int(float(coor[0])/10)
-            self.gui.zeppelin_database.zeppelins[zeppelin]['y'] = int(float(coor[1])/10)
+            self.gui.zeppelin_database.zeppelins[zeppelin]['x'] = int(float(coor[0])/10.0)
+            self.gui.zeppelin_database.zeppelins[zeppelin]['y'] = int(float(coor[1])/10.0)
         else:
             self.gui.zeppelin_database.addZeppelin(zeppelin)
         
