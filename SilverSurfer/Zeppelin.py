@@ -50,8 +50,9 @@ class Zeppelin(threading.Thread, object):
         tablets = {}
         i = 0
         for tablet in self.navigator.field.tablets:
-            tablets[i] = (tablet.xcoord/10, tablet.ycoord/10)
-
+            tablets[i] = (int(tablet.xcoord), int(tablet.ycoord))
+            i += 1
+            
         while True:
 
             self.navigator.distance_sensor.calculate_height()
@@ -70,19 +71,23 @@ class Zeppelin(threading.Thread, object):
             
             #Logic for QR codes right here
             elif self.navigator.goal_reached:
+                print "FIX QR"
                 self.navigator.goal_height = 70
                 tabletnr = 0
                 for i in tablets:
-                    if tablets[i] == self.navigator.goal_position:
-                        tabletnr = i
+                    print "TABLET I"
+                    print tablets[i]
+                    print (int(self.navigator.goal_position.xcoord),int(self.navigator.goal_position.ycoord))
+                    if tablets[i] == (int(self.navigator.goal_position.xcoord),int(self.navigator.goal_position.ycoord)):
+                        tabletnr = i + 1
                 
                 
                 if tabletnr > 0 and tabletnr < 4:
-                    #Send Public Key to tablet
+                    print "Send Public Key to tablet"
                     self.gate.PIconnection.send_public_key(self.public_key, tabletnr)
                     if self.sim_mode:
 
-                        text = self.navigator.image_processor.generate_QR_code(self.private_key, filename = self.host+':5000/static/zilver'+tabletnr+'.png') 
+                        text = self.navigator.image_processor.generate_QR_code(self.private_key, filename ='http://'+ self.host+':5000/static/zilver'+str(tabletnr)+'.png') 
                     else:
                         text = self.navigator.image_processor.generate_QR_code(self.private_key)
                     
@@ -93,7 +98,7 @@ class Zeppelin(threading.Thread, object):
                     else:
                         text = text.split(':')
                         if text[0] == 'tablet':
-                            self.moveto(tablets[text[1]][0], tablets[text[1]][1], 150)
+                            self.moveto(tablets[int(text[1])-1][0], tablets[int(text[1])-1][1], 150)
                         elif text[0] == 'position':
                             pos = text[1].split(',')
                             self.moveto(pos[0], pos[1], 150)

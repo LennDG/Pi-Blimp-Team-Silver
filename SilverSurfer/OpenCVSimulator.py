@@ -1,4 +1,7 @@
 from Vector import Vector
+import urllib
+from PIL import Image
+import ImageRecognition as IR
 from math import pi
 import random
 import time
@@ -126,8 +129,20 @@ class OpenCVSimulator(object):
         images.append(image_3)
         return images, zeppelin_image, time_stamp
     
-    def generate_QR_code(self):
-        return "something" # to be implemented
+    def generate_QR_code(self,private_key,filename):
+        time.sleep(2)
+        try:
+            filename = urllib.urlretrieve( filename)[0]
+            test = Image.open(filename)
+        except Exception:
+            print "NO QR-code for simulator: try again..."
+            time.sleep(2)
+            filename = urllib.urlretrieve( filename)[0]
+        text = IR.decode_qrcode(filename,private_key)
+        
+        return text
+        
+        
     
     def simulate_angular_velocity(self):
         return self.navigator.angular_velocity + self.ANGULAR_INSTABILITY*random.gauss(0,1)

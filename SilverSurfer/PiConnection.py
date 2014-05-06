@@ -13,8 +13,8 @@ class PiConn2dot1( threading.Thread, object):
         
         
         credentials = pika.PlainCredentials('zilver', 'zilver')
-        self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
-#        self.parameters = pika.ConnectionParameters(host = 'localhost')
+#        self.parameters = pika.ConnectionParameters(host = 'localhost', port = 5673, credentials= credentials)
+        self.parameters = pika.ConnectionParameters(host = '192.168.2.134',credentials= credentials)
         
         not_established = True
         while(not_established):
@@ -125,6 +125,7 @@ class PiConn2dot1( threading.Thread, object):
         self.gate.move_to_horizontal(body) 
         
     def send_public_key(self,key,tabletnr):  
+        print "SENDING KEY"
         self.channel_sender.basic_publish(exchange='server', routing_key=self.zep_name+'.tablets.tablet'+str(tabletnr), body=key)
         
     def send_message_to_gui(self,message):

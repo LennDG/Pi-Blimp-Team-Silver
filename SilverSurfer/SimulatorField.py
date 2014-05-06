@@ -192,9 +192,11 @@ class Field(object):
         
         # Tablets
         for x in range (number_of_rows, len(parsed_csv_file)):
+            print parsed_csv_file
             tablet = Vector(float(parsed_csv_file[x][0])/10.0, float(parsed_csv_file[x][1])/10.0)
+            print tablet.xcoord
             self.tablets.append(tablet)
-    
+        print len(self.tablets)
     
     """
     This auxiliairy method will return the outer node of the row the given node lies in, 
